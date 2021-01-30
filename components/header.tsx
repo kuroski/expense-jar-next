@@ -1,6 +1,7 @@
 import React, { FC } from 'react'
 import Link from 'next/link'
 import { useSession, signIn } from 'next-auth/client'
+import { Pane } from 'evergreen-ui'
 import User from './user'
 
 const handleLogin = (e) => {
@@ -17,7 +18,7 @@ const Header: FC = () => {
   // }
 
   return (
-    <div className="header">
+    <Pane display="flex" padding={16} background="tint2" borderRadius={3}>
       <Link href="/">
         <a className="title">Home</a>
       </Link>
@@ -30,7 +31,7 @@ const Header: FC = () => {
           </a>
         )}
       </div>
-    </div>
+    </Pane>
   )
 }
 

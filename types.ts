@@ -3,6 +3,7 @@ import { NextApiRequest } from 'next'
 import 'next-auth'
 
 export interface Subscription {
+  id: string
   name: string
 }
 
