@@ -1,6 +1,6 @@
 import NextAuth, { InitOptions } from 'next-auth'
 import Providers from 'next-auth/providers'
-import { connectToDB } from '../../../db'
+// import { connectToDB } from '../../../db'
 
 const options: InitOptions = {
   session: {
@@ -22,7 +22,7 @@ const options: InitOptions = {
       return session
     },
     async jwt(tokenPayload, user, account, profile, isNewUser) {
-      const { db } = await connectToDB()
+      // const { db } = await connectToDB()
 
       if (isNewUser) {
         console.log('new user, pre-create things!')

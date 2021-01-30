@@ -1,8 +1,6 @@
-import React, { FC, useState } from 'react'
+import React, { FC } from 'react'
 import { Dialog } from 'evergreen-ui'
-import { useSession, signIn, getSession } from 'next-auth/client'
-import { UserSession } from '../types'
-import { connectToDB, subscription } from '../db'
+import { useSession, signIn } from 'next-auth/client'
 
 const App: FC<{ subscriptions?: any[] }> = ({ subscriptions }) => {
   // hooks
@@ -33,24 +31,6 @@ const App: FC<{ subscriptions?: any[] }> = ({ subscriptions }) => {
       <div>Hello world!</div>
     </div>
   )
-}
-
-export async function getServerSideProps(context) {
-  const session: { user: UserSession } = await getSession(context)
-  console.log(session)
-  // not signed in
-  if (!session || !session.user) {
-    return { props: {} }
-  }
-
-  const props: any = { session }
-  const { db } = await connectToDB()
-  const subscriptions = await subscription.getSubscriptions(db, session.user.id)
-  props.subscriptions = subscriptions
-
-  return {
-    props,
-  }
 }
 
 export default App

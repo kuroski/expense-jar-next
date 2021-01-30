@@ -1,5 +1,6 @@
 import { Db, MongoClient } from 'mongodb'
-import { NextApiRequest, NextApiResponse } from 'next'
+import { NextApiRequest } from 'next'
+import 'next-auth'
 
 export interface Subscription {
   name: string
@@ -7,13 +8,19 @@ export interface Subscription {
 
 export interface UserSession {
   id: string
-  image: string
-  email: string
-  name: string
+  image?: string
+  email?: string
+  name?: string
 }
 
 export interface Request extends NextApiRequest {
   db: Db
   dbClient: MongoClient
   user: { email: string; id: string }
+}
+
+declare module 'next-auth' {
+  export interface User {
+    id: string
+  }
 }
