@@ -5,7 +5,7 @@ import { UserSession } from '../types'
 
 const User: FC<{ user: UserSession }> = ({ user }) => {
   return (
-    <Pane position="fixed" top={20} right={20}>
+    <Pane>
       <Popover
         position={Position.BOTTOM_LEFT}
         content={
@@ -29,14 +29,14 @@ const User: FC<{ user: UserSession }> = ({ user }) => {
         }
       >
         <Pane
-          elevation={3}
+          elevation={2}
           background="white"
           borderRadius="100%"
           display="flex"
           alignItems="center"
           justifyContent="center"
         >
-          <Avatar src={user.image} size={48} cursor="pointer" />
+          <Avatar src={user.image} size={28} cursor="pointer" />
         </Pane>
       </Popover>
     </Pane>

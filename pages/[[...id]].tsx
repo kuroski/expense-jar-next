@@ -1,12 +1,32 @@
 import React, { FC, useState } from 'react'
-import { Button, Dialog, TextInput } from 'evergreen-ui'
-import { useSession, signIn, getSession } from 'next-auth/client'
+import { Button, Pane, TextInput, Heading, Text, Icon, AirplaneIcon } from 'evergreen-ui'
+import { getSession } from 'next-auth/client'
 import { Subscription, UserSession } from '../types'
 import { connectToDB, subscription } from '../db'
 
+const SubscriptionItem: FC<Subscription> = (item) => {
+  return (
+    <Pane
+      elevation={1}
+      float="left"
+      width={200}
+      height={120}
+      margin={24}
+      display="flex"
+      justifyContent="center"
+      alignItems="center"
+      flexDirection="column"
+    >
+      <Icon icon={AirplaneIcon} />
+      <Heading size={600}>{item.name}</Heading>
+      <Text>R$ 100,00</Text>
+      <Text>5 days</Text>
+    </Pane>
+  )
+}
+
 const App: FC<{ subscriptions: Subscription[] }> = ({ subscriptions }) => {
   // hooks
-  const [session, loading] = useSession()
   const [name, setName] = useState('')
   const [allSubscriptions, setSubscriptions] = useState(subscriptions || [])
 
@@ -23,29 +43,8 @@ const App: FC<{ subscriptions: Subscription[] }> = ({ subscriptions }) => {
     setSubscriptions((state) => [...state, data])
   }
 
-  if (!session && !loading) {
-    return (
-      <Dialog
-        isShown
-        title="Session expired"
-        confirmLabel="Ok"
-        hasCancel={false}
-        hasClose={false}
-        shouldCloseOnOverlayClick={false}
-        shouldCloseOnEscapePress={false}
-        onConfirm={() => signIn('github')}
-      >
-        Sign in to continue
-      </Dialog>
-    )
-  }
-
-  if (loading) return <div>Loading...</div>
-
   return (
     <div>
-      <div>{JSON.stringify(allSubscriptions)}</div>
-
       <div>
         <TextInput
           name="text-input-name"
@@ -56,6 +55,7 @@ const App: FC<{ subscriptions: Subscription[] }> = ({ subscriptions }) => {
 
         <Button onClick={saveSubscription}>Save</Button>
       </div>
+      {allSubscriptions.map((element) => SubscriptionItem(element))}
     </div>
   )
 }
