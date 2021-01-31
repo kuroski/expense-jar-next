@@ -1,3 +1,4 @@
+import '../styles/globals.css'
 import 'reflect-metadata'
 import React, { FC } from 'react'
 import type { AppProps } from 'next/app'

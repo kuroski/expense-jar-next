@@ -36,7 +36,7 @@ const User: FC<{ user: UserSession }> = ({ user }) => {
           alignItems="center"
           justifyContent="center"
         >
-          <Avatar src={user.image} size={28} cursor="pointer" />
+          <Avatar src={user.image || ''} size={28} cursor="pointer" />
         </Pane>
       </Popover>
     </Pane>
