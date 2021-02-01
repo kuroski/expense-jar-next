@@ -1,6 +1,6 @@
 import React, { FC, useState } from 'react'
-import { Button, TextInput } from 'evergreen-ui'
 import { useRouter } from 'next/router'
+import { Button, Input } from '@chakra-ui/react'
 
 const NewSubscription: FC = () => {
   const [name, setName] = useState('')
@@ -22,7 +22,7 @@ const NewSubscription: FC = () => {
 
   return (
     <div>
-      <TextInput
+      <Input
         name="text-input-name"
         placeholder="Text input placeholder..."
         value={name}

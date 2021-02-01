@@ -1,7 +1,8 @@
 import React, { FC, useState } from 'react'
-import { IconButton, Pane, AddIcon } from 'evergreen-ui'
 import { getSession } from 'next-auth/client'
 import Link from 'next/link'
+import { Box, Flex, IconButton, SimpleGrid } from '@chakra-ui/react'
+import { AddIcon } from '@chakra-ui/icons'
 import * as types from '../types'
 import { connectToDB, subscription } from '../db'
 import Subscription from '../components/subscription'
@@ -10,21 +11,21 @@ const App: FC<{ subscriptions: types.Subscription[] }> = ({ subscriptions }) => 
   const [allSubscriptions] = useState(subscriptions || [])
 
   return (
-    <Pane marginTop={4}>
-      <Pane display="flex" justifyContent="flex-end">
+    <Box mt={4}>
+      <Flex justify="flex-end">
         <Link href="/subscriptions/new">
           <a>
-            <IconButton appearance="minimal" icon={AddIcon} />
+            <IconButton aria-label="Add new subscription" icon={<AddIcon />} />
           </a>
         </Link>
-      </Pane>
+      </Flex>
 
-      <Pane display="grid" gridTemplateColumns="repeat(auto-fill, minmax(180px, 1fr))" gap="1rem">
+      <SimpleGrid minChildWidth="170px" spacing={6} mt={4}>
         {allSubscriptions.map((element) => (
           <Subscription {...element} key={element.name} />
         ))}
-      </Pane>
-    </Pane>
+      </SimpleGrid>
+    </Box>
   )
 }
 

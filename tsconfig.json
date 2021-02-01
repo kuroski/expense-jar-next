@@ -21,6 +21,7 @@
   "include": [
     "next-env.d.ts",
     "types.d.ts",
+    "enable-svg.d.ts",
     "**/*.ts",
     "**/*.tsx"
   ],
