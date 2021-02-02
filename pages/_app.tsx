@@ -16,6 +16,7 @@ import {
   ModalOverlay,
   Spinner,
 } from '@chakra-ui/react'
+import { motion } from 'framer-motion'
 import Header from '../components/header'
 
 const Content: FC<AppProps> = ({ Component, pageProps }) => {
@@ -54,10 +55,12 @@ export default function App(props: AppProps) {
   return (
     <Provider session={props.pageProps.session}>
       <ChakraProvider>
-        <Container py={4}>
-          <Header />
-          <Content {...props} />
-        </Container>
+        <motion.div key={props.router.route} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+          <Container py={4}>
+            <Header />
+            <Content {...props} />
+          </Container>
+        </motion.div>
       </ChakraProvider>
     </Provider>
   )

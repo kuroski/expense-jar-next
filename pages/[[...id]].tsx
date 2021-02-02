@@ -3,12 +3,29 @@ import { getSession } from 'next-auth/client'
 import Link from 'next/link'
 import { Box, Flex, IconButton, SimpleGrid } from '@chakra-ui/react'
 import { AddIcon } from '@chakra-ui/icons'
-import * as types from '../types'
+import { AnimatePresence, motion } from 'framer-motion'
+import type { Variants } from 'framer-motion'
 import { connectToDB, subscription } from '../db'
+import type * as types from '../types'
 import Subscription from '../components/subscription'
 
 const App: FC<{ subscriptions: types.Subscription[] }> = ({ subscriptions }) => {
   const [allSubscriptions] = useState(subscriptions || [])
+
+  const container: Variants = {
+    hidden: { opacity: 0 },
+    show: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.2,
+      },
+    },
+  }
+
+  const item: Variants = {
+    hidden: { opacity: 0, scale: 0.8 },
+    show: { opacity: 1, scale: 1 },
+  }
 
   return (
     <Box mt={4}>
@@ -20,11 +37,21 @@ const App: FC<{ subscriptions: types.Subscription[] }> = ({ subscriptions }) => 
         </Link>
       </Flex>
 
-      <SimpleGrid minChildWidth="170px" spacing={6} mt={4}>
-        {allSubscriptions.map((element) => (
-          <Subscription {...element} key={element.name} />
-        ))}
-      </SimpleGrid>
+      <AnimatePresence>
+        <motion.div variants={container} initial="hidden" animate="show">
+          <SimpleGrid minChildWidth="170px" spacing={6} mt={4}>
+            {allSubscriptions.map((element) => (
+              <motion.div
+                key={element.id}
+                variants={item}
+                exit={{ opacity: 0, scale: 0.5, transition: { duration: 0.2 } }}
+              >
+                <Subscription {...element} key={element.name} />
+              </motion.div>
+            ))}
+          </SimpleGrid>
+        </motion.div>
+      </AnimatePresence>
     </Box>
   )
 }
