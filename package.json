@@ -15,6 +15,7 @@
     "@emotion/react": "^11.1.4",
     "@emotion/styled": "^11.0.0",
     "@react-hook/throttle": "^2.2.0",
+    "formik": "^2.2.6",
     "framer-motion": "^3.2.2-rc.1",
     "lodash.orderby": "^4.6.0",
     "mongodb": "^3.6.3",
@@ -27,7 +28,8 @@
     "react-dom": "17.0.1",
     "react-icons": "^4.1.0",
     "reflect-metadata": "^0.1.13",
-    "typeorm": "^0.2.30"
+    "typeorm": "^0.2.30",
+    "yup": "^0.32.8"
   },
   "devDependencies": {
     "@types/mongodb": "^3.6.3",
