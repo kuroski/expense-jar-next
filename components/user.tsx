@@ -1,10 +1,14 @@
-import React, { FC } from 'react'
+import React from 'react'
 import { signOut } from 'next-auth/client'
 import { Avatar, IconButton, Menu, MenuButton, MenuItem, MenuList } from '@chakra-ui/react'
 import { CgLogOut } from 'react-icons/cg'
-import { UserSession } from '../types'
+import type { User as UserNextAuth } from 'next-auth'
 
-const User: FC<{ user: UserSession }> = ({ user }) => {
+type Props = {
+  user: UserNextAuth
+}
+
+const User = ({ user }: Props) => {
   const UserAvatar = <Avatar size="sm" src={user.image} />
 
   return (

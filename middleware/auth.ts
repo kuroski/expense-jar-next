@@ -1,6 +1,8 @@
 import jwt from 'next-auth/jwt'
+import type { NextApiRequest, NextApiResponse } from 'next'
+import type { NextHandler } from 'next-connect'
 
-export default async (req, res, next) => {
+export default async (req: NextApiRequest, res: NextApiResponse, next: NextHandler) => {
   const token = await jwt.getToken({ req, secret: process.env.JWT_SECRET })
 
   if (token) {

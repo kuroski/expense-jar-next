@@ -1,4 +1,4 @@
-import React, { FC } from 'react'
+import React from 'react'
 import Link from 'next/link'
 import { useSession, signIn } from 'next-auth/client'
 import { Button, Flex, IconButton, useColorMode } from '@chakra-ui/react'
@@ -6,12 +6,12 @@ import { CgLogIn, CgHome } from 'react-icons/cg'
 import { MoonIcon, SunIcon } from '@chakra-ui/icons'
 import User from './user'
 
-const handleLogin = (e) => {
+const handleLogin = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
   e.preventDefault()
   signIn('github')
 }
 
-const Header: FC = () => {
+const Header = () => {
   const [session] = useSession()
   const { colorMode, toggleColorMode } = useColorMode()
 

@@ -1,9 +1,9 @@
 import { Box, Flex, Heading, Icon, Stat, StatHelpText, StatLabel, StatNumber } from '@chakra-ui/react'
-import React, { FC } from 'react'
+import React from 'react'
 import { CgMail } from 'react-icons/cg'
-import * as types from '../types'
+import type * as types from '../types'
 
-const SubscriptionItem: FC<types.Subscription> = (item) => {
+const SubscriptionItem = (item: types.Subscription) => {
   return (
     <Box p={4} shadow="md" borderWidth="1px" rounded="lg" textAlign={['center', 'left']} direction="column">
       <Flex align="center" justify={['center', 'flex-start']}>

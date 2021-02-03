@@ -1,6 +1,6 @@
 import '../styles/globals.css'
 import 'reflect-metadata'
-import React, { FC } from 'react'
+import React from 'react'
 import type { AppProps } from 'next/app'
 import { Provider, useSession, signIn } from 'next-auth/client'
 import {
@@ -19,7 +19,7 @@ import {
 import { motion } from 'framer-motion'
 import Header from '../components/header'
 
-const Content: FC<AppProps> = ({ Component, pageProps }) => {
+const Content = ({ Component, pageProps }: AppProps) => {
   const [session, loading] = useSession()
 
   if (!session && !loading) {

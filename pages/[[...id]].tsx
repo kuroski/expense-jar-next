@@ -5,6 +5,7 @@ import { Box, Flex, IconButton, SimpleGrid } from '@chakra-ui/react'
 import { AddIcon } from '@chakra-ui/icons'
 import { AnimatePresence, motion } from 'framer-motion'
 import type { Variants } from 'framer-motion'
+import type { GetServerSideProps } from 'next'
 import { connectToDB, subscription } from '../db'
 import type * as types from '../types'
 import Subscription from '../components/subscription'
@@ -56,10 +57,10 @@ const App: FC<{ subscriptions: types.Subscription[] }> = ({ subscriptions }) => 
   )
 }
 
-export async function getServerSideProps(context) {
-  const session: { user: types.UserSession } = await getSession(context)
+export const getServerSideProps: GetServerSideProps = async (context) => {
+  const session = await getSession(context)
   // not signed in
-  if (!session || !session.user) {
+  if (!session || !session.user || !session.user.id) {
     return { props: {} }
   }
 

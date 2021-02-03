@@ -1,19 +1,11 @@
+import type { NextApiRequest, NextApiResponse } from 'next'
+import type { NextHandler } from 'next-connect'
 import { connectToDB } from '../db/connect'
 
-declare global {
-  // eslint-disable-next-line no-unused-vars
-  namespace NodeJS {
-    // eslint-disable-next-line no-unused-vars
-    interface Global {
-      mongo: any
-    }
-  }
-}
-
-export default async function database(req, _res, next) {
+export default async function database(req: NextApiRequest, _res: NextApiResponse, next: NextHandler) {
   const { db, dbClient } = await connectToDB()
   req.db = db
-  req.dbClinet = dbClient
+  req.dbClient = dbClient
 
   next()
 }

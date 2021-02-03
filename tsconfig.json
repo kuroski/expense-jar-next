@@ -1,14 +1,18 @@
 {
   "compilerOptions": {
-    "target": "es5",
+    "target": "ES2018",
     "lib": [
       "dom",
       "dom.iterable",
       "esnext"
     ],
     "allowJs": true,
-    "skipLibCheck": true,
-    "strict": false,
+    "skipLibCheck": false,
+    "strict": true,
+    "strictBindCallApply": true,
+    "strictFunctionTypes": true,
+    "strictNullChecks": true,
+    "strictPropertyInitialization": true,
     "forceConsistentCasingInFileNames": true,
     "noEmit": true,
     "esModuleInterop": true,
@@ -19,13 +23,7 @@
     "jsx": "preserve"
   },
   "include": [
-    "next-env.d.ts",
-    "types.d.ts",
-    "enable-svg.d.ts",
     "**/*.ts",
     "**/*.tsx"
-  ],
-  "exclude": [
-    "node_modules"
   ]
 }

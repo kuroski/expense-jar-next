@@ -39,6 +39,11 @@
       "jsx-a11y/click-events-have-key-events": "off",
       "jsx-a11y/no-static-element-interactions": "off",
       "jsx-a11y/html-has-lang": "off",
-      "jsx-a11y/anchor-is-valid": "off"
+      "jsx-a11y/anchor-is-valid": "off",
+      "@typescript-eslint/no-unsafe-call": "off",
+      "@typescript-eslint/restrict-template-expressions": "off",
+      "@typescript-eslint/no-unsafe-member-access": "off",
+      "@typescript-eslint/no-unsafe-assignment": "off",
+      "@typescript-eslint/no-unsafe-return": "off"
     }
   }
