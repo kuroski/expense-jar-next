@@ -1,11 +1,9 @@
-import { Db, MongoClient } from 'mongodb'
-import { NextApiRequest } from 'next'
 import 'next-auth'
 import theme from './theme'
 
 type Period = 'day' | 'week' | 'month' | 'year'
 export interface Subscription {
-  id: string
+  _id: string
   color: typeof theme.colors
   name: string
   cycleAmount: number
@@ -14,10 +12,4 @@ export interface Subscription {
   overview?: string
   price: number
   firstBill: Date
-}
-
-export interface Request extends NextApiRequest {
-  db: Db
-  dbClient: MongoClient
-  user: { email: string; id: string }
 }

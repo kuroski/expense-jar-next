@@ -1,16 +1,19 @@
-import { NextApiResponse } from 'next'
+import type { NextApiRequest, NextApiResponse } from 'next'
 import nc from 'next-connect'
-import { subscription } from '../../../db'
-import middleware from '../../../middleware/all'
-import onError from '../../../middleware/error'
-import { Request } from '../../../types'
+import { subscription } from '@/db'
+import middleware from '@/middleware/all'
+import onError from '@/middleware/error'
 
-const handler = nc<Request, NextApiResponse>({
+const handler = nc<NextApiRequest, NextApiResponse>({
   onError,
 })
 
 handler.use(middleware)
 handler.post(async (req, res) => {
+  if (!req.user.id) {
+    console.error('No user provided')
+    throw new Error(`No user provided to add the subscriptions ${req.body.name}`)
+  }
   const newFolder = await subscription.createSubscription(req.db, { createdBy: req.user.id, name: req.body.name })
   res.send({ data: newFolder })
 })

@@ -1,4 +1,5 @@
 import NextAuth, { InitOptions } from 'next-auth'
+import type { NextApiRequest, NextApiResponse } from 'next'
 import Providers from 'next-auth/providers'
 // import { connectToDB } from '../../../db'
 
@@ -37,4 +38,4 @@ const options: InitOptions = {
   },
 }
 
-export default (req, res) => NextAuth(req, res, options)
+export default (req: NextApiRequest, res: NextApiResponse) => NextAuth(req, res, options)

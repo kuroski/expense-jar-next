@@ -9,7 +9,7 @@ type Props = {
 }
 
 const User = ({ user }: Props) => {
-  const UserAvatar = <Avatar size="sm" src={user.image} />
+  const UserAvatar = <Avatar size="sm" name={user.name || 'You'} src={user.image ?? ''} />
 
   return (
     <Menu>

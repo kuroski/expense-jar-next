@@ -1,4 +1,4 @@
-import React, { FC, useState } from 'react'
+import React, { useState } from 'react'
 import { getSession } from 'next-auth/client'
 import Link from 'next/link'
 import { Box, Flex, IconButton, SimpleGrid } from '@chakra-ui/react'
@@ -6,11 +6,15 @@ import { AddIcon } from '@chakra-ui/icons'
 import { AnimatePresence, motion } from 'framer-motion'
 import type { Variants } from 'framer-motion'
 import type { GetServerSideProps } from 'next'
-import { connectToDB, subscription } from '../db'
-import type * as types from '../types'
-import Subscription from '../components/subscription'
+import { connectToDB, subscription } from '@/db'
+import type * as types from '@/types'
+import Subscription from '@/components/subscription'
 
-const App: FC<{ subscriptions: types.Subscription[] }> = ({ subscriptions }) => {
+type Props = {
+  subscriptions: types.Subscription[]
+}
+
+const App = ({ subscriptions }: Props) => {
   const [allSubscriptions] = useState(subscriptions || [])
 
   const container: Variants = {
@@ -43,11 +47,11 @@ const App: FC<{ subscriptions: types.Subscription[] }> = ({ subscriptions }) => 
           <SimpleGrid minChildWidth="170px" spacing={6} mt={4}>
             {allSubscriptions.map((element) => (
               <motion.div
-                key={element.id}
+                key={element._id}
                 variants={item}
                 exit={{ opacity: 0, scale: 0.5, transition: { duration: 0.2 } }}
               >
-                <Subscription {...element} key={element.name} />
+                <Subscription {...element} key={element._id} />
               </motion.div>
             ))}
           </SimpleGrid>

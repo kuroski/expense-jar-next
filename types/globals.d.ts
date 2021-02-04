@@ -1,6 +1,6 @@
-/* eslint-disable no-unused-vars */
 import '@emotion/react'
 import type { Db, MongoClient } from 'mongodb'
+import type { User as AuthUser } from 'next-auth'
 
 declare module '*.svg' {
   const content: string
@@ -8,8 +8,8 @@ declare module '*.svg' {
 }
 
 declare global {
-  namespace NodeJS {
-    interface Global {
+  export namespace NodeJS {
+    export interface Global {
       mongo: {
         client?: MongoClient
       }
@@ -28,7 +28,7 @@ declare global {
 
 declare module 'next' {
   export interface NextApiRequest {
-    user: object
+    user: AuthUser
     db: Db
     dbClient: MongoClient
   }

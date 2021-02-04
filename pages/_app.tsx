@@ -1,4 +1,4 @@
-import '../styles/globals.css'
+import '@/styles/globals.css'
 import 'reflect-metadata'
 import React from 'react'
 import type { AppProps } from 'next/app'
@@ -17,7 +17,7 @@ import {
   Spinner,
 } from '@chakra-ui/react'
 import { motion } from 'framer-motion'
-import Header from '../components/header'
+import Header from '@/components/header'
 
 const Content = ({ Component, pageProps }: AppProps) => {
   const [session, loading] = useSession()
