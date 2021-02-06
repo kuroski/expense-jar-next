@@ -1,12 +1,13 @@
+import type { Subscription } from '@/types'
 import { Db } from 'mongodb'
 import { nanoid } from 'nanoid'
 
-export const createSubscription = async (db: Db, subscription: { createdBy: string; name: string }) => {
+export const createSubscription = async (db: Db, subscription: Subscription & { createdBy: string }) => {
   return db
     .collection('subscriptions')
     .insertOne({
-      _id: nanoid(12),
       ...subscription,
+      _id: nanoid(12),
       createdAt: new Date().toDateString(),
     })
     .then(({ ops }) => ops[0])

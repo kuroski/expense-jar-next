@@ -1,7 +1,7 @@
 import 'next-auth'
 import theme from './theme'
 
-type Period = 'day' | 'week' | 'month' | 'year'
+export type Period = 'day' | 'week' | 'month' | 'year'
 export interface Subscription {
   _id: string
   color: typeof theme.colors
