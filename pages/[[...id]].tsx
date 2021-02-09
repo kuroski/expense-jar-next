@@ -7,7 +7,7 @@ import { AnimatePresence, motion } from 'framer-motion'
 import type { Variants } from 'framer-motion'
 import type { GetServerSideProps } from 'next'
 import { connectToDB, subscription } from '@/db'
-import type * as types from '@/types'
+import type * as types from '@/services/subscriptions'
 import Subscription from '@/components/subscription'
 
 type Props = {
@@ -65,7 +65,7 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
   const session = await getSession(context)
   // not signed in
   if (!session || !session.user || !session.user.id) {
-    return { props: {} }
+    return { props: { subscriptions: [] } }
   }
 
   const props: any = { session }

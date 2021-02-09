@@ -1,4 +1,5 @@
-import type { Subscription } from '@/types'
+import type { Subscription } from '@/services/subscriptions'
+import { decoder } from '@/services/subscriptions'
 import { Db } from 'mongodb'
 import { nanoid } from 'nanoid'
 
@@ -13,11 +14,12 @@ export const createSubscription = async (db: Db, subscription: Subscription & { 
     .then(({ ops }) => ops[0])
 }
 
-export const getSubscriptions = async (db: Db, userId: string) => {
+export const getSubscriptions = async (db: Db, userId: string): Promise<Subscription[]> => {
   return db
     .collection('subscriptions')
     .find({
       createdBy: userId,
     })
     .toArray()
+    .then(decoder)
 }
