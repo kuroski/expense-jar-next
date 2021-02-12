@@ -23,7 +23,19 @@ import { useFormik } from 'formik'
 import * as Yup from 'yup'
 import { MdBugReport, MdSettings } from 'react-icons/md'
 import { format } from 'date-fns'
-import { FormValues, PeriodKeys, save } from '@/services/subscriptions'
+import { save } from '@/services/subscriptions'
+import Period from '@/types/period'
+
+export type FormValues = {
+  name: string
+  color: string
+  cycleAmount: number
+  cyclePeriod: Period
+  overview: string
+  price: number
+  firstBill: Date
+  icon: string
+}
 
 const SubscriptionSchema = Yup.object().shape({
   color: Yup.string().required("The 'color' field is required"),
@@ -118,7 +130,7 @@ const NewSubscription = () => {
             value={form.values.cyclePeriod}
           >
             <Stack direction="row">
-              {PeriodKeys.map((period) => (
+              {Object.keys(Period.keys).map((period) => (
                 <Radio key={period} value={period}>
                   {period}
                 </Radio>

@@ -1,9 +1,8 @@
 /* eslint-disable no-redeclare */
 import * as t from 'io-ts'
 import { DateFromISOString } from 'io-ts-types'
-import omit from '@/types/omit'
 import Period from '@/types/period'
-import Color from '@/types/color'
+// import Color from '@/types/color'
 
 const Subscription = t.type({
   _id: t.string,
@@ -14,11 +13,11 @@ const Subscription = t.type({
   overview: t.union([t.string, t.undefined]),
   price: t.number,
   firstBill: DateFromISOString,
-  color: Color,
+  color: t.string,
 })
 type Subscription = t.TypeOf<typeof Subscription>
 
-const SubscriptionFormValues = t.type(omit(Subscription.props, '_id'))
-type SubscriptionFormValues = t.TypeOf<typeof SubscriptionFormValues>
+const Subscriptions = t.array(Subscription)
+type Subscriptions = t.TypeOf<typeof Subscriptions>
 
-export { Period, Subscription, SubscriptionFormValues }
+export { Subscriptions, Subscription }
