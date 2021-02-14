@@ -1,7 +1,7 @@
 /* eslint-disable no-redeclare */
 import * as t from 'io-ts'
 import { DateFromISOString } from 'io-ts-types'
-import Period from '@/types/period'
+import Period from './period'
 // import Color from '@/types/color'
 
 const Subscription = t.type({

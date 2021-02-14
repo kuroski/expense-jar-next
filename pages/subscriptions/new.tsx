@@ -23,8 +23,8 @@ import { useFormik } from 'formik'
 import * as Yup from 'yup'
 import { MdBugReport, MdSettings } from 'react-icons/md'
 import { format } from 'date-fns'
-import { save } from '@/services/subscriptions'
-import Period from '@/types/period'
+import { save } from '@/framework/subscriptions/subscriptions'
+import { Period } from '@/framework/subscriptions/types'
 
 export type FormValues = {
   name: string

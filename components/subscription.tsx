@@ -1,7 +1,7 @@
 import { Box, Flex, Heading, Icon, Stat, StatHelpText, StatLabel, StatNumber } from '@chakra-ui/react'
 import React from 'react'
 import { CgMail } from 'react-icons/cg'
-import type * as types from '@/types'
+import type * as types from '@/framework/subscriptions/types'
 
 const SubscriptionItem = (item: types.Subscription) => {
   return (

@@ -1,34 +1,14 @@
-import React, { useEffect, useState } from 'react'
-import { getSession } from 'next-auth/client'
+import React from 'react'
 import Link from 'next/link'
 import { Box, Flex, IconButton, SimpleGrid } from '@chakra-ui/react'
 import { AddIcon } from '@chakra-ui/icons'
 import { AnimatePresence, motion } from 'framer-motion'
 import type { Variants } from 'framer-motion'
-import type { GetServerSideProps } from 'next'
-import { connectToDB, subscription } from '@/db'
-import { all } from '@/services/subscriptions'
-import type * as types from '@/types/subscriptions'
 import Subscription from '@/components/subscription'
+import useSubscriptions from '@/framework/subscriptions/useSubscriptions'
 
-type Props = {
-  subscriptions: types.Subscription[]
-}
-
-const App = ({ subscriptions }: Props) => {
-  const [allSubscriptions, setSubscriptions] = useState(subscriptions || [])
-
-  useEffect(() => {
-    all()
-      .then((result) => {
-        console.log(result)
-        setSubscriptions(result)
-        return result
-      })
-      .catch((error) => {
-        console.error(error)
-      })
-  }, [])
+const App = () => {
+  const { subscriptions, isLoading, error } = useSubscriptions()
 
   const container: Variants = {
     hidden: { opacity: 0 },
@@ -55,10 +35,15 @@ const App = ({ subscriptions }: Props) => {
         </Link>
       </Flex>
 
+      {JSON.stringify(subscriptions, null, 4)}
+      {JSON.stringify(error, null, 4)}
+
+      <div>{isLoading ? 'Loading...' : ''}</div>
+
       <AnimatePresence>
         <motion.div variants={container} initial="hidden" animate="show">
           <SimpleGrid minChildWidth="170px" spacing={6} mt={4}>
-            {allSubscriptions.map((element) => (
+            {subscriptions?.map((element) => (
               <motion.div
                 key={element._id}
                 variants={item}
@@ -73,22 +58,5 @@ const App = ({ subscriptions }: Props) => {
     </Box>
   )
 }
-
-// export const getServerSideProps: GetServerSideProps = async (context) => {
-//   const session = await getSession(context)
-//   // not signed in
-//   if (!session || !session.user || !session.user.id) {
-//     return { props: { subscriptions: [] } }
-//   }
-
-//   const props: any = { session }
-//   const { db } = await connectToDB()
-//   const subscriptions = await subscription.getSubscriptions(db, session.user.id)
-//   props.subscriptions = subscriptions
-
-//   return {
-//     props,
-//   }
-// }
 
 export default App

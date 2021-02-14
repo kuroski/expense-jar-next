@@ -4,7 +4,7 @@ import nc from 'next-connect'
 import { subscription } from '@/db'
 import middleware from '@/middleware/all'
 import onError from '@/middleware/error'
-import { Subscription } from '@/types/subscriptions'
+import { Subscription } from '@/framework/subscriptions/types'
 
 const handler = nc<NextApiRequest, NextApiResponse>({
   onError,
@@ -17,7 +17,6 @@ handler.get(async (req, res) => {
     res.status(401)
   } else {
     const subscriptions = await subscription.getSubscriptions(req.db, session.user.id)
-    console.log(subscriptions)
     res.send({ subscriptions })
   }
 

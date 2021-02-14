@@ -1,6 +1,6 @@
-import { Subscription, Subscriptions } from '@/types/subscriptions'
+import { Subscription, Subscriptions } from '@/framework/subscriptions/types'
 import { fold, mapLeft } from 'fp-ts/lib/Either'
-import { flow, pipe } from 'fp-ts/lib/function'
+import { flow } from 'fp-ts/lib/function'
 import { Db } from 'mongodb'
 import { nanoid } from 'nanoid'
 import { failure } from 'io-ts/lib/PathReporter'
@@ -21,7 +21,7 @@ export const createSubscription = async (db: Db, { data, user }: { data: Subscri
     .then(({ ops }) => ops[0])
 }
 
-export const getSubscriptions = (db: Db, userId: string) => {
+export const getSubscriptions = (db: Db, userId: string): Promise<Subscriptions> => {
   return db
     .collection('subscriptions')
     .find({
@@ -36,14 +36,11 @@ export const getSubscriptions = (db: Db, userId: string) => {
       flow(
         Subscriptions.decode,
         mapLeft((errors) => new Error(failure(errors).join('\n'))),
+        fold(
+          // eslint-disable-next-line promise/no-promise-in-callback
+          (error) => Promise.reject(error),
+          (data) => Promise.resolve(data as Subscriptions),
+        ),
       ),
     )
-    .then((result) => {
-      console.log(result)
-      return fold(
-        // eslint-disable-next-line promise/no-promise-in-callback
-        (error) => Promise.reject(error),
-        (data) => Promise.resolve(data),
-      )(result)
-    })
 }
