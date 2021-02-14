@@ -2,7 +2,7 @@ import { extendTheme } from '@chakra-ui/react'
 import type { ThemeOverride } from '@chakra-ui/react'
 
 const config = {
-  initialColorMode: 'light',
+  // initialColorMode: 'light',
   useSystemColorMode: true,
 }
 
