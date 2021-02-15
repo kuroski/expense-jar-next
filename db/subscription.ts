@@ -38,7 +38,7 @@ export const getSubscriptions = (db: Db, userId: string): Promise<Subscriptions>
         mapLeft((errors) => new Error(failure(errors).join('\n'))),
         fold(
           // eslint-disable-next-line promise/no-promise-in-callback
-          (error) => Promise.reject(error),
+          (errors) => Promise.reject(errors),
           (data) => Promise.resolve(data as Subscriptions),
         ),
       ),

@@ -39,6 +39,7 @@ const App = () => {
       {JSON.stringify(error, null, 4)}
 
       <div>{isLoading ? 'Loading...' : ''}</div>
+      <div>{error ? 'An error ocurred!' : ''}</div>
 
       <AnimatePresence>
         <motion.div variants={container} initial="hidden" animate="show">
