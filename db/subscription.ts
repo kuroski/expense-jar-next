@@ -1,9 +1,10 @@
 import { Subscription, Subscriptions } from '@/framework/subscriptions/types'
-import { fold, mapLeft } from 'fp-ts/lib/Either'
-import { flow } from 'fp-ts/lib/function'
+import * as E from 'fp-ts/lib/Either'
+import { flow, pipe } from 'fp-ts/lib/function'
+import * as TE from 'fp-ts/lib/TaskEither'
+import { failure } from 'io-ts/lib/PathReporter'
 import { Db } from 'mongodb'
 import { nanoid } from 'nanoid'
-import { failure } from 'io-ts/lib/PathReporter'
 
 export const createSubscription = async (db: Db, { data, user }: { data: Subscription; user: string }) => {
   return db
@@ -18,21 +19,28 @@ export const createSubscription = async (db: Db, { data, user }: { data: Subscri
 }
 
 export const getSubscriptions = (db: Db, userId: string): Promise<Subscriptions> => {
-  return db
-    .collection('subscriptions')
-    .find({
-      createdBy: userId,
-    })
-    .toArray()
-    .then(
+  return pipe(
+    TE.tryCatch(
+      () =>
+        db
+          .collection('subscriptions')
+          .find({
+            createdBy: userId,
+          })
+          .toArray(),
+      E.toError,
+    ),
+    TE.chain(
       flow(
         Subscriptions.decode,
-        mapLeft((errors) => new Error(failure(errors).join('\n'))),
-        fold(
-          // eslint-disable-next-line promise/no-promise-in-callback
-          (errors) => Promise.reject(errors.message),
-          (data) => Promise.resolve(data as Subscriptions),
-        ),
+        E.mapLeft((errors) => new Error(failure(errors).join('\n'))),
+        TE.fromEither,
       ),
-    )
+    ),
+  )().then(
+    E.fold(
+      (errors) => Promise.reject(errors.message),
+      (data) => Promise.resolve(data as Subscriptions),
+    ),
+  )
 }
