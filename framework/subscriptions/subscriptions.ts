@@ -21,7 +21,7 @@ export async function save(values: FormValues) {
 export function all(): Promise<E.Either<Error, Subscriptions>> {
   return pipe(
     TE.tryCatch(() => fetch(`${process.env.NEXT_PUBLIC_API_HOST}/api/subscription`), E.toError),
-    TE.chain((response) => TE.tryCatch(() => response.json(), E.toError)),
+    TE.chain((response) => TE.tryCatch((): Promise<{ subscriptions: unknown[] }> => response.json(), E.toError)),
     TE.chain(
       flow(
         ({ subscriptions }) => subscriptions,

@@ -3,11 +3,14 @@ import useSWR from 'swr'
 import { all } from './subscriptions'
 import type { Subscriptions } from './types'
 
-export default () => {
-  const { data, error } = useSWR<Subscriptions, Error>('subscriptions', () =>
+const useSubscriptions = () => {
+  const { data, error, mutate } = useSWR<Subscriptions, Error>('subscriptions', () =>
     all().then(
       fold(
-        (errors) => Promise.reject(errors),
+        (errors) => {
+          console.log(errors)
+          return Promise.reject(errors)
+        },
         (result) => Promise.resolve(result),
       ),
     ),
@@ -17,5 +20,7 @@ export default () => {
     subscriptions: data,
     isLoading: !error && !data,
     error,
+    mutate: () => mutate(),
   }
 }
+export default useSubscriptions

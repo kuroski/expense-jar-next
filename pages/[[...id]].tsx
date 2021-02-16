@@ -1,14 +1,16 @@
 import React from 'react'
 import Link from 'next/link'
-import { Box, Flex, IconButton, SimpleGrid } from '@chakra-ui/react'
+import { Box, Button, Center, Flex, IconButton, SimpleGrid } from '@chakra-ui/react'
 import { AddIcon } from '@chakra-ui/icons'
 import { AnimatePresence, motion } from 'framer-motion'
 import type { Variants } from 'framer-motion'
 import Subscription from '@/components/subscription'
 import useSubscriptions from '@/framework/subscriptions/useSubscriptions'
+import SubscriptionsSkeleton from '@/components/subscriptionsSkeleton'
+import { MdRefresh } from 'react-icons/md'
 
 const App = () => {
-  const { subscriptions, isLoading, error } = useSubscriptions()
+  const { subscriptions, isLoading, error, mutate } = useSubscriptions()
 
   const container: Variants = {
     hidden: { opacity: 0 },
@@ -35,27 +37,32 @@ const App = () => {
         </Link>
       </Flex>
 
-      {JSON.stringify(subscriptions, null, 4)}
-      {JSON.stringify(error, null, 4)}
-
-      <div>{isLoading ? 'Loading...' : ''}</div>
-      <div>{error ? 'An error ocurred!' : ''}</div>
-
-      <AnimatePresence>
-        <motion.div variants={container} initial="hidden" animate="show">
-          <SimpleGrid minChildWidth="170px" spacing={6} mt={4}>
-            {subscriptions?.map((element) => (
-              <motion.div
-                key={element._id}
-                variants={item}
-                exit={{ opacity: 0, scale: 0.5, transition: { duration: 0.2 } }}
-              >
-                <Subscription {...element} key={element._id} />
-              </motion.div>
-            ))}
-          </SimpleGrid>
-        </motion.div>
-      </AnimatePresence>
+      {isLoading && <SubscriptionsSkeleton />}
+      {error && (
+        <Center display="flex" flexDirection="column">
+          <h1>An error ocurred!</h1>
+          <Button mt={2} leftIcon={<MdRefresh />} onClick={mutate}>
+            Retry
+          </Button>
+        </Center>
+      )}
+      {subscriptions && (
+        <AnimatePresence>
+          <motion.div variants={container} initial="hidden" animate="show">
+            <SimpleGrid minChildWidth="170px" spacing={6} mt={4}>
+              {subscriptions.map((element) => (
+                <motion.div
+                  key={element._id}
+                  variants={item}
+                  exit={{ opacity: 0, scale: 0.5, transition: { duration: 0.2 } }}
+                >
+                  <Subscription {...element} key={element._id} />
+                </motion.div>
+              ))}
+            </SimpleGrid>
+          </motion.div>
+        </AnimatePresence>
+      )}
     </Box>
   )
 }
