@@ -5,6 +5,12 @@ import { subscription } from '@/db'
 import middleware from '@/middleware/all'
 import onError from '@/middleware/error'
 import { Subscription } from '@/framework/subscriptions/types'
+import { FormValues } from '@/pages/subscriptions/new'
+import { flow } from 'fp-ts/lib/function'
+import { mapLeft } from 'fp-ts/lib/Either'
+import { failure } from 'io-ts/lib/PathReporter'
+import { nanoid } from 'nanoid'
+import { isLeft } from 'fp-ts/lib/These'
 
 const handler = nc<NextApiRequest, NextApiResponse>({
   onError,
@@ -28,19 +34,31 @@ handler.post(async (req, res) => {
     throw new Error(`No user provided to add the subscriptions ${req.body.name}`)
   }
 
-  const data: Subscription = {
-    _id: '',
-    color: req.body.color,
-    cycleAmount: req.body.cycleAmount,
-    cyclePeriod: req.body.cyclePeriod,
-    firstBill: req.body.firstBill,
-    icon: req.body.icon,
-    name: req.body.name,
-    price: req.body.price,
-    overview: req.body.overview,
+  const body: FormValues = req.body as FormValues
+
+  const data = flow(
+    Subscription.decode,
+    mapLeft((errors) => new Error(failure(errors).join('\n'))),
+  )({
+    _id: nanoid(12),
+    color: body.color,
+    cycleAmount: body.cycleAmount,
+    cyclePeriod: body.cyclePeriod,
+    firstBill: body.firstBill,
+    icon: body.icon,
+    name: body.name,
+    price: body.price,
+    overview: body.overview,
+  })
+
+  if (isLeft(data)) {
+    throw data.left
   }
 
-  const newSubscription = await subscription.createSubscription(req.db, { data, user: req.user.id })
+  const newSubscription = await subscription.createSubscription(req.db, {
+    data: data.right,
+    user: req.user.id,
+  })
   res.send({ data: newSubscription })
 })
 

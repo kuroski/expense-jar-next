@@ -99,7 +99,7 @@ const NewSubscription = () => {
               form.handleChange({
                 target: {
                   id: 'cycleAmount',
-                  value,
+                  value: Number(value),
                 },
               })
             }
@@ -199,7 +199,7 @@ const NewSubscription = () => {
           <FormErrorMessage>{form.errors.icon}</FormErrorMessage>
         </FormControl>
 
-        <Button mt={4} colorScheme="teal" isLoading={form.isSubmitting} type="submit">
+        <Button mt={4} colorScheme="teal" type="submit">
           Submit
         </Button>
       </Stack>
