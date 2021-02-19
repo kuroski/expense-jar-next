@@ -52,7 +52,7 @@ handler.post(async (req, res) => {
   })
 
   if (isLeft(data)) {
-    throw data.left
+    throw new Error(data.left.message)
   }
 
   const newSubscription = await subscription.createSubscription(req.db, {

@@ -14,6 +14,11 @@ export async function save(values: FormValues) {
     },
   })
 
+  if (!response.ok) {
+    const text = await response.text()
+    throw new Error(text)
+  }
+
   const { data } = await response.json()
   return data
 }
