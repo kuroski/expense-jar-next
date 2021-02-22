@@ -64,15 +64,16 @@ const NewSubscription = () => {
   const form = useFormik({
     initialValues,
     validationSchema: SubscriptionSchema,
-    onSubmit: (values, actions) => {
-      console.log({ values, actions })
-      save(values)
-        .then(
-          () => router.push('/'),
-          (error) => console.error(error),
-        )
-        .catch((error) => console.error(error))
-    },
+    onSubmit: (values) =>
+      save(values).then(
+        (e) => {
+          console.log(e)
+          return router.push('/')
+        },
+        (error) => {
+          console.log(error)
+        },
+      ),
   })
 
   return (

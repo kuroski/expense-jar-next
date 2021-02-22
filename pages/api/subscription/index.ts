@@ -6,11 +6,13 @@ import middleware from '@/middleware/all'
 import onError from '@/middleware/error'
 import { Subscription } from '@/framework/subscriptions/types'
 import { FormValues } from '@/pages/subscriptions/new'
-import { flow } from 'fp-ts/lib/function'
-import { mapLeft } from 'fp-ts/lib/Either'
+import { absurd, flow, pipe } from 'fp-ts/lib/function'
+import * as E from 'fp-ts/lib/Either'
+import * as TE from 'fp-ts/lib/TaskEither'
+import * as T from 'fp-ts/lib/Task'
 import { failure } from 'io-ts/lib/PathReporter'
 import { nanoid } from 'nanoid'
-import { isLeft } from 'fp-ts/lib/These'
+import * as These from 'fp-ts/lib/These'
 
 const handler = nc<NextApiRequest, NextApiResponse>({
   onError,
@@ -22,11 +24,22 @@ handler.get(async (req, res) => {
   if (!session || !session.user || !session.user.id) {
     res.status(401)
   } else {
-    const subscriptions = await subscription.getSubscriptions(req.db, session.user.id)
-    res.send({ subscriptions })
-  }
+    pipe(
+      subscription.getSubscriptions(req.db, session.user.id),
+      TE.fold(
+        (err) => {
+          console.log(err)
+          throw new Error(err.message)
+        },
+        (subscriptions) => {
+          res.send({ subscriptions })
+          res.end()
 
-  res.end()
+          return T.of(absurd)
+        },
+      ),
+    )()
+  }
 })
 handler.post(async (req, res) => {
   if (!req.user.id) {
@@ -38,7 +51,7 @@ handler.post(async (req, res) => {
 
   const data = flow(
     Subscription.decode,
-    mapLeft((errors) => new Error(failure(errors).join('\n'))),
+    E.mapLeft((errors) => new Error(failure(errors).join('\n'))),
   )({
     _id: nanoid(12),
     color: body.color,
@@ -51,7 +64,7 @@ handler.post(async (req, res) => {
     overview: body.overview,
   })
 
-  if (isLeft(data)) {
+  if (These.isLeft(data)) {
     throw new Error(data.left.message)
   }
 
