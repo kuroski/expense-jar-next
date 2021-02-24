@@ -19,28 +19,34 @@ const handler = nc<NextApiRequest, NextApiResponse>({
 })
 
 handler.use(middleware)
-handler.get(async (req, res) => {
-  const session = await getSession({ req })
-  if (!session || !session.user || !session.user.id) {
-    res.status(401)
-  } else {
-    pipe(
-      subscription.getSubscriptions(req.db, session.user.id),
-      TE.fold(
-        (err) => {
-          console.log(err)
-          throw new Error(err.message)
-        },
-        (subscriptions) => {
-          res.send({ subscriptions })
-          res.end()
-
-          return T.of(absurd)
-        },
-      ),
-    )()
-  }
-})
+handler.get(async (req, res) =>
+  pipe(
+    TE.tryCatch(() => getSession({ req }), E.toError),
+    TE.chain((session) => {
+      res.status(401)
+      return TE.left(new Error('Unauthorized'))
+      // if (!session || !session.user || !session.user.id) {
+      //   res.status(401)
+      //   return TE.left(new Error('Unauthorized'))
+      // }
+      // return TE.right(session.user.id)
+    }),
+    TE.chain((userId) => subscription.getSubscriptions(req.db, userId)),
+    TE.fold(
+      (error) => {
+        console.log('++++++++++')
+        console.log(error)
+        console.log('++++++++++')
+        throw new Error(error.message)
+      },
+      (subscriptions) => {
+        res.send({ subscriptions })
+        res.end()
+        return T.of(subscriptions)
+      },
+    ),
+  )(),
+)
 handler.post(async (req, res) => {
   if (!req.user.id) {
     console.error('No user provided')
