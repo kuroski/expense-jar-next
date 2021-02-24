@@ -1,5 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
 import { getSession } from 'next-auth/client'
+import type { Session } from 'next-auth/client'
 import nc from 'next-connect'
 import { subscription } from '@/db'
 import middleware from '@/middleware/all'
@@ -13,6 +14,7 @@ import * as T from 'fp-ts/lib/Task'
 import { failure } from 'io-ts/lib/PathReporter'
 import { nanoid } from 'nanoid'
 import * as These from 'fp-ts/lib/These'
+import { ApiError, toRequestError, toUnauthorizedError } from '@/framework/errors'
 
 const handler = nc<NextApiRequest, NextApiResponse>({
   onError,
@@ -21,23 +23,33 @@ const handler = nc<NextApiRequest, NextApiResponse>({
 handler.use(middleware)
 handler.get(async (req, res) =>
   pipe(
-    TE.tryCatch(() => getSession({ req }), E.toError),
+    TE.tryCatch<ApiError, Session | null>(() => getSession({ req }), toRequestError),
     TE.chain((session) => {
-      res.status(401)
-      return TE.left(new Error('Unauthorized'))
-      // if (!session || !session.user || !session.user.id) {
-      //   res.status(401)
-      //   return TE.left(new Error('Unauthorized'))
-      // }
-      // return TE.right(session.user.id)
+      if (!session || !session.user || !session.user.id) {
+        // res.status(401)
+        return TE.left(toUnauthorizedError)
+      }
+      return TE.right(session.user.id)
     }),
-    TE.chain((userId) => subscription.getSubscriptions(req.db, userId)),
+    TE.chain(flow(subscription.getSubscriptions(req.db), TE.mapLeft<unknown, ApiError>(toRequestError))),
     TE.fold(
       (error) => {
         console.log('++++++++++')
-        console.log(error)
+
+        // eslint-disable-next-line default-case
+        switch (error._tag) {
+          case 'UNAUTHORIZED':
+            console.error('UNAUTHORIZED USER!!!')
+            res.status(401)
+            break
+
+          case 'REQUEST_ERROR':
+            console.error(error.error)
+            break
+        }
         console.log('++++++++++')
-        throw new Error(error.message)
+
+        throw new Error(JSON.stringify(error))
       },
       (subscriptions) => {
         res.send({ subscriptions })

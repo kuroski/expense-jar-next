@@ -16,7 +16,7 @@ export const createSubscription = async (db: Db, { data, user }: { data: Subscri
     .then(({ ops }) => ops[0])
 }
 
-export const getSubscriptions = (db: Db, userId: string): TE.TaskEither<Error, Subscriptions> =>
+export const getSubscriptions = (db: Db) => (userId: string): TE.TaskEither<Error, Subscriptions> =>
   pipe(
     TE.tryCatch(
       () =>
