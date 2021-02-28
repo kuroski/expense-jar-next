@@ -1,6 +1,6 @@
 {
     "parser": "@typescript-eslint/parser", 
-    "plugins": ["import", "jest"],
+    "plugins": ["import", "jest", "@typescript-eslint"],
     "extends": [
       "zoe", 
       "prettier/@typescript-eslint",
@@ -49,6 +49,8 @@
       "@typescript-eslint/restrict-template-expressions": "off",
       "@typescript-eslint/no-unsafe-member-access": "off",
       "@typescript-eslint/no-unsafe-assignment": "off",
-      "@typescript-eslint/no-unsafe-return": "off"
+      "@typescript-eslint/no-unsafe-return": "off",
+      // "default-case": "off",
+      "@typescript-eslint/switch-exhaustiveness-check": "error"
     }
   }

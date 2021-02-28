@@ -7,7 +7,7 @@ import middleware from '@/middleware/all'
 import onError from '@/middleware/error'
 import { Subscription } from '@/framework/subscriptions/types'
 import { FormValues } from '@/pages/subscriptions/new'
-import { absurd, flow, pipe } from 'fp-ts/lib/function'
+import { flow, pipe } from 'fp-ts/lib/function'
 import * as E from 'fp-ts/lib/Either'
 import * as TE from 'fp-ts/lib/TaskEither'
 import * as T from 'fp-ts/lib/Task'
@@ -24,32 +24,21 @@ handler.use(middleware)
 handler.get(async (req, res) =>
   pipe(
     TE.tryCatch<ApiError, Session | null>(() => getSession({ req }), toRequestError),
-    TE.chain((session) => {
-      if (!session || !session.user || !session.user.id) {
-        // res.status(401)
-        return TE.left(toUnauthorizedError)
-      }
-      return TE.right(session.user.id)
-    }),
+    TE.chain((session) => (session?.user?.id ? TE.right(session.user.id) : TE.left(toUnauthorizedError))),
     TE.chain(flow(subscription.getSubscriptions(req.db), TE.mapLeft<unknown, ApiError>(toRequestError))),
     TE.fold(
-      (error) => {
-        console.log('++++++++++')
-
-        // eslint-disable-next-line default-case
+      (error: ApiError) => {
         switch (error._tag) {
           case 'UNAUTHORIZED':
-            console.error('UNAUTHORIZED USER!!!')
-            res.status(401)
+            res.status(401).send("Unauthorized!")
+            res.end()
             break
 
           case 'REQUEST_ERROR':
-            console.error(error.error)
-            break
+            throw error.error
         }
-        console.log('++++++++++')
 
-        throw new Error(JSON.stringify(error))
+        return T.never
       },
       (subscriptions) => {
         res.send({ subscriptions })

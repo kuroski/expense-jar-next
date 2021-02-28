@@ -1,6 +1,5 @@
 import { toError } from 'fp-ts/lib/Either'
 
-/* eslint-disable no-redeclare */
 export type UnauthorizedError = {
   _tag: 'UNAUTHORIZED'
 }

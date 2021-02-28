@@ -36,7 +36,7 @@ const App = () => {
           </a>
         </Link>
       </Flex>
-
+      
       {isLoading && <SubscriptionsSkeleton />}
       {error && (
         <Center display="flex" flexDirection="column">

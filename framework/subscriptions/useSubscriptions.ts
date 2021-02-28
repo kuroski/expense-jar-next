@@ -7,10 +7,7 @@ const useSubscriptions = () => {
   const { data, error, mutate } = useSWR<Subscriptions, Error>('subscriptions', () =>
     all().then(
       fold(
-        (errors) => {
-          console.log(errors)
-          return Promise.reject(errors)
-        },
+        (errors) => Promise.reject(errors),
         (result) => Promise.resolve(result),
       ),
     ),
