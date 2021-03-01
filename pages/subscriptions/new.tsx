@@ -5,6 +5,7 @@ import {
   FormControl,
   FormErrorMessage,
   FormLabel,
+  Grid,
   Icon,
   Input,
   InputGroup,
@@ -16,6 +17,7 @@ import {
   NumberInputStepper,
   Radio,
   RadioGroup,
+  SimpleGrid,
   Stack,
   Textarea,
 } from '@chakra-ui/react'
@@ -78,101 +80,107 @@ const NewSubscription = () => {
 
   return (
     <form onSubmit={form.handleSubmit}>
-      <Stack spacing={4}>
-        <FormControl id="name" isInvalid={Boolean(form.errors.name && form.touched.name)}>
-          <FormLabel>Name</FormLabel>
-          <Input type="text" onChange={form.handleChange} value={form.values.name} />
-          <FormErrorMessage>{form.errors.name}</FormErrorMessage>
-        </FormControl>
+      <Stack spacing={4} mt={10}>
+        <Grid templateColumns={['1fr', '1fr auto']} gap={4}>
+          <FormControl id="name" isInvalid={Boolean(form.errors.name && form.touched.name)}>
+            <FormLabel>Name</FormLabel>
+            <Input type="text" onChange={form.handleChange} value={form.values.name} />
+            <FormErrorMessage>{form.errors.name}</FormErrorMessage>
+          </FormControl>
 
-        <FormControl id="color" isInvalid={Boolean(form.errors.color && form.touched.color)}>
-          <FormLabel>color</FormLabel>
-          <Input variant="flushed" type="color" onChange={form.handleChange} value={form.values.color} />
-          <FormErrorMessage>{form.errors.color}</FormErrorMessage>
-        </FormControl>
+          <FormControl id="color" isInvalid={Boolean(form.errors.color && form.touched.color)}>
+            <FormLabel>Color</FormLabel>
+            <Input variant="flushed" type="color" onChange={form.handleChange} value={form.values.color} />
+            <FormErrorMessage>{form.errors.color}</FormErrorMessage>
+          </FormControl>
+        </Grid>
 
-        <FormControl id="cycleAmount" isInvalid={Boolean(form.errors.cycleAmount && form.touched.cycleAmount)}>
-          <FormLabel>cycleAmount</FormLabel>
-          <NumberInput
-            min={1}
-            max={31}
-            onChange={(value) =>
-              form.handleChange({
-                target: {
-                  id: 'cycleAmount',
-                  value: Number(value),
-                },
-              })
-            }
-            value={form.values.cycleAmount}
-            allowMouseWheel
-            inputMode="numeric"
-          >
-            <NumberInputField />
-            <NumberInputStepper>
-              <NumberIncrementStepper />
-              <NumberDecrementStepper />
-            </NumberInputStepper>
-          </NumberInput>
-          <FormErrorMessage>{form.errors.cycleAmount}</FormErrorMessage>
-        </FormControl>
+        <SimpleGrid columns={[1, 2]} spacing={4}>
+          <FormControl id="firstBill" isInvalid={Boolean(form.errors.firstBill && form.touched.firstBill)}>
+            <FormLabel>First bill</FormLabel>
+            <Input
+              type="date"
+              onChange={(value) => {
+                form.handleChange({
+                  target: {
+                    id: 'firstBill',
+                    value: new Date(value.target.value),
+                  },
+                })
+              }}
+              value={format(form.values.firstBill, 'yyyy-MM-dd')}
+            />
+            <FormErrorMessage>{form.errors.firstBill}</FormErrorMessage>
+          </FormControl>
 
-        <FormControl id="cyclePeriod" isInvalid={Boolean(form.errors.cyclePeriod && form.touched.cyclePeriod)}>
-          <FormLabel>cyclePeriod</FormLabel>
-          <RadioGroup
-            onChange={(value) =>
-              form.handleChange({
-                target: {
-                  id: 'cyclePeriod',
-                  value,
-                },
-              })
-            }
-            value={form.values.cyclePeriod}
-          >
-            <Stack direction="row">
-              {Object.keys(Period.keys).map((period) => (
-                <Radio key={period} value={period}>
-                  {period}
-                </Radio>
-              ))}
-            </Stack>
-          </RadioGroup>
-          <FormErrorMessage>{form.errors.cyclePeriod}</FormErrorMessage>
-        </FormControl>
+          <FormControl id="price" isInvalid={Boolean(form.errors.price && form.touched.price)}>
+            <FormLabel>Price</FormLabel>
+            <InputGroup>
+              <InputLeftElement pointerEvents="none" color="gray.300" fontSize="1.2em">
+                €
+              </InputLeftElement>
+              <Input onChange={form.handleChange} value={form.values.price} placeholder="price" />
+            </InputGroup>
+            <FormErrorMessage>{form.errors.price}</FormErrorMessage>
+          </FormControl>
+        </SimpleGrid>
+
+        <Grid templateColumns={['1fr', 'auto 1fr']} gap={4}>
+          <FormControl id="cycleAmount" isInvalid={Boolean(form.errors.cycleAmount && form.touched.cycleAmount)}>
+            <FormLabel aria-label="Cycle amount">Amount</FormLabel>
+            <NumberInput
+              min={1}
+              max={31}
+              onChange={(value) =>
+                form.handleChange({
+                  target: {
+                    id: 'cycleAmount',
+                    value: Number(value),
+                  },
+                })
+              }
+              value={form.values.cycleAmount}
+              allowMouseWheel
+              inputMode="numeric"
+            >
+              <NumberInputField />
+              <NumberInputStepper>
+                <NumberIncrementStepper />
+                <NumberDecrementStepper />
+              </NumberInputStepper>
+            </NumberInput>
+            <FormErrorMessage>{form.errors.cycleAmount}</FormErrorMessage>
+          </FormControl>
+
+          <FormControl id="cyclePeriod" isInvalid={Boolean(form.errors.cyclePeriod && form.touched.cyclePeriod)}>
+            <FormLabel aria-label="Cycle period">Period</FormLabel>
+            <RadioGroup
+              onChange={(value) =>
+                form.handleChange({
+                  target: {
+                    id: 'cyclePeriod',
+                    value,
+                  },
+                })
+              }
+              value={form.values.cyclePeriod}
+            >
+              <Stack direction={['column', 'row']} justify="space-between">
+                {Object.keys(Period.keys).map((period) => (
+                  <Radio key={period} value={period}>
+                    {period}
+                  </Radio>
+                ))}
+              </Stack>
+            </RadioGroup>
+            <FormErrorMessage>{form.errors.cyclePeriod}</FormErrorMessage>
+          </FormControl>
+        </Grid>
 
         <FormControl id="overview" isInvalid={Boolean(form.errors.overview && form.touched.overview)}>
-          <FormLabel>overview</FormLabel>
+          <FormLabel>Overview</FormLabel>
           <Textarea onChange={form.handleChange} value={form.values.overview} />
           <FormErrorMessage>{form.errors.overview}</FormErrorMessage>
-        </FormControl>
-
-        <FormControl id="price" isInvalid={Boolean(form.errors.price && form.touched.price)}>
-          <FormLabel>price</FormLabel>
-          <InputGroup>
-            <InputLeftElement pointerEvents="none" color="gray.300" fontSize="1.2em">
-              €
-            </InputLeftElement>
-            <Input onChange={form.handleChange} value={form.values.price} placeholder="price" />
-          </InputGroup>
-          <FormErrorMessage>{form.errors.price}</FormErrorMessage>
-        </FormControl>
-
-        <FormControl id="firstBill" isInvalid={Boolean(form.errors.firstBill && form.touched.firstBill)}>
-          <FormLabel>firstBill</FormLabel>
-          <Input
-            type="date"
-            onChange={(value) => {
-              form.handleChange({
-                target: {
-                  id: 'firstBill',
-                  value: new Date(value.target.value),
-                },
-              })
-            }}
-            value={format(form.values.firstBill, 'yyyy-MM-dd')}
-          />
-          <FormErrorMessage>{form.errors.firstBill}</FormErrorMessage>
         </FormControl>
 
         <FormControl id="icon" isInvalid={Boolean(form.errors.icon && form.touched.icon)}>
