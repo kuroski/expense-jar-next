@@ -36,7 +36,7 @@ export async function save(values: FormValues) {
   // return data
 }
 
-export function all(): Promise<E.Either<Error, Subscriptions>> {
+export function all(): TE.TaskEither<Error, Subscriptions> {
   return pipe(
     TE.tryCatch(() => fetch(`${process.env.NEXT_PUBLIC_API_HOST}/api/subscription`), E.toError),
     TE.chain((response) => TE.tryCatch((): Promise<{ subscriptions: unknown[] }> => response.json(), E.toError)),
@@ -47,6 +47,6 @@ export function all(): Promise<E.Either<Error, Subscriptions>> {
         E.mapLeft((errors) => new Error(failure(errors).join('\n'))),
         TE.fromEither,
       ),
-    ),
-  )()
+    )
+  )
 }
