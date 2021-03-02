@@ -1,7 +1,9 @@
 import React from 'react'
 import { useRouter } from 'next/router'
 import {
+  Box,
   Button,
+  Collapse,
   FormControl,
   FormErrorMessage,
   FormLabel,
@@ -17,10 +19,13 @@ import {
   NumberInputStepper,
   Radio,
   RadioGroup,
+  Select,
   SimpleGrid,
   Stack,
   Textarea,
+  useDisclosure,
 } from '@chakra-ui/react'
+import * as icons from "react-icons/md";
 import { useFormik } from 'formik'
 import * as Yup from 'yup'
 import { MdBugReport, MdSettings } from 'react-icons/md'
@@ -51,6 +56,7 @@ const SubscriptionSchema = Yup.object().shape({
 
 const NewSubscription = () => {
   const router = useRouter()
+  const { isOpen, onToggle } = useDisclosure()
 
   const initialValues: FormValues = {
     name: '',
@@ -77,6 +83,9 @@ const NewSubscription = () => {
         },
       ),
   })
+
+  const bla = Object.values(icons)
+
 
   return (
     <form onSubmit={form.handleSubmit}>
@@ -115,17 +124,28 @@ const NewSubscription = () => {
 
           <FormControl id="price" isInvalid={Boolean(form.errors.price && form.touched.price)}>
             <FormLabel>Price</FormLabel>
-            <InputGroup>
-              <InputLeftElement pointerEvents="none" color="gray.300" fontSize="1.2em">
-                €
-              </InputLeftElement>
-              <Input onChange={form.handleChange} value={form.values.price} placeholder="price" />
-            </InputGroup>
+            <NumberInput
+              onChange={(value) =>
+                form.handleChange({
+                  target: {
+                    id: 'price',
+                    value,
+                  },
+                })
+              }
+              value={form.values.price}
+            >
+              <NumberInputField />
+              <NumberInputStepper>
+                <NumberIncrementStepper />
+                <NumberDecrementStepper />
+              </NumberInputStepper>
+            </NumberInput>
             <FormErrorMessage>{form.errors.price}</FormErrorMessage>
           </FormControl>
         </SimpleGrid>
 
-        <Grid templateColumns={['1fr', 'auto 1fr']} gap={4}>
+        <SimpleGrid columns={[1, 2]} spacing={4}>
           <FormControl id="cycleAmount" isInvalid={Boolean(form.errors.cycleAmount && form.touched.cycleAmount)}>
             <FormLabel aria-label="Cycle amount">Amount</FormLabel>
             <NumberInput
@@ -154,28 +174,16 @@ const NewSubscription = () => {
 
           <FormControl id="cyclePeriod" isInvalid={Boolean(form.errors.cyclePeriod && form.touched.cyclePeriod)}>
             <FormLabel aria-label="Cycle period">Period</FormLabel>
-            <RadioGroup
-              onChange={(value) =>
-                form.handleChange({
-                  target: {
-                    id: 'cyclePeriod',
-                    value,
-                  },
-                })
-              }
-              value={form.values.cyclePeriod}
-            >
-              <Stack direction={['column', 'row']} justify="space-between">
-                {Object.keys(Period.keys).map((period) => (
-                  <Radio key={period} value={period}>
-                    {period}
-                  </Radio>
-                ))}
-              </Stack>
-            </RadioGroup>
+            <Select onChange={form.handleChange} value={form.values.cyclePeriod} placeholder="Price">
+              {Object.keys(Period.keys).map((period) => (
+                <option key={period} value={period}>
+                  {period}
+                </option>
+              ))}
+            </Select>
             <FormErrorMessage>{form.errors.cyclePeriod}</FormErrorMessage>
           </FormControl>
-        </Grid>
+        </SimpleGrid>
 
         <FormControl id="overview" isInvalid={Boolean(form.errors.overview && form.touched.overview)}>
           <FormLabel>Overview</FormLabel>
@@ -205,6 +213,16 @@ const NewSubscription = () => {
               </Radio>
             </Stack>
           </RadioGroup>
+          <>
+            <Button onClick={onToggle}>Click Me</Button>
+            <Collapse in={isOpen} animateOpacity>
+              <Box p="40px" color="white" mt="4" bg="teal.500" rounded="md" shadow="md">
+                <SimpleGrid columns={15} gap={4}>
+                  {bla.map((a, index) => <Icon as={a} key={index} />)}
+                </SimpleGrid>
+              </Box>
+            </Collapse>
+          </>
           <FormErrorMessage>{form.errors.icon}</FormErrorMessage>
         </FormControl>
 
