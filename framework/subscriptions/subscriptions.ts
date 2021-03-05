@@ -4,6 +4,7 @@ import * as E from 'fp-ts/lib/Either'
 import { flow, pipe } from 'fp-ts/lib/function'
 import * as TE from 'fp-ts/lib/TaskEither'
 import { failure } from 'io-ts/lib/PathReporter'
+import { left } from 'fp-ts/lib/These'
 
 export async function save(values: FormValues) {
   return pipe(
@@ -18,22 +19,21 @@ export async function save(values: FormValues) {
         }),
       E.toError,
     ),
-    TE.chain((response) => {
-      if (response.ok) return TE.tryCatch(response.json, E.toError)
-      const bla = pipe(TE.tryCatch(response.text, E.toError), TE.chain(flow(TE.fromEither)))()
-      return bla
-      // if (response.ok) return response.json()
-      // return response.text()
-    }),
+    TE.chain((response) => TE.tryCatch(() => response.json(), E.toError)),
+    // TE.chain(async (response) => {
+    //   // if (response.ok) return TE.tryCatch(response.json, E.toError)
+    //   // const bla = pipe(TE.tryCatch(response.text, E.toError), TE.chain(flow(TE.fromEither)))()
+    //   // return bla
+
+    //   if (!response.ok) {
+    //     const text = await response.text()
+    //     throw new Error(text)
+    //   }
+
+    //   const { data } = await response.json()
+    //   return data
+    // }),
   )()
-
-  // if (!response.ok) {
-  //   const text = await response.text()
-  //   throw new Error(text)
-  // }
-
-  // const { data } = await response.json()
-  // return data
 }
 
 export function all(): TE.TaskEither<Error, Subscriptions> {

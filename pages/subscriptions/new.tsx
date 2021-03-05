@@ -3,15 +3,11 @@ import { useRouter } from 'next/router'
 import {
   Box,
   Button,
-  Collapse,
   FormControl,
   FormErrorMessage,
   FormLabel,
   Grid,
-  Icon,
   Input,
-  InputGroup,
-  InputLeftElement,
   NumberDecrementStepper,
   NumberIncrementStepper,
   NumberInput,
@@ -25,13 +21,13 @@ import {
   Textarea,
   useDisclosure,
 } from '@chakra-ui/react'
-import * as icons from "react-icons/md";
+import * as mdIcons from 'react-icons/md'
 import { useFormik } from 'formik'
 import * as Yup from 'yup'
-import { MdBugReport, MdSettings } from 'react-icons/md'
 import { format } from 'date-fns'
 import { save } from '@/framework/subscriptions/subscriptions'
 import { Period } from '@/framework/subscriptions/types'
+import IconSelect from '@/components/iconSelect'
 
 export type FormValues = {
   name: string
@@ -56,7 +52,6 @@ const SubscriptionSchema = Yup.object().shape({
 
 const NewSubscription = () => {
   const router = useRouter()
-  const { isOpen, onToggle } = useDisclosure()
 
   const initialValues: FormValues = {
     name: '',
@@ -83,9 +78,6 @@ const NewSubscription = () => {
         },
       ),
   })
-
-  const bla = Object.values(icons)
-
 
   return (
     <form onSubmit={form.handleSubmit}>
@@ -192,37 +184,8 @@ const NewSubscription = () => {
         </FormControl>
 
         <FormControl id="icon" isInvalid={Boolean(form.errors.icon && form.touched.icon)}>
-          <FormLabel>icon</FormLabel>
-          <RadioGroup
-            onChange={(value) =>
-              form.handleChange({
-                target: {
-                  id: 'icon',
-                  value,
-                },
-              })
-            }
-            value={form.values.icon}
-          >
-            <Stack direction="row">
-              <Radio value="MdSettings">
-                <Icon as={MdSettings} />
-              </Radio>
-              <Radio value="MdBugReport">
-                <Icon as={MdBugReport} />
-              </Radio>
-            </Stack>
-          </RadioGroup>
-          <>
-            <Button onClick={onToggle}>Click Me</Button>
-            <Collapse in={isOpen} animateOpacity>
-              <Box p="40px" color="white" mt="4" bg="teal.500" rounded="md" shadow="md">
-                <SimpleGrid columns={15} gap={4}>
-                  {bla.map((a, index) => <Icon as={a} key={index} />)}
-                </SimpleGrid>
-              </Box>
-            </Collapse>
-          </>
+          <FormLabel>Icon</FormLabel>
+          <IconSelect onSelect={(res) => console.log(res)} />
           <FormErrorMessage>{form.errors.icon}</FormErrorMessage>
         </FormControl>
 

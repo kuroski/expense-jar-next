@@ -37,6 +37,7 @@
     "reflect-metadata": "^0.1.13",
     "swr": "^0.4.2",
     "typeorm": "^0.2.30",
+    "use-debounce": "^5.2.1",
     "yup": "^0.32.8"
   },
   "devDependencies": {
