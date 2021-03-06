@@ -1,54 +1,46 @@
 import React, { useMemo, useState } from 'react'
 import {
-  Box,
   Button,
   Icon,
   IconButton,
   Input,
   Modal,
   ModalBody,
-  ModalCloseButton,
   ModalContent,
-  ModalFooter,
   ModalHeader,
   ModalOverlay,
   SimpleGrid,
   useDisclosure,
 } from '@chakra-ui/react'
-import * as icons from 'react-icons/md'
+import * as materialIcons from 'react-icons/md'
 import { flow } from 'fp-ts/lib/function'
-import { key } from 'monocle-ts/lib/Traversal'
 import { useDebounce } from 'use-debounce/lib'
-import { AnimatePresence, motion } from 'framer-motion'
-import type { Variants } from 'framer-motion'
 
 type Props = {
   onSelect: (icon: string) => void
 }
+
 const IconSelect = (props: Props) => {
   const { isOpen, onOpen, onClose } = useDisclosure()
   const [searchTerm, setSearchTerm] = useState('')
   const [debouncedTerm] = useDebounce(searchTerm, 500)
 
-  const iconList = useMemo(
+  const icons = useMemo(
     () =>
-      Object.entries(icons).map(([key, i]) => {
-        const isSelected = key.toLowerCase().includes(debouncedTerm.toLowerCase())
-        return (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: isSelected ? 1 : 0.3 }}
-            exit={{ opacity: 0 }}
-          >
-            <IconButton
-              key={key}
-              aria-label={key}
-              icon={<Icon as={i} />}
-              onClick={flow(() => props.onSelect(key), onClose)}
-            />
-          </motion.div>
-        )
-      }),
+      Object.entries(materialIcons).map(([key, icon]) => [
+        key.toLowerCase(),
+        <IconButton
+          key={key}
+          aria-label={key}
+          icon={<Icon as={icon} />}
+          onClick={flow(() => props.onSelect(key), onClose)}
+        />,
+      ]),
+    [],
+  )
+
+  const iconList = useMemo(
+    () => icons.filter(([name]) => String(name).includes(debouncedTerm.toLowerCase())).map(([_, component]) => component),
     [debouncedTerm],
   )
 
@@ -68,11 +60,9 @@ const IconSelect = (props: Props) => {
             />
           </ModalHeader>
           <ModalBody pb={6}>
-            <AnimatePresence>
-              <SimpleGrid columns={7} gap={4}>
-                {iconList}
-              </SimpleGrid>
-            </AnimatePresence>
+            <SimpleGrid columns={7} gap={4}>
+              {iconList}
+            </SimpleGrid>
           </ModalBody>
         </ModalContent>
       </Modal>
