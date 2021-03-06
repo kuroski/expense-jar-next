@@ -30,7 +30,7 @@ handler.get(async (req, res) =>
       (error: ApiError) => {
         switch (error._tag) {
           case 'UNAUTHORIZED':
-            res.status(401).send("Unauthorized!")
+            res.status(401).send('Unauthorized!')
             res.end()
             break
 
@@ -62,12 +62,12 @@ handler.post(async (req, res) => {
   )({
     _id: nanoid(12),
     color: body.color,
-    cycleAmount: body.cycleAmount,
+    cycleAmount: Number(body.cycleAmount),
     cyclePeriod: body.cyclePeriod,
     firstBill: body.firstBill,
     icon: body.icon,
     name: body.name,
-    price: body.price,
+    price: Number(body.price),
     overview: body.overview,
   })
 

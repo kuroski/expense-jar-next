@@ -17,6 +17,7 @@ import { flow } from 'fp-ts/lib/function'
 import { useDebounce } from 'use-debounce/lib'
 
 type Props = {
+  value: string
   onSelect: (icon: string) => void
 }
 
@@ -40,13 +41,24 @@ const IconSelect = (props: Props) => {
   )
 
   const iconList = useMemo(
-    () => icons.filter(([name]) => String(name).includes(debouncedTerm.toLowerCase())).map(([_, component]) => component),
+    () =>
+      icons.filter(([name]) => String(name).includes(debouncedTerm.toLowerCase())).map(([_, component]) => component),
     [debouncedTerm],
+  )
+
+  const foundIcon =
+    props.value.trim().length > 0 ? Object.entries(materialIcons).find(([key]) => key === props.value) : false
+  const buttonContent = foundIcon ? (
+    <span>
+      <Icon as={foundIcon[1]} /> Selected
+    </span>
+  ) : (
+    <span>Select an icon</span>
   )
 
   return (
     <>
-      <Button onClick={onOpen}>Select an icon</Button>
+      <Button onClick={onOpen}>{buttonContent}</Button>
 
       <Modal isOpen={isOpen} onClose={onClose} isCentered scrollBehavior="inside">
         <ModalOverlay />

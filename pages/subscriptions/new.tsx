@@ -185,7 +185,17 @@ const NewSubscription = () => {
 
         <FormControl id="icon" isInvalid={Boolean(form.errors.icon && form.touched.icon)}>
           <FormLabel>Icon</FormLabel>
-          <IconSelect onSelect={(res) => console.log(res)} />
+          <IconSelect
+            value={form.values.icon}
+            onSelect={(value) =>
+              form.handleChange({
+                target: {
+                  id: 'icon',
+                  value,
+                },
+              })
+            }
+          />
           <FormErrorMessage>{form.errors.icon}</FormErrorMessage>
         </FormControl>
 

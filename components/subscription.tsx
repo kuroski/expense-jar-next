@@ -14,9 +14,14 @@ const SubscriptionItem = (item: types.Subscription) => {
       </Flex>
 
       <Stat mt={4}>
-        <StatLabel>4 weeks</StatLabel>
+        <StatLabel>
+          <span>{item.cycleAmount}</span> | <span>{item.cyclePeriod}</span>
+        </StatLabel>
+        <StatNumber>{item.price}</StatNumber>
+        <StatHelpText>{item.firstBill.toISOString()}</StatHelpText>
+        {/* <StatLabel>4 weeks</StatLabel>
         <StatNumber>R$ 100,00</StatNumber>
-        <StatHelpText>Feb 12 - Feb 28</StatHelpText>
+        <StatHelpText>Feb 12 - Feb 28</StatHelpText> */}
       </Stat>
     </Box>
   )
