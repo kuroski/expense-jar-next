@@ -1,6 +1,7 @@
 import React, { useMemo, useState, useEffect, useCallback } from 'react'
 import {
   Button,
+  ButtonGroup,
   Icon,
   IconButton,
   Input,
@@ -17,9 +18,10 @@ import {
 import * as simpleIcons from 'react-icons/si'
 import { flow } from 'fp-ts/lib/function'
 import type { IconType } from 'react-icons/lib'
-import { SearchIcon } from '@chakra-ui/icons'
+import { DeleteIcon, SearchIcon } from '@chakra-ui/icons'
 
 type IconSelectProps = {
+  id: string
   value: string
   onSelect: (icon: string) => void
 }
@@ -63,17 +65,16 @@ const IconSelect = (props: IconSelectProps) => {
 
   const foundIcon =
     props.value.trim().length > 0 ? Object.entries(simpleIcons).find(([key]) => key === props.value) : false
-  const buttonContent = foundIcon ? (
-    <span>
-      <Icon as={foundIcon[1]} /> Selected
-    </span>
-  ) : (
-    <span>Select an icon</span>
-  )
+  const buttonContent = foundIcon ? <Icon as={foundIcon[1]} /> : <span>Select an icon</span>
 
   return (
     <>
-      <Button onClick={onOpen}>{buttonContent}</Button>
+      <ButtonGroup isAttached variant="outline">
+        <Button id={props.id} onClick={onOpen}>
+          {buttonContent}
+        </Button>
+        {foundIcon && <IconButton aria-label="Clear icon" icon={<DeleteIcon />} onClick={() => iconSelected('')} />}
+      </ButtonGroup>
 
       <Modal isOpen={isOpen} onClose={onClose} isCentered scrollBehavior="inside">
         <ModalOverlay />
@@ -81,6 +82,7 @@ const IconSelect = (props: IconSelectProps) => {
           <ModalHeader>
             <InputGroup size="md">
               <Input
+                id="icon-search"
                 placeholder="Search for an icon"
                 autoFocus={true}
                 value={searchTerm}

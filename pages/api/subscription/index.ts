@@ -51,7 +51,7 @@ handler.get(async (req, res) =>
 handler.post(async (req, res) => {
   if (!req.user.id) {
     console.error('No user provided')
-    throw new Error(`No user provided to add the subscriptions ${req.body.name}`)
+    throw new Error(`No user provided to add the subscriptions "${req.body.name}"`)
   }
 
   const body: FormValues = req.body as FormValues

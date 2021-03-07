@@ -13,21 +13,20 @@ import {
   NumberInput,
   NumberInputField,
   NumberInputStepper,
-  Radio,
-  RadioGroup,
   Select,
   SimpleGrid,
   Stack,
   Textarea,
-  useDisclosure,
+  useToast,
 } from '@chakra-ui/react'
-import * as mdIcons from 'react-icons/md'
 import { useFormik } from 'formik'
 import * as Yup from 'yup'
 import { format } from 'date-fns'
 import { save } from '@/framework/subscriptions/subscriptions'
 import { Period } from '@/framework/subscriptions/types'
 import IconSelect from '@/components/iconSelect'
+import { flow } from 'fp-ts/lib/function'
+import { fold } from 'fp-ts/lib/Either'
 
 export type FormValues = {
   name: string
@@ -52,6 +51,7 @@ const SubscriptionSchema = Yup.object().shape({
 
 const NewSubscription = () => {
   const router = useRouter()
+  const toast = useToast()
 
   const initialValues: FormValues = {
     name: '',
@@ -67,32 +67,65 @@ const NewSubscription = () => {
   const form = useFormik({
     initialValues,
     validationSchema: SubscriptionSchema,
-    onSubmit: (values) =>
-      save(values).then(
-        (e) => {
-          console.log(e)
-          return router.push('/')
-        },
-        (error) => {
-          console.log(error)
-        },
-      ),
+    onSubmit: flow(
+      (values) => save(values)(),
+      (e) =>
+        e.then(
+          fold(
+            (errors) => {
+              toast({
+                title: 'An error ocurred',
+                description: errors.message,
+                status: 'error',
+                duration: 9000,
+                isClosable: true,
+              })
+            },
+            (subscription) => {
+              console.log(subscription)
+              toast({
+                title: `Subscription "${subscription.name}" created`,
+                status: 'success',
+                duration: 9000,
+                isClosable: true,
+              })
+              return router.push('/')
+            },
+          ),
+        ),
+    ),
   })
 
   return (
     <form onSubmit={form.handleSubmit}>
       <Stack spacing={4} mt={10}>
-        <Grid templateColumns={['1fr', '1fr auto']} gap={4}>
-          <FormControl id="name" isInvalid={Boolean(form.errors.name && form.touched.name)}>
-            <FormLabel>Name</FormLabel>
-            <Input type="text" onChange={form.handleChange} value={form.values.name} />
-            <FormErrorMessage>{form.errors.name}</FormErrorMessage>
-          </FormControl>
+        <FormControl id="icon" isInvalid={Boolean(form.errors.icon && form.touched.icon)}>
+          <IconSelect
+            id="icon"
+            value={form.values.icon}
+            onSelect={(value) =>
+              form.handleChange({
+                target: {
+                  id: 'icon',
+                  value,
+                },
+              })
+            }
+          />
+          <FormErrorMessage>{form.errors.icon}</FormErrorMessage>
+        </FormControl>
 
+        <Grid templateColumns={['1fr', 'auto 1fr']} gap={4}>
           <FormControl id="color" isInvalid={Boolean(form.errors.color && form.touched.color)}>
             <FormLabel>Color</FormLabel>
             <Input variant="flushed" type="color" onChange={form.handleChange} value={form.values.color} />
             <FormErrorMessage>{form.errors.color}</FormErrorMessage>
+          </FormControl>
+
+          <FormControl id="name" isInvalid={Boolean(form.errors.name && form.touched.name)}>
+            <FormLabel>Name</FormLabel>
+            <Input type="text" onChange={form.handleChange} value={form.values.name} />
+            <FormErrorMessage>{form.errors.name}</FormErrorMessage>
           </FormControl>
         </Grid>
 
@@ -181,22 +214,6 @@ const NewSubscription = () => {
           <FormLabel>Overview</FormLabel>
           <Textarea onChange={form.handleChange} value={form.values.overview} />
           <FormErrorMessage>{form.errors.overview}</FormErrorMessage>
-        </FormControl>
-
-        <FormControl id="icon" isInvalid={Boolean(form.errors.icon && form.touched.icon)}>
-          <FormLabel>Icon</FormLabel>
-          <IconSelect
-            value={form.values.icon}
-            onSelect={(value) =>
-              form.handleChange({
-                target: {
-                  id: 'icon',
-                  value,
-                },
-              })
-            }
-          />
-          <FormErrorMessage>{form.errors.icon}</FormErrorMessage>
         </FormControl>
 
         <Button mt={4} colorScheme="teal" type="submit">
