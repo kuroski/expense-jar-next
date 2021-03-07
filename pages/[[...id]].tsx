@@ -1,6 +1,6 @@
 import React from 'react'
 import Link from 'next/link'
-import { Box, Button, Center, Flex, IconButton, SimpleGrid } from '@chakra-ui/react'
+import { Box, Button, Center, Flex, Heading, IconButton, SimpleGrid, Stack } from '@chakra-ui/react'
 import { AddIcon } from '@chakra-ui/icons'
 import { AnimatePresence, motion } from 'framer-motion'
 import type { Variants } from 'framer-motion'
@@ -8,6 +8,7 @@ import Subscription from '@/components/subscription'
 import useSubscriptions from '@/framework/subscriptions/useSubscriptions'
 import SubscriptionsSkeleton from '@/components/subscriptionsSkeleton'
 import { MdRefresh } from 'react-icons/md'
+import NoData from '@/components/icons/noData'
 
 const App = () => {
   const { subscriptions, isLoading, error, mutate } = useSubscriptions()
@@ -36,7 +37,7 @@ const App = () => {
           </a>
         </Link>
       </Flex>
-      
+
       {isLoading && <SubscriptionsSkeleton />}
       {error && (
         <Center display="flex" flexDirection="column">
@@ -45,6 +46,23 @@ const App = () => {
             Retry
           </Button>
         </Center>
+      )}
+      {!error && subscriptions && subscriptions.length <= 0 && (
+        <Stack align="center">
+          <Box width={300} height={330} mx="auto" mb={4}>
+            <NoData />
+          </Box>
+          <Heading as="h1" size="md" mb={2}>
+            <span>Things are a bit empty here, let's</span>
+          </Heading>
+          <Link href="/subscriptions/new">
+            <a>
+              <Button aria-label="Add new subscription" rightIcon={<AddIcon />}>
+                Add a subscription
+              </Button>
+            </a>
+          </Link>
+        </Stack>
       )}
       {subscriptions && (
         <AnimatePresence>
