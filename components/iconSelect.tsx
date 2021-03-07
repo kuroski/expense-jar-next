@@ -14,7 +14,7 @@ import {
 } from '@chakra-ui/react'
 import * as materialIcons from 'react-icons/md'
 import { flow } from 'fp-ts/lib/function'
-import { useDebounce } from 'use-debounce/lib'
+import { useDebounce } from 'use-debounce'
 
 type Props = {
   value: string
