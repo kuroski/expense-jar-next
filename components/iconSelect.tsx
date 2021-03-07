@@ -1,9 +1,11 @@
-import React, { useMemo, useState } from 'react'
+import React, { useMemo, useState, useEffect, useCallback } from 'react'
 import {
   Button,
   Icon,
   IconButton,
   Input,
+  InputGroup,
+  InputRightElement,
   Modal,
   ModalBody,
   ModalContent,
@@ -12,42 +14,55 @@ import {
   SimpleGrid,
   useDisclosure,
 } from '@chakra-ui/react'
-import * as materialIcons from 'react-icons/md'
+import * as simpleIcons from 'react-icons/si'
 import { flow } from 'fp-ts/lib/function'
-import { useDebounce } from 'use-debounce'
+import type { IconType } from 'react-icons/lib'
+import { SearchIcon } from '@chakra-ui/icons'
 
-type Props = {
+type IconSelectProps = {
   value: string
   onSelect: (icon: string) => void
 }
 
-const IconSelect = (props: Props) => {
+type IconListProps = {
+  selected?: string
+  icons: IconType[]
+  onSelect: (icon: string) => void
+}
+
+const icons = Object.values(simpleIcons)
+
+const IconList = React.memo((props: IconListProps) => (
+  <SimpleGrid columns={7} gap={4}>
+    {props.icons.map((icon) => (
+      <IconButton
+        key={icon.name}
+        aria-label={icon.name}
+        icon={<Icon as={icon} />}
+        onClick={() => props.onSelect(icon.name)}
+        border="1px"
+        borderColor={icon.name === props.selected ? 'blue.300' : 'gray.600'}
+      />
+    ))}
+  </SimpleGrid>
+))
+
+const IconSelect = (props: IconSelectProps) => {
   const { isOpen, onOpen, onClose } = useDisclosure()
   const [searchTerm, setSearchTerm] = useState('')
-  const [debouncedTerm] = useDebounce(searchTerm, 500)
+  const [iconList, setIconList] = useState<IconType[]>([])
 
-  const icons = useMemo(
-    () =>
-      Object.entries(materialIcons).map(([key, icon]) => [
-        key.toLowerCase(),
-        <IconButton
-          key={key}
-          aria-label={key}
-          icon={<Icon as={icon} />}
-          onClick={flow(() => props.onSelect(key), onClose)}
-        />,
-      ]),
-    [],
+  useEffect(() => setIconList(icons), [])
+
+  const searchButtonClicked = useCallback(
+    () => setIconList(icons.filter((icon) => icon.name.toLowerCase().includes(searchTerm.toLowerCase()))),
+    [searchTerm],
   )
 
-  const iconList = useMemo(
-    () =>
-      icons.filter(([name]) => String(name).includes(debouncedTerm.toLowerCase())).map(([_, component]) => component),
-    [debouncedTerm],
-  )
+  const iconSelected = useCallback((icon: string) => flow(props.onSelect, onClose)(icon), [])
 
   const foundIcon =
-    props.value.trim().length > 0 ? Object.entries(materialIcons).find(([key]) => key === props.value) : false
+    props.value.trim().length > 0 ? Object.entries(simpleIcons).find(([key]) => key === props.value) : false
   const buttonContent = foundIcon ? (
     <span>
       <Icon as={foundIcon[1]} /> Selected
@@ -64,17 +79,22 @@ const IconSelect = (props: Props) => {
         <ModalOverlay />
         <ModalContent>
           <ModalHeader>
-            <Input
-              placeholder="Search for an icon"
-              autoFocus={true}
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-            />
+            <InputGroup size="md">
+              <Input
+                placeholder="Search for an icon"
+                autoFocus={true}
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                onKeyPress={(e) => e.key === 'Enter' && searchButtonClicked()}
+              />
+              <InputRightElement>
+                <IconButton aria-label="Search icon" onClick={searchButtonClicked} icon={<SearchIcon />} />
+              </InputRightElement>
+            </InputGroup>
           </ModalHeader>
           <ModalBody pb={6}>
-            <SimpleGrid columns={7} gap={4}>
-              {iconList}
-            </SimpleGrid>
+            {iconList.length <= 0 && 'No icon found'}
+            <IconList selected={props.value} icons={iconList} onSelect={iconSelected} />
           </ModalBody>
         </ModalContent>
       </Modal>
