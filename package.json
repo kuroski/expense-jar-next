@@ -27,6 +27,7 @@
     "next": "10.0.5",
     "next-auth": "^3.1.0",
     "next-connect": "^0.9.1",
+    "next-pwa": "^5.0.6",
     "react": "17.0.1",
     "react-dom": "17.0.1",
     "react-icons": "^4.1.0",
