@@ -1,6 +1,18 @@
 import React from 'react'
 import Link from 'next/link'
-import { Box, Button, Center, Flex, Heading, IconButton, SimpleGrid, Stack } from '@chakra-ui/react'
+import {
+  Box,
+  Button,
+  Center,
+  Flex,
+  Heading,
+  IconButton,
+  SimpleGrid,
+  Stack,
+  Stat,
+  StatLabel,
+  StatNumber,
+} from '@chakra-ui/react'
 import { AddIcon } from '@chakra-ui/icons'
 import { AnimatePresence, motion } from 'framer-motion'
 import type { Variants } from 'framer-motion'
@@ -11,7 +23,7 @@ import { MdRefresh } from 'react-icons/md'
 import NoData from '@/components/icons/noData'
 
 const App = () => {
-  const { subscriptions, isLoading, error, mutate } = useSubscriptions()
+  const { subscriptions, stats, isLoading, error, mutate } = useSubscriptions()
 
   const container: Variants = {
     hidden: { opacity: 0 },
@@ -66,6 +78,11 @@ const App = () => {
       )}
       {subscriptions && (
         <AnimatePresence>
+          <Stat>
+            <StatLabel>Total price</StatLabel>
+            <StatNumber>€ {stats.totalExpenses}</StatNumber>
+          </Stat>
+
           <motion.div variants={container} initial="hidden" animate="show">
             <SimpleGrid minChildWidth="170px" spacing={6} mt={4}>
               {subscriptions.map((element) => (
