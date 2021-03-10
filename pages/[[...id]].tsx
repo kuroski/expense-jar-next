@@ -78,9 +78,9 @@ const App = () => {
       )}
       {subscriptions && (
         <AnimatePresence>
-          <Stat>
-            <StatLabel>Total price</StatLabel>
-            <StatNumber>€ {stats.totalExpenses}</StatNumber>
+          <Stat key="avg">
+            <StatLabel>Avg per month</StatLabel>
+            <StatNumber>€ {stats.monthlyExpenses}</StatNumber>
           </Stat>
 
           <motion.div variants={container} initial="hidden" animate="show">
