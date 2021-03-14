@@ -78,10 +78,22 @@ const App = () => {
       )}
       {subscriptions && (
         <AnimatePresence>
-          <Stat key="avg">
-            <StatLabel>Avg per month</StatLabel>
-            <StatNumber>€ {stats.monthlyExpenses}</StatNumber>
-          </Stat>
+          <SimpleGrid key="stats" spacing={4} columns={[1, 3]}>
+            <Stat key="avgWeek">
+              <StatLabel>Avg per week</StatLabel>
+              <StatNumber>€ {stats.weeklyExpenses}</StatNumber>
+            </Stat>
+
+            <Stat key="avgMonth">
+              <StatLabel>Avg per month</StatLabel>
+              <StatNumber>€ {stats.monthlyExpenses}</StatNumber>
+            </Stat>
+
+            <Stat key="avgYear">
+              <StatLabel>Avg per year</StatLabel>
+              <StatNumber>€ {stats.yearlyExpenses}</StatNumber>
+            </Stat>
+          </SimpleGrid>
 
           <motion.div variants={container} initial="hidden" animate="show">
             <SimpleGrid minChildWidth="170px" spacing={6} mt={4}>

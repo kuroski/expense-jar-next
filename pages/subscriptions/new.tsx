@@ -172,7 +172,7 @@ const NewSubscription = () => {
 
         <SimpleGrid columns={[1, 2]} spacing={4}>
           <FormControl id="cycleAmount" isInvalid={Boolean(form.errors.cycleAmount && form.touched.cycleAmount)}>
-            <FormLabel aria-label="Cycle amount">Amount</FormLabel>
+            <FormLabel aria-label="Cycle amount">Every (amount)</FormLabel>
             <NumberInput
               min={1}
               max={31}
@@ -202,7 +202,7 @@ const NewSubscription = () => {
             <Select onChange={form.handleChange} value={form.values.cyclePeriod} placeholder="Price">
               {Object.keys(Period.keys).map((period) => (
                 <option key={period} value={period}>
-                  {period}
+                  {period}(s)
                 </option>
               ))}
             </Select>
