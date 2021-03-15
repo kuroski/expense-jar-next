@@ -1,9 +1,8 @@
 import { fold } from 'fp-ts/lib/Either'
-import { flow, pipe } from 'fp-ts/lib/function'
+import { flow } from 'fp-ts/lib/function'
 import useSWR from 'swr'
 import { all } from './subscriptions'
-import { Period, Subscription, Subscriptions } from './types'
-import * as A from 'fp-ts/lib/Array'
+import { Subscriptions } from './types'
 import useStats from './useStats'
 
 const useSubscriptions = () => {
