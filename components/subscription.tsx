@@ -6,16 +6,37 @@ import * as simpleIcons from 'react-icons/si'
 import * as fns from 'date-fns/fp'
 import { flow, pipe } from 'fp-ts/lib/function'
 
-const now = Date.now()
-
+const now = new Date()
+console.log(now.toISOString())
 const SubscriptionItem = (item: types.Subscription) => {
   const [_, icon] = Object.entries(simpleIcons).find(([key]) => key === item.icon) || []
   const price = new Intl.NumberFormat('de-DE', { style: 'currency', currency: 'EUR' }).format(item.price)
 
-  const currentBilling = flow(fns.set({ year: fns.getYear(now), month: fns.getMonth(now) }), (d) => {
-    if (fns.isBefore(d, now)) return d
-    return fns.addMonths(1, d) // TODO: sum the date based in the operation
+  const currentBilling = flow((firstBill: Date) => {
+    switch (item.cyclePeriod) {
+      case 'day':
+        return firstBill
+
+      case 'month':
+        return firstBill
+
+      case 'week':
+        return firstBill
+
+      case 'year':
+        const years = fns.differenceInYears(firstBill, now)
+        const mod = years % item.cycleAmount
+
+        if (!mod && fns.isEqual(now, fns.setYear(fns.getYear(now), firstBill))) {
+          return now
+        }
+
+        const nextBill = fns.add({ years: years + (item.cycleAmount - mod) }, firstBill)
+        return fns.isAfter(nextBill, now) ? fns.addYears(item.cycleAmount, nextBill) : nextBill
+    }
   })(item.firstBill)
+
+  console.table({ name: item.name, currentBilling })
 
   return (
     <Box p={4} shadow="md" borderWidth="1px" rounded="lg" textAlign={['center', 'left']} direction="column">
@@ -36,9 +57,6 @@ const SubscriptionItem = (item: types.Subscription) => {
         <StatHelpText>First: {fns.format('PP', item.firstBill)}</StatHelpText>
         <StatHelpText>Next: {fns.format('PP', currentBilling)}</StatHelpText>
         <StatHelpText>in {fns.formatDistance(currentBilling, now)}</StatHelpText>
-        {/* <StatLabel>4 weeks</StatLabel>
-        <StatNumber>R$ 100,00</StatNumber>
-        <StatHelpText>Feb 12 - Feb 28</StatHelpText> */}
       </Stat>
     </Box>
   )
