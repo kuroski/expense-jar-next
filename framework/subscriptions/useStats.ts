@@ -1,64 +1,65 @@
 import { flow } from 'fp-ts/lib/function'
 import type { Subscription } from './types'
 import * as A from 'fp-ts/lib/Array'
+import isLeapYear from 'date-fns/fp/isLeapYear'
 
 type Operation = (subscription: Subscription) => number
 
 const DIVISOR = Math.pow(10, 2)
+const now = Date.now()
+const DAYS_IN_YEAR = isLeapYear(now) ? 366 : 365
+const WEEKS_IN_YEAR = DAYS_IN_YEAR / 7
 
 const roundMonetaryValue = (totalPrice: number): number => Math.round(totalPrice * DIVISOR) / DIVISOR
 
 const weekOperation: Operation = (subscription: Subscription): number => {
+  const unitPrice = subscription.price / subscription.cycleAmount
   switch (subscription.cyclePeriod) {
     case 'day':
-      return (7 / subscription.cycleAmount) * subscription.price
-    // return (subscription.price / subscription.cycleAmount) * 7
+      return unitPrice * 7
 
     case 'week':
-      return subscription.price / subscription.cycleAmount
+      return unitPrice
 
     case 'month':
-      return subscription.price / subscription.cycleAmount / 4.3
+      return unitPrice / 4.34
 
     case 'year':
-      return subscription.price / subscription.cycleAmount / 52
+      return unitPrice / WEEKS_IN_YEAR
   }
 }
 
 const monthOperation: Operation = (subscription: Subscription): number => {
+  const unitPrice = subscription.price / subscription.cycleAmount
   switch (subscription.cyclePeriod) {
     case 'day':
-      // return (30 / subscription.cycleAmount) * subscription.price
-      return (subscription.price / subscription.cycleAmount) * 30
+      return unitPrice * 30
 
     case 'week':
-      // return (4 / subscription.cycleAmount) * subscription.price
-      return (subscription.price / subscription.cycleAmount) * 4.3
+      return unitPrice * 4.34
 
     case 'month':
-      return subscription.price / subscription.cycleAmount
+      return unitPrice
 
     case 'year':
-      return subscription.price / subscription.cycleAmount / 12
+      return unitPrice / 12
   }
 }
 
 const yearOperation: Operation = (subscription: Subscription): number => {
+  const unitPrice = subscription.price / subscription.cycleAmount
   switch (subscription.cyclePeriod) {
     case 'day':
-      // return (365 / subscription.cycleAmount) * subscription.price
-      return (subscription.price / subscription.cycleAmount) * 365
+      return unitPrice * DAYS_IN_YEAR
 
     case 'week':
-      // return (52 / subscription.cycleAmount) * subscription.price
-      return (subscription.price / subscription.cycleAmount) * 52
+      return unitPrice * WEEKS_IN_YEAR
 
     case 'month':
-      // return (12 / subscription.cycleAmount) * subscription.price
-      return (subscription.price / subscription.cycleAmount) * 12
+      return unitPrice * 12
 
     case 'year':
-      return subscription.price / subscription.cycleAmount
+      return unitPrice
   }
 }
 
