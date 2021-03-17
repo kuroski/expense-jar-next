@@ -4,15 +4,21 @@ import { CgMail } from 'react-icons/cg'
 import type * as types from '@/framework/subscriptions/types'
 import * as simpleIcons from 'react-icons/si'
 import * as fns from 'date-fns/fp'
-import { flow, pipe } from 'fp-ts/lib/function'
+import { not, pipe } from 'fp-ts/lib/function'
+import * as O from 'fp-ts/lib/Option'
 
 const now = new Date()
-console.log(now.toISOString())
+const setCurrentYear = fns.setYear(fns.getYear(now))
+const isEqualNow = fns.isEqual(now)
+const isBeforeNow = fns.isBefore(now)
+const isNextBillToday = (mod: boolean) => (firstBill: Date): boolean =>
+  !mod && pipe(firstBill, setCurrentYear, isEqualNow)
+
 const SubscriptionItem = (item: types.Subscription) => {
   const [_, icon] = Object.entries(simpleIcons).find(([key]) => key === item.icon) || []
   const price = new Intl.NumberFormat('de-DE', { style: 'currency', currency: 'EUR' }).format(item.price)
 
-  const currentBilling = flow((firstBill: Date) => {
+  const currentBilling = pipe(item.firstBill, (firstBill: Date) => {
     switch (item.cyclePeriod) {
       case 'day':
         return firstBill
@@ -24,19 +30,25 @@ const SubscriptionItem = (item: types.Subscription) => {
         return firstBill
 
       case 'year':
-        const years = fns.differenceInYears(firstBill, now)
-        const mod = years % item.cycleAmount
+        const differenceInYears = fns.differenceInYears(firstBill, now)
+        const mod = differenceInYears % item.cycleAmount
 
-        if (!mod && fns.isEqual(now, fns.setYear(fns.getYear(now), firstBill))) {
-          return now
-        }
-
-        const nextBill = fns.add({ years: years + (item.cycleAmount - mod) }, firstBill)
-        return fns.isAfter(nextBill, now) ? fns.addYears(item.cycleAmount, nextBill) : nextBill
+        return pipe(
+          firstBill,
+          O.fromPredicate(pipe(Boolean(mod), isNextBillToday, not)),
+          O.map(fns.add({ years: differenceInYears + (item.cycleAmount - mod) })),
+          O.chain((nextBill) =>
+            pipe(
+              nextBill,
+              O.fromPredicate(isBeforeNow),
+              O.map(fns.addYears(item.cycleAmount)),
+              O.altW<Date>(() => O.some(nextBill)),
+            ),
+          ),
+          O.getOrElse(() => now),
+        )
     }
-  })(item.firstBill)
-
-  console.table({ name: item.name, currentBilling })
+  })
 
   return (
     <Box p={4} shadow="md" borderWidth="1px" rounded="lg" textAlign={['center', 'left']} direction="column">
