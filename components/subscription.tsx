@@ -11,6 +11,7 @@ const now = new Date()
 const setCurrentYear = fns.setYear(fns.getYear(now))
 const setCurrentMonth = fns.setMonth(fns.getMonth(now))
 const setCurrentWeek = fns.setWeek(fns.getWeek(now))
+const setCurrentDay = fns.setDay(fns.getDay(now))
 const isEqualNow = fns.isEqual(now)
 const isBeforeNow = fns.isBefore(now)
 
@@ -20,8 +21,27 @@ const SubscriptionItem = (item: types.Subscription) => {
 
   const currentBilling = pipe(item.firstBill, (firstBill: Date) => {
     switch (item.cyclePeriod) {
-      case 'day':
-        return firstBill
+      case 'day': {
+        const isNextBillToday = (mod: boolean) => (firstBill: Date): boolean =>
+          !mod && pipe(firstBill, setCurrentYear, setCurrentMonth, setCurrentDay, isEqualNow)
+        const differenceInDays = fns.differenceInDays(firstBill, now)
+        const mod = differenceInDays % item.cycleAmount
+
+        return pipe(
+          firstBill,
+          O.fromPredicate(pipe(Boolean(mod), isNextBillToday, not)),
+          O.map(fns.add({ days: differenceInDays + (item.cycleAmount - mod) })),
+          O.chain((nextBill) =>
+            pipe(
+              nextBill,
+              O.fromPredicate(isBeforeNow),
+              O.map(fns.addDays(item.cycleAmount)),
+              O.altW<Date>(() => O.some(nextBill)),
+            ),
+          ),
+          O.getOrElse(() => now),
+        )
+      }
 
       case 'week': {
         const isNextBillToday = (mod: boolean) => (firstBill: Date): boolean =>
