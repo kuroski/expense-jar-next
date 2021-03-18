@@ -10,6 +10,7 @@ import * as O from 'fp-ts/lib/Option'
 const now = new Date()
 const setCurrentYear = fns.setYear(fns.getYear(now))
 const setCurrentMonth = fns.setMonth(fns.getMonth(now))
+const setCurrentWeek = fns.setWeek(fns.getWeek(now))
 const isEqualNow = fns.isEqual(now)
 const isBeforeNow = fns.isBefore(now)
 
@@ -22,8 +23,27 @@ const SubscriptionItem = (item: types.Subscription) => {
       case 'day':
         return firstBill
 
-      case 'week':
-        return firstBill
+      case 'week': {
+        const isNextBillToday = (mod: boolean) => (firstBill: Date): boolean =>
+          !mod && pipe(firstBill, setCurrentYear, setCurrentWeek, isEqualNow)
+        const differenceInWeeks = fns.differenceInWeeks(firstBill, now)
+        const mod = differenceInWeeks % item.cycleAmount
+
+        return pipe(
+          firstBill,
+          O.fromPredicate(pipe(Boolean(mod), isNextBillToday, not)),
+          O.map(fns.add({ weeks: differenceInWeeks + (item.cycleAmount - mod) })),
+          O.chain((nextBill) =>
+            pipe(
+              nextBill,
+              O.fromPredicate(isBeforeNow),
+              O.map(fns.addWeeks(item.cycleAmount)),
+              O.altW<Date>(() => O.some(nextBill)),
+            ),
+          ),
+          O.getOrElse(() => now),
+        )
+      }
 
       case 'month': {
         const isNextBillToday = (mod: boolean) => (firstBill: Date): boolean =>
