@@ -159,6 +159,7 @@ const NewSubscription = () => {
                 })
               }
               value={form.values.price}
+              inputMode="decimal"
             >
               <NumberInputField />
               <NumberInputStepper>
