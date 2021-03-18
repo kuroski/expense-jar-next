@@ -9,10 +9,9 @@ import * as O from 'fp-ts/lib/Option'
 
 const now = new Date()
 const setCurrentYear = fns.setYear(fns.getYear(now))
+const setCurrentMonth = fns.setMonth(fns.getMonth(now))
 const isEqualNow = fns.isEqual(now)
 const isBeforeNow = fns.isBefore(now)
-const isNextBillToday = (mod: boolean) => (firstBill: Date): boolean =>
-  !mod && pipe(firstBill, setCurrentYear, isEqualNow)
 
 const SubscriptionItem = (item: types.Subscription) => {
   const [_, icon] = Object.entries(simpleIcons).find(([key]) => key === item.icon) || []
@@ -23,13 +22,34 @@ const SubscriptionItem = (item: types.Subscription) => {
       case 'day':
         return firstBill
 
-      case 'month':
-        return firstBill
-
       case 'week':
         return firstBill
 
-      case 'year':
+      case 'month': {
+        const isNextBillToday = (mod: boolean) => (firstBill: Date): boolean =>
+          !mod && pipe(firstBill, setCurrentYear, setCurrentMonth, isEqualNow)
+        const differenceInMonths = fns.differenceInMonths(firstBill, now)
+        const mod = differenceInMonths % item.cycleAmount
+
+        return pipe(
+          firstBill,
+          O.fromPredicate(pipe(Boolean(mod), isNextBillToday, not)),
+          O.map(fns.add({ months: differenceInMonths + (item.cycleAmount - mod) })),
+          O.chain((nextBill) =>
+            pipe(
+              nextBill,
+              O.fromPredicate(isBeforeNow),
+              O.map(fns.addMonths(item.cycleAmount)),
+              O.altW<Date>(() => O.some(nextBill)),
+            ),
+          ),
+          O.getOrElse(() => now),
+        )
+      }
+
+      case 'year': {
+        const isNextBillToday = (mod: boolean) => (firstBill: Date): boolean =>
+          !mod && pipe(firstBill, setCurrentYear, isEqualNow)
         const differenceInYears = fns.differenceInYears(firstBill, now)
         const mod = differenceInYears % item.cycleAmount
 
@@ -47,6 +67,7 @@ const SubscriptionItem = (item: types.Subscription) => {
           ),
           O.getOrElse(() => now),
         )
+      }
     }
   })
 
