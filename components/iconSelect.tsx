@@ -1,4 +1,4 @@
-import React, { useMemo, useState, useEffect, useCallback } from 'react'
+import React, { useState, useCallback, useEffect } from 'react'
 import {
   Button,
   ButtonGroup,
@@ -15,10 +15,11 @@ import {
   SimpleGrid,
   useDisclosure,
 } from '@chakra-ui/react'
-import * as simpleIcons from 'react-icons/si'
-import { flow } from 'fp-ts/lib/function'
+import { flow, pipe } from 'fp-ts/lib/function'
 import type { IconType } from 'react-icons/lib'
 import { DeleteIcon, SearchIcon } from '@chakra-ui/icons'
+import * as si from 'react-icons/si'
+import * as A from 'fp-ts/Array'
 
 type IconSelectProps = {
   id: string
@@ -26,46 +27,92 @@ type IconSelectProps = {
   onSelect: (icon: string) => void
 }
 
-type IconListProps = {
+type SelectedProps = {
   selected?: string
-  icons: IconType[]
   onSelect: (icon: string) => void
 }
 
-const icons = Object.values(simpleIcons)
+type IconListProps = SelectedProps & {
+  icons: string[]
+}
+
+type IconListItemProps = SelectedProps & {
+  name: string
+  icon: IconType
+}
+
+type IconsCache = {
+  keys: string[]
+  iconButtons: {
+    [key: string]: (props: SelectedProps) => JSX.Element
+  }
+  icons: {
+    [key: string]: () => JSX.Element
+  }
+}
+
+const IconListItem = (props: IconListItemProps) => (
+  <IconButton
+    aria-label={props.name}
+    icon={<Icon as={props.icon} />}
+    onClick={() => props.onSelect(props.name)}
+    border="1px"
+    borderColor={props.name === props.selected ? 'blue.300' : 'gray.600'}
+  />
+)
+
+const { keys: iconKeys, icons, iconButtons }: IconsCache = pipe(
+  Object.entries(si),
+  A.reduce<[string, IconType], IconsCache>(
+    {
+      keys: [],
+      iconButtons: {},
+      icons: {},
+    },
+    (acc, [key, icon]) => ({
+      keys: [...acc.keys, key],
+      iconButtons: {
+        ...acc.iconButtons,
+        [key]: (props: SelectedProps) => (
+          <IconListItem name={key} selected={props.selected} icon={icon} onSelect={props.onSelect} />
+        ),
+      },
+      icons: {
+        ...acc.icons,
+        [key]: () => <Icon as={icon} />,
+      },
+    }),
+  ),
+)
 
 const IconList = React.memo((props: IconListProps) => (
   <SimpleGrid columns={7} gap={4}>
-    {props.icons.map((icon) => (
-      <IconButton
-        key={icon.name}
-        aria-label={icon.name}
-        icon={<Icon as={icon} />}
-        onClick={() => props.onSelect(icon.name)}
-        border="1px"
-        borderColor={icon.name === props.selected ? 'blue.300' : 'gray.600'}
-      />
-    ))}
+    {props.icons.map((key) =>
+      React.createElement<SelectedProps>(iconButtons[key], {
+        onSelect: props.onSelect,
+        selected: props.selected,
+        key,
+      }),
+    )}
   </SimpleGrid>
 ))
 
 const IconSelect = (props: IconSelectProps) => {
   const { isOpen, onOpen, onClose } = useDisclosure()
   const [searchTerm, setSearchTerm] = useState('')
-  const [iconList, setIconList] = useState<IconType[]>([])
+  const [iconList, setIconList] = useState<string[]>([])
 
-  useEffect(() => setIconList(icons), [])
+  useEffect(() => setIconList(iconKeys), [])
 
   const searchButtonClicked = useCallback(
-    () => setIconList(icons.filter((icon) => icon.name.toLowerCase().includes(searchTerm.toLowerCase()))),
+    () => setIconList(iconKeys.filter((icon) => icon.toLowerCase().includes(searchTerm.toLowerCase()))),
     [searchTerm],
   )
 
   const iconSelected = useCallback((icon: string) => flow(props.onSelect, onClose)(icon), [])
 
-  const foundIcon =
-    props.value.trim().length > 0 ? Object.entries(simpleIcons).find(([key]) => key === props.value) : false
-  const buttonContent = foundIcon ? <Icon as={foundIcon[1]} /> : <span>Select an icon</span>
+  const foundIconKey = iconKeys.find((key) => key === props.value)
+  const buttonContent = foundIconKey ? React.createElement(icons[foundIconKey]) : <span>Select an icon</span>
 
   return (
     <>
@@ -73,7 +120,7 @@ const IconSelect = (props: IconSelectProps) => {
         <Button id={props.id} onClick={onOpen}>
           {buttonContent}
         </Button>
-        {foundIcon && <IconButton aria-label="Clear icon" icon={<DeleteIcon />} onClick={() => iconSelected('')} />}
+        {foundIconKey && <IconButton aria-label="Clear icon" icon={<DeleteIcon />} onClick={() => iconSelected('')} />}
       </ButtonGroup>
 
       <Modal isOpen={isOpen} onClose={onClose} isCentered scrollBehavior="inside">
@@ -95,7 +142,6 @@ const IconSelect = (props: IconSelectProps) => {
             </InputGroup>
           </ModalHeader>
           <ModalBody pb={6}>
-            {iconList.length <= 0 && 'No icon found'}
             <IconList selected={props.value} icons={iconList} onSelect={iconSelected} />
           </ModalBody>
         </ModalContent>
