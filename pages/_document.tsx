@@ -19,7 +19,6 @@ export default class Document extends NextDocument {
           <meta name="msapplication-TileColor" content="#4e81ee" />
           <meta name="msapplication-tap-highlight" content="no" />
           <meta name="theme-color" content="#4e81ee" />
-          <title>Expense jar</title>
 
           <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon" />
           <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" />

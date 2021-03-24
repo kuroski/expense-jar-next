@@ -21,6 +21,7 @@ import useSubscriptions from '@/framework/subscriptions/useSubscriptions'
 import SubscriptionsSkeleton from '@/components/subscriptionsSkeleton'
 import { MdRefresh } from 'react-icons/md'
 import NoData from '@/components/icons/noData'
+import Head from 'next/head'
 
 const App = () => {
   const { subscriptions, stats, isLoading, error, mutate } = useSubscriptions()
@@ -41,76 +42,81 @@ const App = () => {
   }
 
   return (
-    <Box mt={4}>
-      <Flex justify="flex-end">
-        <Link href="/subscriptions/new">
-          <a>
-            <IconButton aria-label="Add new subscription" icon={<AddIcon />} />
-          </a>
-        </Link>
-      </Flex>
-
-      {isLoading && <SubscriptionsSkeleton />}
-      {error && (
-        <Center display="flex" flexDirection="column">
-          <h1>An error ocurred!</h1>
-          <Button mt={2} leftIcon={<MdRefresh />} onClick={mutate}>
-            Retry
-          </Button>
-        </Center>
-      )}
-      {!error && subscriptions && subscriptions.length <= 0 && (
-        <Stack align="center">
-          <Box width={300} height={330} mx="auto" mb={4}>
-            <NoData />
-          </Box>
-          <Heading as="h1" size="md" mb={2}>
-            <span>Things are a bit empty here, let's</span>
-          </Heading>
+    <>
+      <Head>
+        <title>Expense jar</title>
+      </Head>
+      <Box mt={4}>
+        <Flex justify="flex-end">
           <Link href="/subscriptions/new">
             <a>
-              <Button aria-label="Add new subscription" rightIcon={<AddIcon />}>
-                Add a subscription
-              </Button>
+              <IconButton aria-label="Add new subscription" icon={<AddIcon />} />
             </a>
           </Link>
-        </Stack>
-      )}
-      {subscriptions && (
-        <AnimatePresence>
-          <SimpleGrid key="stats" spacing={4} columns={[1, 3]}>
-            <Stat key="avgWeek">
-              <StatLabel>Avg per week</StatLabel>
-              <StatNumber>€ {stats.weeklyExpenses}</StatNumber>
-            </Stat>
+        </Flex>
 
-            <Stat key="avgMonth">
-              <StatLabel>Avg per month</StatLabel>
-              <StatNumber>€ {stats.monthlyExpenses}</StatNumber>
-            </Stat>
+        {isLoading && <SubscriptionsSkeleton />}
+        {error && (
+          <Center display="flex" flexDirection="column">
+            <h1>An error ocurred!</h1>
+            <Button mt={2} leftIcon={<MdRefresh />} onClick={mutate}>
+              Retry
+            </Button>
+          </Center>
+        )}
+        {!error && subscriptions && subscriptions.length <= 0 && (
+          <Stack align="center">
+            <Box width={300} height={330} mx="auto" mb={4}>
+              <NoData />
+            </Box>
+            <Heading as="h1" size="md" mb={2}>
+              <span>Things are a bit empty here, let's</span>
+            </Heading>
+            <Link href="/subscriptions/new">
+              <a>
+                <Button aria-label="Add new subscription" rightIcon={<AddIcon />}>
+                  Add a subscription
+                </Button>
+              </a>
+            </Link>
+          </Stack>
+        )}
+        {subscriptions && (
+          <AnimatePresence>
+            <SimpleGrid key="stats" spacing={4} columns={[1, 3]}>
+              <Stat key="avgWeek">
+                <StatLabel>Avg per week</StatLabel>
+                <StatNumber>€ {stats.weeklyExpenses}</StatNumber>
+              </Stat>
 
-            <Stat key="avgYear">
-              <StatLabel>Avg per year</StatLabel>
-              <StatNumber>€ {stats.yearlyExpenses}</StatNumber>
-            </Stat>
-          </SimpleGrid>
+              <Stat key="avgMonth">
+                <StatLabel>Avg per month</StatLabel>
+                <StatNumber>€ {stats.monthlyExpenses}</StatNumber>
+              </Stat>
 
-          <motion.div variants={container} initial="hidden" animate="show">
-            <SimpleGrid minChildWidth="170px" spacing={6} mt={4}>
-              {subscriptions.map((element) => (
-                <motion.div
-                  key={element._id}
-                  variants={item}
-                  exit={{ opacity: 0, scale: 0.5, transition: { duration: 0.2 } }}
-                >
-                  <Subscription {...element} key={element._id} />
-                </motion.div>
-              ))}
+              <Stat key="avgYear">
+                <StatLabel>Avg per year</StatLabel>
+                <StatNumber>€ {stats.yearlyExpenses}</StatNumber>
+              </Stat>
             </SimpleGrid>
-          </motion.div>
-        </AnimatePresence>
-      )}
-    </Box>
+
+            <motion.div variants={container} initial="hidden" animate="show">
+              <SimpleGrid minChildWidth="170px" spacing={6} mt={4}>
+                {subscriptions.map((element) => (
+                  <motion.div
+                    key={element._id}
+                    variants={item}
+                    exit={{ opacity: 0, scale: 0.5, transition: { duration: 0.2 } }}
+                  >
+                    <Subscription {...element} key={element._id} />
+                  </motion.div>
+                ))}
+              </SimpleGrid>
+            </motion.div>
+          </AnimatePresence>
+        )}
+      </Box>
+    </>
   )
 }
 
