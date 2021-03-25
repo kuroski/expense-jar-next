@@ -3,9 +3,17 @@ import { flow } from 'fp-ts/lib/function'
 import useSWR from 'swr'
 import { all } from './subscriptions'
 import { Subscriptions } from './types'
-import useStats from './useStats'
+import useStats, { UseStats } from './useStats'
 
-const useSubscriptions = () => {
+type UseSubscriptions = {
+  subscriptions: Subscriptions | undefined
+  stats: UseStats
+  isLoading: boolean
+  error: Error | undefined
+  mutate: () => Promise<Subscriptions | undefined>
+}
+
+const useSubscriptions = (): UseSubscriptions => {
   const { data, error, mutate } = useSWR<Subscriptions, Error>(
     'subscriptions',
     flow(all(), (e) =>

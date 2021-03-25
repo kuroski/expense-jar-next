@@ -36,6 +36,6 @@ declare module 'next' {
 
 declare module 'next-auth' {
   export interface User {
-    id?: string | null
+    id?: string | null | unknown
   }
 }

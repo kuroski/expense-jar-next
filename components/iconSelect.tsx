@@ -1,3 +1,4 @@
+/* eslint-disable jsx-a11y/no-autofocus, react/display-name */
 import React, { useState, useCallback, useEffect } from 'react'
 import {
   Button,
@@ -97,7 +98,7 @@ const IconList = React.memo((props: IconListProps) => (
   </SimpleGrid>
 ))
 
-const IconSelect = (props: IconSelectProps) => {
+const IconSelect = (props: IconSelectProps): JSX.Element => {
   const { isOpen, onOpen, onClose } = useDisclosure()
   const [searchTerm, setSearchTerm] = useState('')
   const [iconList, setIconList] = useState<string[]>([])
@@ -109,7 +110,7 @@ const IconSelect = (props: IconSelectProps) => {
     [searchTerm],
   )
 
-  const iconSelected = useCallback((icon: string) => flow(props.onSelect, onClose)(icon), [])
+  const iconSelected = useCallback((icon: string) => flow(props.onSelect, onClose)(icon), [onClose, props.onSelect])
 
   const foundIconKey = iconKeys.find((key) => key === props.value)
   const buttonContent = foundIconKey ? React.createElement(icons[foundIconKey]) : <span>Select an icon</span>

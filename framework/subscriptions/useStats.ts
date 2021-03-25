@@ -3,6 +3,11 @@ import type { Subscription } from './types'
 import * as A from 'fp-ts/lib/Array'
 import isLeapYear from 'date-fns/fp/isLeapYear'
 
+export type UseStats = {
+  weeklyExpenses: number
+  monthlyExpenses: number
+  yearlyExpenses: number
+}
 type Operation = (subscription: Subscription) => number
 
 const DIVISOR = Math.pow(10, 2)
@@ -69,7 +74,7 @@ const calculateStats = (operation: Operation) =>
     roundMonetaryValue,
   )
 
-const useStats = (subscriptions: Subscription[]) => ({
+const useStats = (subscriptions: Subscription[]): UseStats => ({
   weeklyExpenses: calculateStats(weekOperation)(subscriptions),
   monthlyExpenses: calculateStats(monthOperation)(subscriptions),
   yearlyExpenses: calculateStats(yearOperation)(subscriptions),

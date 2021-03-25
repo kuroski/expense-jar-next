@@ -11,7 +11,7 @@ const handleLogin = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
   signIn('github')
 }
 
-const Header = () => {
+const Header = (): JSX.Element => {
   const [session] = useSession()
   const { colorMode, toggleColorMode } = useColorMode()
 

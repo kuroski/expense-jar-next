@@ -1,9 +1,10 @@
-import NextAuth, { InitOptions } from 'next-auth'
+import NextAuth from 'next-auth'
+import type { NextAuthOptions } from 'next-auth'
 import type { NextApiRequest, NextApiResponse } from 'next'
 import Providers from 'next-auth/providers'
 // import { connectToDB } from '../../../db'
 
-const options: InitOptions = {
+const options: NextAuthOptions = {
   session: {
     jwt: true,
   },
@@ -19,8 +20,13 @@ const options: InitOptions = {
   database: process.env.DATABASE_URL,
   callbacks: {
     async session(session, user) {
-      session.user.id = user.id
-      return session
+      return {
+        ...session,
+        user: {
+          ...session.user,
+          id: user.id,
+        },
+      }
     },
     async jwt(tokenPayload, user, account, profile, isNewUser) {
       // const { db } = await connectToDB()
@@ -38,4 +44,4 @@ const options: InitOptions = {
   },
 }
 
-export default (req: NextApiRequest, res: NextApiResponse) => NextAuth(req, res, options)
+export default (req: NextApiRequest, res: NextApiResponse): Promise<void> | void => NextAuth(req, res, options)

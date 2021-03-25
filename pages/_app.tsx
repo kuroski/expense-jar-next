@@ -51,7 +51,7 @@ const Content = ({ Component, pageProps }: AppProps) => {
   return <Component {...pageProps} />
 }
 
-export default function App(props: AppProps) {
+export default function App(props: AppProps): JSX.Element {
   return (
     <Provider session={props.pageProps.session}>
       <ChakraProvider>

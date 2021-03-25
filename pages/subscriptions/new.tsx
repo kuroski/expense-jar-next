@@ -1,7 +1,6 @@
 import React from 'react'
 import { useRouter } from 'next/router'
 import {
-  Box,
   Button,
   FormControl,
   FormErrorMessage,
@@ -50,7 +49,7 @@ const SubscriptionSchema = Yup.object().shape({
   firstBill: Yup.date().required("The 'date' field is required"),
 })
 
-const NewSubscription = () => {
+const NewSubscription = (): JSX.Element => {
   const router = useRouter()
   const toast = useToast()
 

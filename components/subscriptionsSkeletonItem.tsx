@@ -1,7 +1,7 @@
 import { Box, Skeleton } from '@chakra-ui/react'
 import React from 'react'
 
-const SubscriptionsSkeletonItem = () => {
+const SubscriptionsSkeletonItem = (): JSX.Element => {
   return (
     <Box p={4} shadow="md" borderWidth="1px" rounded="lg" textAlign={['center', 'left']} direction="column">
       <Skeleton height={3} />

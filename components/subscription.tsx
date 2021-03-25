@@ -15,8 +15,8 @@ const setCurrentDay = fns.setDay(fns.getDay(now))
 const isEqualNow = fns.isEqual(now)
 const isBeforeNow = fns.isBefore(now)
 
-const SubscriptionItem = (item: types.Subscription) => {
-  const [_, icon] = Object.entries(simpleIcons).find(([key]) => key === item.icon) || []
+const SubscriptionItem = (item: types.Subscription): JSX.Element => {
+  const [, icon] = Object.entries(simpleIcons).find(([key]) => key === item.icon) || []
   const price = new Intl.NumberFormat('de-DE', { style: 'currency', currency: 'EUR' }).format(item.price)
 
   const currentBilling = pipe(item.firstBill, (firstBill: Date) => {

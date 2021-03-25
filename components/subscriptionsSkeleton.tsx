@@ -3,7 +3,7 @@ import React from 'react'
 import { SimpleGrid } from '@chakra-ui/react'
 import SubscriptionsSkeletonItem from './subscriptionsSkeletonItem'
 
-const SubscriptionsSkeleton = () => {
+const SubscriptionsSkeleton = (): JSX.Element => {
   const subscriptions = [...new Array(6)]
 
   return (

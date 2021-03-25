@@ -12,7 +12,10 @@ import { Db, MongoClient } from 'mongodb'
  */
 global.mongo = global.mongo || {}
 
-export const connectToDB = async () => {
+export const connectToDB = async (): Promise<{
+  db: Db
+  dbClient: MongoClient
+}> => {
   if (!global.mongo.client) {
     global.mongo.client = new MongoClient(process.env.DATABASE_URL, {
       useNewUrlParser: true,

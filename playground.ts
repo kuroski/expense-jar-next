@@ -1,6 +1,5 @@
 /* eslint-disable no-unused-vars */
 /* eslint-disable default-case */
-/* eslint-disable unicorn/no-fn-reference-in-iterator */
 // eslint-disable-next-line max-classes-per-file
 import { absurd, flow, pipe } from 'fp-ts/lib/function'
 import * as E from 'fp-ts/lib/Either'

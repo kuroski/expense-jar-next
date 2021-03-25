@@ -5,7 +5,10 @@ import * as TE from 'fp-ts/lib/TaskEither'
 import { failure } from 'io-ts/lib/PathReporter'
 import { Db } from 'mongodb'
 
-export const createSubscription = async (db: Db, { data, user }: { data: Subscription; user: string }) => {
+export const createSubscription = async (
+  db: Db,
+  { data, user }: { data: Subscription; user: string },
+): Promise<Subscription> => {
   return db
     .collection('subscriptions')
     .insertOne({

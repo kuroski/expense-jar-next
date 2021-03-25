@@ -1,6 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
 import { getSession } from 'next-auth/client'
-import type { Session } from 'next-auth/client'
+import type { Session } from 'next-auth'
 import nc from 'next-connect'
 import { subscription } from '@/db'
 import middleware from '@/middleware/all'
@@ -24,7 +24,7 @@ handler.use(middleware)
 handler.get(async (req, res) =>
   pipe(
     TE.tryCatch<ApiError, Session | null>(() => getSession({ req }), toRequestError),
-    TE.chain((session) => (session?.user?.id ? TE.right(session.user.id) : TE.left(toUnauthorizedError))),
+    TE.chain((session) => (session?.user?.id ? TE.right(String(session.user.id)) : TE.left(toUnauthorizedError))),
     TE.chain(flow(subscription.getSubscriptions(req.db), TE.mapLeft<unknown, ApiError>(toRequestError))),
     TE.fold(
       (error: ApiError) => {
@@ -77,7 +77,7 @@ handler.post(async (req, res) => {
 
   const newSubscription = await subscription.createSubscription(req.db, {
     data: data.right,
-    user: req.user.id,
+    user: String(req.user.id),
   })
   res.send({ data: newSubscription })
 })

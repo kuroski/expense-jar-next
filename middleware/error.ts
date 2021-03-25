@@ -1,6 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
 
-export default async function onError(error: unknown, _req: NextApiRequest, res: NextApiResponse) {
+export default async function onError(error: unknown, _req: NextApiRequest, res: NextApiResponse): Promise<void> {
   console.error(error)
   res.status(500)
 

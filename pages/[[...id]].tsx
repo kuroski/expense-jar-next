@@ -23,7 +23,7 @@ import { MdRefresh } from 'react-icons/md'
 import NoData from '@/components/icons/noData'
 import Head from 'next/head'
 
-const App = () => {
+const App = (): JSX.Element => {
   const { subscriptions, stats, isLoading, error, mutate } = useSubscriptions()
 
   const container: Variants = {
@@ -70,7 +70,7 @@ const App = () => {
               <NoData />
             </Box>
             <Heading as="h1" size="md" mb={2}>
-              <span>Things are a bit empty here, let's</span>
+              <span>Things are a bit empty here, let&apos;s</span>
             </Heading>
             <Link href="/subscriptions/new">
               <a>

@@ -8,7 +8,7 @@ type Props = {
   user: UserNextAuth
 }
 
-const User = ({ user }: Props) => {
+const User = ({ user }: Props): JSX.Element => {
   const UserAvatar = <Avatar size="sm" name={user.name || 'You'} src={user.image ?? ''} />
 
   return (

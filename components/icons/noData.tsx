@@ -1,4 +1,6 @@
-const NoData = () => (
+import React from 'react'
+
+const NoData = (): JSX.Element => (
   <svg xmlns="http://www.w3.org/2000/svg" data-name="Layer 1" viewBox="0 0 672.532 738.394">
     <path
       d="M467 149.804c-46.62-7.44-99.71-11.41-155-11.41-50.6 0-99.35 3.32-142.98 9.58.01-.67.02-1.34.05-2.01a149 149 0 01297.91 1.82c.01.68.02 1.35.02 2.02z"

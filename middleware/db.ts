@@ -2,7 +2,7 @@ import type { NextApiRequest, NextApiResponse } from 'next'
 import type { NextHandler } from 'next-connect'
 import { connectToDB } from '@/db/connect'
 
-export default async function database(req: NextApiRequest, _res: NextApiResponse, next: NextHandler) {
+export default async function database(req: NextApiRequest, _res: NextApiResponse, next: NextHandler): Promise<void> {
   const { db, dbClient } = await connectToDB()
   req.db = db
   req.dbClient = dbClient
