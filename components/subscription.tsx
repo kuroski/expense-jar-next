@@ -1,4 +1,4 @@
-import { Box, Flex, Heading, Icon, Stat, StatHelpText, StatLabel, StatNumber } from '@chakra-ui/react'
+import { Box, Flex, Heading, Icon, IconButton, Stat, StatHelpText, StatLabel, StatNumber } from '@chakra-ui/react'
 import React from 'react'
 import { CgMail } from 'react-icons/cg'
 import type * as types from '@/framework/subscriptions/types'
@@ -6,6 +6,11 @@ import * as simpleIcons from 'react-icons/si'
 import * as fns from 'date-fns/fp'
 import { not, pipe } from 'fp-ts/lib/function'
 import * as O from 'fp-ts/lib/Option'
+import { DeleteIcon } from '@chakra-ui/icons'
+
+type SubscriptionItemProps = types.Subscription & {
+  onDelete: (id: string) => void
+}
 
 const now = new Date()
 const setCurrentYear = fns.setYear(fns.getYear(now))
@@ -15,7 +20,7 @@ const setCurrentDay = fns.setDay(fns.getDay(now))
 const isEqualNow = fns.isEqual(now)
 const isBeforeNow = fns.isBefore(now)
 
-const SubscriptionItem = (item: types.Subscription): JSX.Element => {
+const SubscriptionItem = (item: SubscriptionItemProps): JSX.Element => {
   const [, icon] = Object.entries(simpleIcons).find(([key]) => key === item.icon) || []
   const price = new Intl.NumberFormat('de-DE', { style: 'currency', currency: 'EUR' }).format(item.price)
 
@@ -130,6 +135,14 @@ const SubscriptionItem = (item: types.Subscription): JSX.Element => {
         <StatHelpText>First: {fns.format('PP', item.firstBill)}</StatHelpText>
         <StatHelpText>Next: {fns.format('PP', currentBilling)}</StatHelpText>
         <StatHelpText>in {fns.formatDistance(currentBilling, now)}</StatHelpText>
+        <IconButton
+          aria-label={`Delete subscription: ${item.name}`}
+          colorScheme="red"
+          variant="outline"
+          size="sm"
+          icon={<DeleteIcon />}
+          onClick={() => item.onDelete(item._id)}
+        />
       </Stat>
     </Box>
   )

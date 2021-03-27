@@ -18,10 +18,13 @@ import { AnimatePresence, motion } from 'framer-motion'
 import type { Variants } from 'framer-motion'
 import Subscription from '@/components/subscription'
 import useSubscriptions from '@/framework/subscriptions/useSubscriptions'
+import * as subscriptionService from '@/framework/subscriptions/subscriptions'
 import SubscriptionsSkeleton from '@/components/subscriptionsSkeleton'
 import { MdRefresh } from 'react-icons/md'
 import NoData from '@/components/icons/noData'
 import Head from 'next/head'
+import { flow } from 'fp-ts/lib/function'
+import { fold } from 'fp-ts/lib/Either'
 
 const App = (): JSX.Element => {
   const { subscriptions, stats, isLoading, error, mutate } = useSubscriptions()
@@ -108,7 +111,27 @@ const App = (): JSX.Element => {
                     variants={item}
                     exit={{ opacity: 0, scale: 0.5, transition: { duration: 0.2 } }}
                   >
-                    <Subscription {...element} key={element._id} />
+                    <Subscription
+                      {...element}
+                      key={element._id}
+                      onDelete={(id) => {
+                        console.log('======')
+                        console.log(id)
+
+                        const bla = flow(subscriptionService.destroy(id), (e) =>
+                          e.then(
+                            fold(
+                              (errors) => Promise.reject(errors),
+                              (result) => Promise.resolve(result),
+                            ),
+                          ),
+                        )
+
+                        bla().then((a) => {
+                          console.log(a)
+                        })
+                      }}
+                    />
                   </motion.div>
                 ))}
               </SimpleGrid>

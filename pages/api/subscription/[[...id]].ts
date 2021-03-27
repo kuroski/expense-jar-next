@@ -79,7 +79,37 @@ handler.post(async (req, res) => {
     data: data.right,
     user: String(req.user.id),
   })
-  res.send({ data: newSubscription })
+  res.send({ subscription: newSubscription })
+})
+
+handler.delete(async (req, res) => {
+  // console.log({
+  //   req,
+  //   res,
+  // })
+  if (!req.user.id || typeof req.user.id !== 'string') {
+    console.error('No user provided')
+    throw new Error(`No user provided to delete the subscriptions "${req.body.name}"`)
+  }
+
+  if (!req.query.id) {
+    console.error('No subscription provided')
+    throw new Error(`No subscription provided for deletion`)
+  }
+
+  const subscriptionId: string = req.query.id[0] ?? req.query.id
+
+  console.log(req.user.id, subscriptionId)
+
+  const result = await subscription.deleteSubscription(req.db)(req.user.id, subscriptionId)()
+  const foundSubscription = await E.fold(
+    (e) => Promise.reject(e),
+    (sub: Subscription) => Promise.resolve(sub),
+  )(result)
+
+  console.log(foundSubscription)
+
+  res.send({ subscription: foundSubscription })
 })
 
 export default handler

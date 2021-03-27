@@ -39,3 +39,55 @@ export const getSubscriptions = (db: Db) => (userId: string): TE.TaskEither<Erro
       ),
     ),
   )
+
+export const getSubscription = (db: Db) => (
+  userId: string,
+  subscriptionId: string,
+): TE.TaskEither<Error, Subscription> =>
+  pipe(
+    TE.tryCatch(
+      () =>
+        db.collection('subscriptions').findOne({
+          createdBy: userId,
+          id: subscriptionId,
+        }),
+      E.toError,
+    ),
+    TE.chain(
+      flow(
+        Subscription.decode,
+        E.mapLeft((errors) => new Error(failure(errors).join('\n'))),
+        TE.fromEither,
+      ),
+    ),
+  )
+
+export const deleteSubscription = (db: Db) => (
+  userId: string,
+  subscriptionId: string,
+): TE.TaskEither<Error, Subscription> =>
+  pipe(
+    TE.tryCatch(
+      () =>
+        db.collection('subscriptions').findOneAndDelete({
+          createdBy: userId,
+          _id: subscriptionId,
+        }),
+      E.toError,
+    ),
+    TE.mapLeft((a) => {
+      console.log(a)
+      return a
+    }),
+    TE.chain(
+      flow(
+        (a) => {
+          console.log(a)
+          return a.value
+        },
+        Subscription.decode,
+        E.mapLeft((errors) => new Error(failure(errors).join('\n'))),
+        TE.fromEither,
+      ),
+    ),
+  )
