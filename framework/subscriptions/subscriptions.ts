@@ -81,10 +81,7 @@ export function destroy(id: string): TE.TaskEither<Error, Subscription> {
       }
       return TE.of(response)
     }),
-    TE.chain((response) => {
-      console.log(response)
-      return TE.tryCatch((): Promise<{ subscription: unknown }> => response.json(), E.toError)
-    }),
+    TE.chain((response) => TE.tryCatch((): Promise<{ subscription: unknown }> => response.json(), E.toError)),
     TE.chain(
       flow(
         ({ subscription }) => subscription,

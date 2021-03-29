@@ -12,6 +12,7 @@ import {
   Stat,
   StatLabel,
   StatNumber,
+  useToast,
 } from '@chakra-ui/react'
 import { AddIcon } from '@chakra-ui/icons'
 import { AnimatePresence, motion } from 'framer-motion'
@@ -23,25 +24,51 @@ import SubscriptionsSkeleton from '@/components/subscriptionsSkeleton'
 import { MdRefresh } from 'react-icons/md'
 import NoData from '@/components/icons/noData'
 import Head from 'next/head'
-import { flow } from 'fp-ts/lib/function'
-import { fold } from 'fp-ts/lib/Either'
+import { pipe } from 'fp-ts/lib/function'
+import * as TE from 'fp-ts/lib/TaskEither'
+import * as T from 'fp-ts/lib/Task'
+
+const container: Variants = {
+  hidden: { opacity: 0 },
+  show: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.2,
+    },
+  },
+}
+
+const item: Variants = {
+  hidden: { opacity: 0, scale: 0.8 },
+  show: { opacity: 1, scale: 1 },
+}
 
 const App = (): JSX.Element => {
+  const toast = useToast()
   const { subscriptions, stats, isLoading, error, mutate } = useSubscriptions()
 
-  const container: Variants = {
-    hidden: { opacity: 0 },
-    show: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.2,
-      },
-    },
-  }
-
-  const item: Variants = {
-    hidden: { opacity: 0, scale: 0.8 },
-    show: { opacity: 1, scale: 1 },
+  function onDeleteSubscription(id: string) {
+    return pipe(
+      id,
+      subscriptionService.destroy,
+      TE.fold(
+        (error) =>
+          T.fromIO(() =>
+            toast({
+              title: 'Delete operation failed',
+              description: error.message,
+              status: 'error',
+            }),
+          ),
+        (result) =>
+          T.fromIO(() =>
+            toast({
+              title: `Subscription ${result.name} was deleted with success`,
+              status: 'success',
+            }),
+          ),
+      ),
+    )()
   }
 
   return (
@@ -111,27 +138,7 @@ const App = (): JSX.Element => {
                     variants={item}
                     exit={{ opacity: 0, scale: 0.5, transition: { duration: 0.2 } }}
                   >
-                    <Subscription
-                      {...element}
-                      key={element._id}
-                      onDelete={(id) => {
-                        console.log('======')
-                        console.log(id)
-
-                        const bla = flow(subscriptionService.destroy(id), (e) =>
-                          e.then(
-                            fold(
-                              (errors) => Promise.reject(errors),
-                              (result) => Promise.resolve(result),
-                            ),
-                          ),
-                        )
-
-                        bla().then((a) => {
-                          console.log(a)
-                        })
-                      }}
-                    />
+                    <Subscription {...element} key={element._id} onDelete={onDeleteSubscription} />
                   </motion.div>
                 ))}
               </SimpleGrid>
