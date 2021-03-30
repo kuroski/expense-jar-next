@@ -14,7 +14,7 @@ import * as T from 'fp-ts/lib/Task'
 import { failure } from 'io-ts/lib/PathReporter'
 import { nanoid } from 'nanoid'
 import * as These from 'fp-ts/lib/These'
-import { ApiError, toRequestError, toUnauthorizedError } from '@/framework/errors'
+import { ApiError, toRequestError, toUnauthorizedError, toMissingParam } from '@/framework/errors'
 
 const handler = nc<NextApiRequest, NextApiResponse>({
   onError,
@@ -34,7 +34,9 @@ handler.get(async (req, res) =>
             res.end()
             break
 
+          case 'DECODING_ERROR':
           case 'REQUEST_ERROR':
+          case 'MISSING_PARAM':
             throw error.error
         }
 
@@ -82,34 +84,43 @@ handler.post(async (req, res) => {
   res.send({ subscription: newSubscription })
 })
 
-handler.delete(async (req, res) => {
-  // console.log({
-  //   req,
-  //   res,
-  // })
-  if (!req.user.id || typeof req.user.id !== 'string') {
-    console.error('No user provided')
-    throw new Error(`No user provided to delete the subscriptions "${req.body.name}"`)
-  }
+handler.delete(async (req, res) =>
+  pipe(
+    TE.tryCatch<ApiError, Session | null>(() => getSession({ req }), toRequestError),
+    TE.chain((session) => (session?.user?.id ? TE.right(String(session.user.id)) : TE.left(toUnauthorizedError))),
+    TE.chain((userId) =>
+      pipe(
+        req.query.id,
+        (id: string | string[]) => id[0] ?? id,
+        (id) => (id.length === 0 ? E.left('Subscription ID is not being provided') : E.right(id)),
+        E.mapLeft<string, ApiError>(toMissingParam),
+        TE.fromEither,
+        TE.chain((subscriptionId) => subscription.deleteSubscription(req.db)(userId, subscriptionId)),
+      ),
+    ),
+    TE.fold(
+      (error: ApiError) => {
+        switch (error._tag) {
+          case 'UNAUTHORIZED':
+            res.status(401).send('Unauthorized!')
+            res.end()
+            break
 
-  if (!req.query.id) {
-    console.error('No subscription provided')
-    throw new Error(`No subscription provided for deletion`)
-  }
+          case 'DECODING_ERROR':
+          case 'REQUEST_ERROR':
+          case 'MISSING_PARAM':
+            throw error.error
+        }
 
-  const subscriptionId: string = req.query.id[0] ?? req.query.id
-
-  console.log(req.user.id, subscriptionId)
-
-  const result = await subscription.deleteSubscription(req.db)(req.user.id, subscriptionId)()
-  const foundSubscription = await E.fold(
-    (e) => Promise.reject(e),
-    (sub: Subscription) => Promise.resolve(sub),
-  )(result)
-
-  console.log(foundSubscription)
-
-  res.send({ subscription: foundSubscription })
-})
+        return T.never
+      },
+      (foundSubscription) => {
+        res.send({ subscription: foundSubscription })
+        res.end()
+        return T.of(foundSubscription)
+      },
+    ),
+  )(),
+)
 
 export default handler

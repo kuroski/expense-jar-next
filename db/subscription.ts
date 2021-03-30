@@ -1,7 +1,9 @@
+import { ApiError, toDecodingError, toRequestError } from '@/framework/errors'
 import { Subscription, Subscriptions } from '@/framework/subscriptions/types'
 import * as E from 'fp-ts/lib/Either'
 import { flow, pipe } from 'fp-ts/lib/function'
 import * as TE from 'fp-ts/lib/TaskEither'
+import { Errors } from 'io-ts'
 import { failure } from 'io-ts/lib/PathReporter'
 import { Db } from 'mongodb'
 
@@ -65,7 +67,7 @@ export const getSubscription = (db: Db) => (
 export const deleteSubscription = (db: Db) => (
   userId: string,
   subscriptionId: string,
-): TE.TaskEither<Error, Subscription> =>
+): TE.TaskEither<ApiError, Subscription> =>
   pipe(
     TE.tryCatch(
       () =>
@@ -73,21 +75,8 @@ export const deleteSubscription = (db: Db) => (
           createdBy: userId,
           _id: subscriptionId,
         }),
-      E.toError,
+      toRequestError,
     ),
-    TE.mapLeft((a) => {
-      console.log(a)
-      return a
-    }),
-    TE.chain(
-      flow(
-        (a) => {
-          console.log(a)
-          return a.value
-        },
-        Subscription.decode,
-        E.mapLeft((errors) => new Error(failure(errors).join('\n'))),
-        TE.fromEither,
-      ),
-    ),
+    TE.chain((result) => (result.ok ? TE.right(result.value) : TE.left(toRequestError(result.lastErrorObject)))),
+    TE.chain(flow(Subscription.decode, E.mapLeft<Errors, ApiError>(toDecodingError), TE.fromEither)),
   )
