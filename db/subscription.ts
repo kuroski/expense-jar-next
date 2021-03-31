@@ -7,19 +7,28 @@ import { Errors } from 'io-ts'
 import { failure } from 'io-ts/lib/PathReporter'
 import { Db } from 'mongodb'
 
-export const createSubscription = async (
-  db: Db,
-  { data, user }: { data: Subscription; user: string },
-): Promise<Subscription> => {
-  return db
-    .collection('subscriptions')
-    .insertOne({
-      ...Subscription.encode(data),
-      createdBy: user,
-      createdAt: new Date().toDateString(),
-    })
-    .then(({ ops }) => ops[0])
-}
+export const createSubscription = (db: Db) => ({
+  data,
+  user,
+}: {
+  data: Subscription
+  user: string
+}): TE.TaskEither<ApiError, Subscription> =>
+  pipe(
+    TE.tryCatch(
+      () =>
+        db.collection('subscriptions').insertOne({
+          ...Subscription.encode(data),
+          createdBy: user,
+          createdAt: new Date().toDateString(),
+        }),
+      toRequestError,
+    ),
+    TE.chain(({ result, ops }) =>
+      result.ok ? TE.right(ops[0]) : TE.left(toRequestError(`Failed to insert subscription ${data.name}`)),
+    ),
+    TE.chain(flow(Subscription.decode, E.mapLeft<Errors, ApiError>(toDecodingError), TE.fromEither)),
+  )
 
 export const getSubscriptions = (db: Db) => (userId: string): TE.TaskEither<Error, Subscriptions> =>
   pipe(

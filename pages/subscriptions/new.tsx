@@ -27,17 +27,20 @@ import IconSelect from '@/components/iconSelect'
 import { flow } from 'fp-ts/lib/function'
 import { fold } from 'fp-ts/lib/Either'
 import Head from 'next/head'
+import * as t from 'io-ts'
+import { DateFromISOString, NumberFromString } from 'io-ts-types'
 
-export type FormValues = {
-  name: string
-  color: string
-  cycleAmount: number
-  cyclePeriod: Period
-  overview: string
-  price: number
-  firstBill: Date
-  icon: string
-}
+export const FormValues = t.type({
+  name: t.string,
+  color: t.string,
+  cycleAmount: NumberFromString,
+  cyclePeriod: Period,
+  overview: t.string,
+  price: NumberFromString,
+  firstBill: DateFromISOString,
+  icon: t.string,
+})
+export type FormValues = t.TypeOf<typeof FormValues>
 
 const SubscriptionSchema = Yup.object().shape({
   color: Yup.string().required("The 'color' field is required"),
