@@ -11,7 +11,7 @@ export function save(values: FormValues): TE.TaskEither<Error, Subscription> {
       () =>
         fetch(`${process.env.NEXT_PUBLIC_API_HOST}/api/subscription/`, {
           method: 'POST',
-          body: JSON.stringify(values),
+          body: JSON.stringify(FormValues.encode(values)),
           headers: {
             'Content-Type': 'application/json',
           },
