@@ -13,6 +13,7 @@ import * as TE from 'fp-ts/lib/TaskEither'
 import * as T from 'fp-ts/lib/Task'
 import { nanoid } from 'nanoid'
 import { ApiError, toRequestError, toUnauthorizedError, toMissingParam, toDecodingError } from '@/framework/errors'
+import { Errors } from 'io-ts'
 
 const handler = nc<NextApiRequest, NextApiResponse>({
   onError,
@@ -75,8 +76,15 @@ handler.post(async (req, res) =>
           price: formValues.price,
           overview: formValues.overview,
         },
-        E.fromPredicate(Subscription.is, () => toRequestError('Invalid params in subscription')),
-        // E.mapLeft(toDecodingError),
+        E.fromPredicate(
+          Subscription.is,
+          flow(
+            Subscription.decode,
+            E.fold<Errors, Subscription, ApiError>(toDecodingError, () =>
+              toRequestError('An error ocurred when saving subscription'),
+            ),
+          ),
+        ),
         TE.fromEither,
         TE.map((subscription): [string, Subscription] => [userId, subscription]),
       ),
