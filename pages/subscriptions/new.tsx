@@ -24,8 +24,9 @@ import { format } from 'date-fns'
 import { save } from '@/framework/subscriptions/subscriptions'
 import { Period } from '@/framework/subscriptions/types'
 import IconSelect from '@/components/iconSelect'
-import { flow } from 'fp-ts/lib/function'
-import { fold } from 'fp-ts/lib/Either'
+import { pipe } from 'fp-ts/lib/function'
+import * as T from 'fp-ts/lib/Task'
+import * as TE from 'fp-ts/lib/TaskEither'
 import Head from 'next/head'
 import * as t from 'io-ts'
 import { DateFromISOString, NumberFromString } from 'io-ts-types'
@@ -70,33 +71,32 @@ const NewSubscription = (): JSX.Element => {
   const form = useFormik({
     initialValues,
     validationSchema: SubscriptionSchema,
-    onSubmit: flow(
-      (values) => save(values)(),
-      (e) =>
-        e.then(
-          fold(
-            (errors) => {
-              toast({
-                title: 'An error ocurred',
-                description: errors.message,
-                status: 'error',
-                duration: 9000,
-                isClosable: true,
-              })
-            },
-            (subscription) => {
-              console.log(subscription)
-              toast({
-                title: `Subscription "${subscription.name}" created`,
-                status: 'success',
-                duration: 9000,
-                isClosable: true,
-              })
-              return router.push('/')
-            },
-          ),
+    onSubmit: (values) =>
+      pipe(
+        values,
+        save,
+        TE.fold(
+          (errors) => {
+            toast({
+              title: 'An error ocurred',
+              description: errors.message,
+              status: 'error',
+              duration: 9000,
+              isClosable: true,
+            })
+            return T.never
+          },
+          (subscription) => {
+            toast({
+              title: `Subscription "${subscription.name}" created`,
+              status: 'success',
+              duration: 9000,
+              isClosable: true,
+            })
+            return T.of(router.push('/'))
+          },
         ),
-    ),
+      )(),
   })
 
   return (
@@ -224,7 +224,13 @@ const NewSubscription = (): JSX.Element => {
             <FormErrorMessage>{form.errors.overview}</FormErrorMessage>
           </FormControl>
 
-          <Button mt={4} colorScheme="teal" type="submit">
+          <Button
+            mt={4}
+            colorScheme="teal"
+            type="submit"
+            // disabled={!form.dirty || !form.valid}
+            // loading={form.submitting}
+          >
             Submit
           </Button>
         </Stack>
