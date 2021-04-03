@@ -224,13 +224,7 @@ const NewSubscription = (): JSX.Element => {
             <FormErrorMessage>{form.errors.overview}</FormErrorMessage>
           </FormControl>
 
-          <Button
-            mt={4}
-            colorScheme="teal"
-            type="submit"
-            // disabled={!form.dirty || !form.valid}
-            // loading={form.submitting}
-          >
+          <Button mt={4} colorScheme="teal" type="submit" disabled={form.isSubmitting} isLoading={form.isSubmitting}>
             Submit
           </Button>
         </Stack>
