@@ -1,19 +1,39 @@
 import { Box, Flex, Heading, Icon, IconButton, Stat, StatHelpText, StatLabel, StatNumber } from '@chakra-ui/react'
-import React from 'react'
+import React, { useState } from 'react'
 import { CgMail } from 'react-icons/cg'
 import type * as types from '@/framework/subscriptions/types'
 import * as simpleIcons from 'react-icons/si'
 import { DeleteIcon } from '@chakra-ui/icons'
 import useNextBilling from '@/framework/subscriptions/useNextBilling'
+import * as T from 'fp-ts/lib/Task'
+import * as TE from 'fp-ts/lib/TaskEither'
+import { pipe } from 'fp-ts/lib/function'
+import * as RD from '@/framework/remoteData'
 
 type SubscriptionItemProps = types.Subscription & {
-  onDelete: (id: string) => void
+  onDelete: (id: string) => TE.TaskEither<Error, unknown>
 }
 
 const SubscriptionItem = (item: SubscriptionItemProps): JSX.Element => {
+  const [isDeleting, setIsDeleting] = useState<RD.RemoteData<Error, unknown>>(RD.notAsked)
   const [, icon] = Object.entries(simpleIcons).find(([key]) => key === item.icon) || []
   const price = new Intl.NumberFormat('de-DE', { style: 'currency', currency: 'EUR' }).format(item.price)
   const { formattedFirstBilling, formattedCurrentBilling, timeUntilNextBilling } = useNextBilling(item)
+
+  function onDelete() {
+    setIsDeleting(RD.pending)
+    return pipe(
+      item._id,
+      item.onDelete,
+      TE.fold(
+        (e) => {
+          setIsDeleting(RD.failure(e))
+          return T.never
+        },
+        () => T.never,
+      ),
+    )()
+  }
 
   return (
     <Box p={4} shadow="md" borderWidth="1px" rounded="lg" textAlign={['center', 'left']} direction="column">
@@ -40,7 +60,9 @@ const SubscriptionItem = (item: SubscriptionItemProps): JSX.Element => {
           variant="outline"
           size="sm"
           icon={<DeleteIcon />}
-          onClick={() => item.onDelete(item._id)}
+          onClick={onDelete}
+          isLoading={RD.isPending(isDeleting)}
+          isDisabled={RD.isPending(isDeleting)}
         />
       </Stat>
     </Box>

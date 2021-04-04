@@ -26,7 +26,8 @@ import NoData from '@/components/icons/noData'
 import Head from 'next/head'
 import { pipe } from 'fp-ts/lib/function'
 import * as TE from 'fp-ts/lib/TaskEither'
-import * as T from 'fp-ts/lib/Task'
+import * as E from 'fp-ts/lib/Either'
+import * as types from '@/framework/subscriptions/types'
 
 const container: Variants = {
   hidden: { opacity: 0 },
@@ -47,29 +48,28 @@ const App = (): JSX.Element => {
   const toast = useToast()
   const { subscriptions, stats, isLoading, error, mutate } = useSubscriptions()
 
-  function onDeleteSubscription(id: string) {
+  function onDeleteSubscription(id: string): TE.TaskEither<Error, types.Subscriptions | undefined> {
     return pipe(
       id,
       subscriptionService.destroy,
       TE.fold(
-        (error) =>
-          T.fromIO(() =>
-            toast({
-              title: 'Delete operation failed',
-              description: error.message,
-              status: 'error',
-            }),
-          ),
-        (result) =>
-          T.fromIO(() =>
-            toast({
-              title: `Subscription ${result.name} was deleted with success`,
-              status: 'success',
-            }),
-          ),
+        (error) => {
+          toast({
+            title: 'Delete operation failed',
+            description: error.message,
+            status: 'error',
+          })
+          return TE.left(error)
+        },
+        (result) => {
+          toast({
+            title: `Subscription ${result.name} was deleted with success`,
+            status: 'success',
+          })
+          return TE.tryCatch(mutate, E.toError)
+        },
       ),
-      T.map(mutate),
-    )()
+    )
   }
 
   return (
