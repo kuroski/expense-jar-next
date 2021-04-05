@@ -3,12 +3,13 @@ import React, { useState } from 'react'
 import { CgMail } from 'react-icons/cg'
 import type * as types from '@/framework/subscriptions/types'
 import * as simpleIcons from 'react-icons/si'
-import { DeleteIcon } from '@chakra-ui/icons'
+import { DeleteIcon, EditIcon } from '@chakra-ui/icons'
 import useNextBilling from '@/framework/subscriptions/useNextBilling'
 import * as T from 'fp-ts/lib/Task'
 import * as TE from 'fp-ts/lib/TaskEither'
 import { pipe } from 'fp-ts/lib/function'
 import * as RD from '@/framework/remoteData'
+import Link from 'next/link'
 
 type SubscriptionItemProps = types.Subscription & {
   onDelete: (id: string) => TE.TaskEither<Error, unknown>
@@ -63,7 +64,18 @@ const SubscriptionItem = (item: SubscriptionItemProps): JSX.Element => {
           onClick={onDelete}
           isLoading={RD.isPending(isDeleting)}
           isDisabled={RD.isPending(isDeleting)}
+          mr="2"
         />
+        <Link
+          href={{
+            pathname: '/subscriptions/[id]',
+            query: { id: item._id },
+          }}
+        >
+          <a>
+            <IconButton aria-label="Edit subscription" icon={<EditIcon />} />
+          </a>
+        </Link>
       </Stat>
     </Box>
   )
