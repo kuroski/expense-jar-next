@@ -1,6 +1,7 @@
 import { ApiError, toDecodingError, toRequestError } from '@/framework/errors'
 import { Subscription, Subscriptions } from '@/framework/subscriptions/types'
 import * as E from 'fp-ts/lib/Either'
+import * as O from 'fp-ts/lib/Option'
 import { flow, pipe } from 'fp-ts/lib/function'
 import * as TE from 'fp-ts/lib/TaskEither'
 import { Errors } from 'io-ts'
@@ -54,20 +55,21 @@ export const getSubscriptions = (db: Db) => (userId: string): TE.TaskEither<Erro
 export const getSubscription = (db: Db) => (
   userId: string,
   subscriptionId: string,
-): TE.TaskEither<Error, Subscription> =>
+): TE.TaskEither<ApiError, Subscription> =>
   pipe(
-    TE.tryCatch(
+    TE.tryCatch<ApiError, unknown | null>(
       () =>
         db.collection('subscriptions').findOne({
           createdBy: userId,
-          id: subscriptionId,
+          _id: subscriptionId,
         }),
-      E.toError,
+      toRequestError,
     ),
-    TE.chain(
+    TE.chain<ApiError, unknown | null, Subscription>(
       flow(
-        Subscription.decode,
-        E.mapLeft((errors) => new Error(failure(errors).join('\n'))),
+        O.fromNullable,
+        E.fromOption(() => toRequestError('No subscription found')),
+        E.chain(flow(Subscription.decode, E.mapLeft<Errors, ApiError>(toDecodingError))),
         TE.fromEither,
       ),
     ),
