@@ -1,4 +1,4 @@
-import { FormValues } from '@/pages/subscriptions/new'
+import { FormValues } from '@/framework/subscriptions/types'
 import { Subscription, Subscriptions } from '@/framework/subscriptions/types'
 import * as E from 'fp-ts/lib/Either'
 import { flow, pipe } from 'fp-ts/lib/function'
