@@ -1,23 +1,61 @@
-import { Box, Button, Center, SimpleGrid } from '@chakra-ui/react'
+import { Box, Button, Center, useToast } from '@chakra-ui/react'
 import React from 'react'
 import { useRouter } from 'next/router'
 import useSubscription from '@/framework/subscriptions/useSubscription'
 import { MdRefresh } from 'react-icons/md'
-import { AnimatePresence, motion, Variants } from 'framer-motion'
+import { update } from '@/framework/subscriptions/subscriptions'
+import { pipe } from 'fp-ts/lib/function'
+import * as T from 'fp-ts/lib/Task'
+import * as TE from 'fp-ts/lib/TaskEither'
+import SubscriptionForm from '@/components/subscriptionForm'
+import type { FormValues, Subscription } from '@/framework/subscriptions/types'
 
-const container: Variants = {
-  hidden: { opacity: 0 },
-  show: {
-    opacity: 1,
-    transition: {
-      staggerChildren: 0.2,
-    },
-  },
+type EditFormProps = {
+  subscription: Subscription
 }
+const EditForm = (props: EditFormProps) => {
+  const router = useRouter()
+  const toast = useToast()
 
-const item: Variants = {
-  hidden: { opacity: 0, scale: 0.8 },
-  show: { opacity: 1, scale: 1 },
+  const initialValues: FormValues = {
+    name: props.subscription.name,
+    color: props.subscription.color,
+    cycleAmount: props.subscription.cycleAmount,
+    cyclePeriod: props.subscription.cyclePeriod,
+    overview: props.subscription.overview ?? '',
+    price: props.subscription.price,
+    firstBill: props.subscription.firstBill,
+    icon: props.subscription.icon,
+  }
+
+  const onSubmit = (values: FormValues): T.Task<Promise<boolean>> =>
+    pipe(
+      values,
+      update(props.subscription._id),
+      TE.fold(
+        (errors) => {
+          toast({
+            title: 'An error ocurred',
+            description: errors.message,
+            status: 'error',
+            duration: 9000,
+            isClosable: true,
+          })
+          return T.never
+        },
+        (subscription) => {
+          toast({
+            title: `Subscription "${subscription.name}" updated!`,
+            status: 'success',
+            duration: 9000,
+            isClosable: true,
+          })
+          return T.of(router.push('/'))
+        },
+      ),
+    )
+
+  return <SubscriptionForm initialValues={initialValues} title="Create new subscription" onSubmit={onSubmit} />
 }
 
 const EditSubscription = (): JSX.Element => {
@@ -37,21 +75,7 @@ const EditSubscription = (): JSX.Element => {
           </Button>
         </Center>
       )}
-      {subscription && (
-        <AnimatePresence>
-          <motion.div variants={container} initial="hidden" animate="show">
-            <SimpleGrid minChildWidth="170px" spacing={6} mt={4}>
-              <motion.div
-                key={subscription._id}
-                variants={item}
-                exit={{ opacity: 0, scale: 0.5, transition: { duration: 0.2 } }}
-              >
-                <pre>{JSON.stringify(subscription, null, 4)}</pre>
-              </motion.div>
-            </SimpleGrid>
-          </motion.div>
-        </AnimatePresence>
-      )}
+      {subscription && <EditForm subscription={subscription} />}
     </Box>
   )
 }

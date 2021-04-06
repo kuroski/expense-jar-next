@@ -31,6 +31,37 @@ export const createSubscription = (db: Db) => ({
     TE.chain(flow(Subscription.decode, E.mapLeft<Errors, ApiError>(toDecodingError), TE.fromEither)),
   )
 
+export const updateSubscription = (db: Db) => ({
+  data,
+  user,
+}: {
+  data: Subscription
+  user: string
+}): TE.TaskEither<ApiError, Subscription> =>
+  pipe(
+    TE.tryCatch(
+      () =>
+        db.collection('subscriptions').findOneAndUpdate(
+          {
+            _id: data._id,
+            createdBy: user,
+          },
+          {
+            $set: {
+              ...Subscription.encode(data),
+              updatedAt: new Date().toDateString(),
+            },
+          },
+        ),
+      toRequestError,
+    ),
+    (a) => a,
+    TE.chain(({ ok, value }) =>
+      ok ? TE.right(value) : TE.left(toRequestError(`Failed to insert subscription ${data.name}`)),
+    ),
+    TE.chain(flow(Subscription.decode, E.mapLeft<Errors, ApiError>(toDecodingError), TE.fromEither)),
+  )
+
 export const getSubscriptions = (db: Db) => (userId: string): TE.TaskEither<Error, Subscriptions> =>
   pipe(
     TE.tryCatch(

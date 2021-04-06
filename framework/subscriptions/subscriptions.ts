@@ -39,6 +39,42 @@ export function save(values: FormValues): TE.TaskEither<Error, Subscription> {
   )
 }
 
+export function update(id: string) {
+  return function (values: FormValues): TE.TaskEither<Error, Subscription> {
+    return pipe(
+      TE.tryCatch(
+        () =>
+          fetch(`${process.env.NEXT_PUBLIC_API_HOST}/api/subscriptions/${id}`, {
+            method: 'PUT',
+            body: JSON.stringify(FormValues.encode(values)),
+            headers: {
+              'Content-Type': 'application/json',
+            },
+          }),
+        E.toError,
+      ),
+      TE.chain((response) => {
+        if (!response.ok) {
+          return pipe(
+            TE.tryCatch(() => response.text(), E.toError),
+            TE.fold(TE.left, (a) => TE.left(new Error(a))),
+          )
+        }
+        return TE.of(response)
+      }),
+      TE.chain((response) => TE.tryCatch((): Promise<{ subscription: unknown[] }> => response.json(), E.toError)),
+      TE.chain(
+        flow(
+          ({ subscription }) => subscription,
+          Subscription.decode,
+          E.mapLeft((errors) => new Error(failure(errors).join('\n'))),
+          TE.fromEither,
+        ),
+      ),
+    )
+  }
+}
+
 export function all(): TE.TaskEither<Error, Subscriptions> {
   return pipe(
     TE.tryCatch(() => fetch(`${process.env.NEXT_PUBLIC_API_HOST}/api/subscriptions`), E.toError),
