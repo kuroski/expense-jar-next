@@ -31,7 +31,7 @@ const Content = ({ Component, pageProps }: AppProps) => {
           <ModalBody>Sign in to continue</ModalBody>
 
           <ModalFooter>
-            <Button colorScheme="blue" mr={3} onClick={() => signIn('github')}>
+            <Button colorScheme="blue" mr={3} onClick={() => signIn()}>
               Sign in to continue
             </Button>
           </ModalFooter>
