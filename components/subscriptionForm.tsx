@@ -55,7 +55,7 @@ const SubscriptionForm = (props: SubscriptionForm): JSX.Element => {
         <title>{props.title}</title>
       </Head>
       <form onSubmit={form.handleSubmit}>
-        <Stack spacing={4} mt={10}>
+        <Stack spacing={4}>
           <FormControl id="icon" isInvalid={Boolean(form.errors.icon && form.touched.icon)}>
             <IconSelect
               id="icon"

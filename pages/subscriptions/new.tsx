@@ -1,6 +1,6 @@
 import React from 'react'
 import { useRouter } from 'next/router'
-import { useToast } from '@chakra-ui/react'
+import { Box, useToast } from '@chakra-ui/react'
 import { save } from '@/framework/subscriptions/subscriptions'
 import { pipe } from 'fp-ts/lib/function'
 import * as T from 'fp-ts/lib/Task'
@@ -49,7 +49,11 @@ const NewSubscription = (): JSX.Element => {
       ),
     )
 
-  return <SubscriptionForm initialValues={initialValues} title="Create new subscription" onSubmit={onSubmit} />
+  return (
+    <Box mt={10}>
+      <SubscriptionForm initialValues={initialValues} title="Create new subscription" onSubmit={onSubmit} />
+    </Box>
+  )
 }
 
 export default NewSubscription
