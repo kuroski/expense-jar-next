@@ -7,6 +7,8 @@ import * as TE from 'fp-ts/lib/TaskEither'
 import { Errors } from 'io-ts'
 import { failure } from 'io-ts/lib/PathReporter'
 import { Db } from 'mongodb'
+import { List } from '@/framework/lists/types'
+import { nanoid } from 'nanoid'
 
 export const createSubscription = (db: Db) => ({
   data,
@@ -18,17 +20,42 @@ export const createSubscription = (db: Db) => ({
   pipe(
     TE.tryCatch(
       () =>
-        db.collection('subscriptions').insertOne({
-          ...Subscription.encode(data),
-          createdBy: user,
-          createdAt: new Date().toDateString(),
-        }),
+        db.collection<List>('lists').findOneAndUpdate(
+          { createdBy: user },
+          { $setOnInsert: { createdBy: user, _id: nanoid(12) } },
+          {
+            returnOriginal: false,
+            upsert: true,
+          },
+        ),
       toRequestError,
     ),
-    TE.chain(({ result, ops }) =>
-      result.ok ? TE.right(ops[0]) : TE.left(toRequestError(`Failed to insert subscription ${data.name}`)),
+    TE.chain(({ value, ok }) =>
+      ok && value
+        ? TE.right(value)
+        : TE.left(toRequestError(`Failed to find/create a list for subscription ${data.name}`)),
     ),
-    TE.chain(flow(Subscription.decode, E.mapLeft<Errors, ApiError>(toDecodingError), TE.fromEither)),
+    TE.chain(flow(List.decode, E.mapLeft<Errors, ApiError>(toDecodingError), TE.fromEither)),
+    TE.chain((list) =>
+      pipe(
+        TE.tryCatch(
+          () =>
+            db.collection('subscriptions').insertOne({
+              ...Subscription.encode(data),
+              createdBy: user,
+              createdAt: new Date().toDateString(),
+              listId: list._id,
+            }),
+          toRequestError,
+        ),
+        TE.chain(({ result, ops }) =>
+          result.ok && ops[0]
+            ? TE.right(ops[0])
+            : TE.left(toRequestError(`Failed to insert subscription ${data.name}`)),
+        ),
+        TE.chain(flow(Subscription.decode, E.mapLeft<Errors, ApiError>(toDecodingError), TE.fromEither)),
+      ),
+    ),
   )
 
 export const updateSubscription = (db: Db) => ({
@@ -57,7 +84,7 @@ export const updateSubscription = (db: Db) => ({
     ),
     (a) => a,
     TE.chain(({ ok, value }) =>
-      ok ? TE.right(value) : TE.left(toRequestError(`Failed to insert subscription ${data.name}`)),
+      ok && value ? TE.right(value) : TE.left(toRequestError(`Failed to insert subscription ${data.name}`)),
     ),
     TE.chain(flow(Subscription.decode, E.mapLeft<Errors, ApiError>(toDecodingError), TE.fromEither)),
   )

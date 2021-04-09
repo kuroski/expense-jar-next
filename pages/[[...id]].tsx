@@ -20,14 +20,17 @@ import type { Variants } from 'framer-motion'
 import Subscription from '@/components/subscription'
 import useSubscriptions from '@/framework/subscriptions/useSubscriptions'
 import * as subscriptionService from '@/framework/subscriptions/subscriptions'
+import * as listService from '@/framework/lists/lists'
 import SubscriptionsSkeleton from '@/components/subscriptionsSkeleton'
 import { MdRefresh } from 'react-icons/md'
 import NoData from '@/components/icons/noData'
 import Head from 'next/head'
-import { pipe } from 'fp-ts/lib/function'
+import { flow, pipe } from 'fp-ts/lib/function'
 import * as TE from 'fp-ts/lib/TaskEither'
 import * as E from 'fp-ts/lib/Either'
 import * as types from '@/framework/subscriptions/types'
+import * as listTypes from '@/framework/lists/types'
+import useLists from '@/framework/lists/useList'
 
 const container: Variants = {
   hidden: { opacity: 0 },
@@ -47,6 +50,7 @@ const item: Variants = {
 const App = (): JSX.Element => {
   const toast = useToast()
   const { subscriptions, stats, isLoading, error, mutate } = useSubscriptions()
+  const list = useLists()
 
   function onDeleteSubscription(id: string): TE.TaskEither<Error, types.Subscriptions | undefined> {
     return pipe(
@@ -72,6 +76,29 @@ const App = (): JSX.Element => {
     )
   }
 
+  function onListShared(): TE.TaskEither<Error, listTypes.List | undefined> {
+    return flow(
+      listService.share,
+      TE.fold(
+        (error) => {
+          toast({
+            title: 'Share operation failed',
+            description: error.message,
+            status: 'error',
+          })
+          return TE.left(error)
+        },
+        () => {
+          toast({
+            title: 'List shared with success',
+            status: 'success',
+          })
+          return TE.tryCatch(list.mutate, E.toError)
+        },
+      ),
+    )()
+  }
+
   return (
     <>
       <Head>
@@ -84,6 +111,13 @@ const App = (): JSX.Element => {
               <IconButton aria-label="Add new subscription" icon={<AddIcon />} />
             </a>
           </Link>
+
+          {list.list &&
+            (list.list.urlId ? (
+              <div>{list.list.urlId}</div>
+            ) : (
+              <Button onClick={() => onListShared()()}>Share your list</Button>
+            ))}
         </Flex>
 
         {isLoading && <SubscriptionsSkeleton />}

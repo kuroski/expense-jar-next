@@ -35,7 +35,7 @@ const NewSubscription = (): JSX.Element => {
             duration: 9000,
             isClosable: true,
           })
-          return T.never
+          return T.of(Promise.reject('An error ocurred'))
         },
         (subscription) => {
           toast({
