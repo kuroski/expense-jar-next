@@ -45,6 +45,31 @@ export const getList = (db: Db) => (userId: string): TE.TaskEither<ApiError, Lis
     ),
   )
 
+export const updateList = (db: Db) => ({ data, user }: { data: List; user: string }): TE.TaskEither<ApiError, List> =>
+  pipe(
+    TE.tryCatch(
+      () =>
+        db.collection('lists').findOneAndUpdate(
+          {
+            _id: data._id,
+            createdBy: user,
+          },
+          {
+            $set: {
+              ...List.encode(data),
+              updatedAt: new Date().toDateString(),
+            },
+          },
+        ),
+      toRequestError,
+    ),
+    (a) => a,
+    TE.chain(({ ok, value }) =>
+      ok && value ? TE.right(value) : TE.left(toRequestError(`Failed to insert list ${data._id}`)),
+    ),
+    TE.chain(flow(List.decode, E.mapLeft<Errors, ApiError>(toDecodingError), TE.fromEither)),
+  )
+
 export const shareList = (db: Db) => (user: string): TE.TaskEither<ApiError, List> =>
   pipe(
     TE.tryCatch(

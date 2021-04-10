@@ -4,14 +4,14 @@ import useSWR from 'swr'
 import { all } from './lists'
 import { List } from './types'
 
-type UseLists = {
+type UseList = {
   list: List | undefined
   isLoading: boolean
   error: Error | undefined
   mutate: () => Promise<List | undefined>
 }
 
-const useLists = (): UseLists => {
+const useList = (): UseList => {
   const { data, error, mutate } = useSWR<List, Error>(
     'list',
     flow(all(), (e) =>
@@ -31,4 +31,4 @@ const useLists = (): UseLists => {
     mutate: () => mutate(),
   }
 }
-export default useLists
+export default useList

@@ -30,7 +30,8 @@ import * as TE from 'fp-ts/lib/TaskEither'
 import * as E from 'fp-ts/lib/Either'
 import * as types from '@/framework/subscriptions/types'
 import * as listTypes from '@/framework/lists/types'
-import useLists from '@/framework/lists/useList'
+import useList from '@/framework/lists/useList'
+import CurrencySelect from '@/components/currencySelect'
 
 const container: Variants = {
   hidden: { opacity: 0 },
@@ -50,7 +51,9 @@ const item: Variants = {
 const App = (): JSX.Element => {
   const toast = useToast()
   const { subscriptions, stats, isLoading, error, mutate } = useSubscriptions()
-  const list = useLists()
+  const list = useList()
+
+  const currencyFormatter = Intl.NumberFormat([], { style: 'currency', currency: list.list?.currency || 'EUR' })
 
   function onDeleteSubscription(id: string): TE.TaskEither<Error, types.Subscriptions | undefined> {
     return pipe(
@@ -99,6 +102,30 @@ const App = (): JSX.Element => {
     )()
   }
 
+  function onCurrencyChanged(code: string): TE.TaskEither<Error, listTypes.List | undefined> {
+    return pipe(
+      { code },
+      listService.update(list.list!._id),
+      TE.fold(
+        (error) => {
+          toast({
+            title: 'It was not possible to change the currency',
+            description: error.message,
+            status: 'error',
+          })
+          return TE.left(error)
+        },
+        () => {
+          toast({
+            title: 'Currency changed with success',
+            status: 'success',
+          })
+          return TE.tryCatch(list.mutate, E.toError)
+        },
+      ),
+    )
+  }
+
   return (
     <>
       <Head>
@@ -118,8 +145,16 @@ const App = (): JSX.Element => {
                 {list.list.urlId}
               </Flex>
             ) : (
-              <IconButton ml={3} aria-label="Share list" icon={<LinkIcon />} onClick={() => onListShared()()} />
+              <IconButton ml={3} aria-label="Share list" icon={<LinkIcon />} onClick={onListShared()} />
             ))}
+
+          <Box ml={3}>
+            <CurrencySelect
+              id="currency"
+              value={list.list?.currency || ''}
+              onSelect={(code) => onCurrencyChanged(code)()}
+            />
+          </Box>
         </Flex>
 
         {isLoading && <SubscriptionsSkeleton />}
@@ -153,17 +188,17 @@ const App = (): JSX.Element => {
             <SimpleGrid key="stats" spacing={4} columns={[1, 3]}>
               <Stat key="avgWeek">
                 <StatLabel>Avg per week</StatLabel>
-                <StatNumber>€ {stats.weeklyExpenses}</StatNumber>
+                <StatNumber>{currencyFormatter.format(stats.weeklyExpenses)}</StatNumber>
               </Stat>
 
               <Stat key="avgMonth">
                 <StatLabel>Avg per month</StatLabel>
-                <StatNumber>€ {stats.monthlyExpenses}</StatNumber>
+                <StatNumber>{currencyFormatter.format(stats.monthlyExpenses)}</StatNumber>
               </Stat>
 
               <Stat key="avgYear">
                 <StatLabel>Avg per year</StatLabel>
-                <StatNumber>€ {stats.yearlyExpenses}</StatNumber>
+                <StatNumber>{currencyFormatter.format(stats.yearlyExpenses)}</StatNumber>
               </Stat>
             </SimpleGrid>
 
