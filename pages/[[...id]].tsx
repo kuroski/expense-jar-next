@@ -14,7 +14,7 @@ import {
   StatNumber,
   useToast,
 } from '@chakra-ui/react'
-import { AddIcon } from '@chakra-ui/icons'
+import { AddIcon, LinkIcon } from '@chakra-ui/icons'
 import { AnimatePresence, motion } from 'framer-motion'
 import type { Variants } from 'framer-motion'
 import Subscription from '@/components/subscription'
@@ -114,9 +114,11 @@ const App = (): JSX.Element => {
 
           {list.list &&
             (list.list.urlId ? (
-              <div>{list.list.urlId}</div>
+              <Flex ml={3} alignItems="center">
+                {list.list.urlId}
+              </Flex>
             ) : (
-              <Button onClick={() => onListShared()()}>Share your list</Button>
+              <IconButton ml={3} aria-label="Share list" icon={<LinkIcon />} onClick={() => onListShared()()} />
             ))}
         </Flex>
 

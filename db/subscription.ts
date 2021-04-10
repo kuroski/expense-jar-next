@@ -7,8 +7,7 @@ import * as TE from 'fp-ts/lib/TaskEither'
 import { Errors } from 'io-ts'
 import { failure } from 'io-ts/lib/PathReporter'
 import { Db } from 'mongodb'
-import { List } from '@/framework/lists/types'
-import { nanoid } from 'nanoid'
+import { getList } from './list'
 
 export const createSubscription = (db: Db) => ({
   data,
@@ -18,24 +17,8 @@ export const createSubscription = (db: Db) => ({
   user: string
 }): TE.TaskEither<ApiError, Subscription> =>
   pipe(
-    TE.tryCatch(
-      () =>
-        db.collection<List>('lists').findOneAndUpdate(
-          { createdBy: user },
-          { $setOnInsert: { createdBy: user, _id: nanoid(12) } },
-          {
-            returnOriginal: false,
-            upsert: true,
-          },
-        ),
-      toRequestError,
-    ),
-    TE.chain(({ value, ok }) =>
-      ok && value
-        ? TE.right(value)
-        : TE.left(toRequestError(`Failed to find/create a list for subscription ${data.name}`)),
-    ),
-    TE.chain(flow(List.decode, E.mapLeft<Errors, ApiError>(toDecodingError), TE.fromEither)),
+    user,
+    getList(db),
     TE.chain((list) =>
       pipe(
         TE.tryCatch(

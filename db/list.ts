@@ -1,7 +1,6 @@
 import { ApiError, toDecodingError, toRequestError } from '@/framework/errors'
 import { List } from '@/framework/lists/types'
 import * as E from 'fp-ts/lib/Either'
-import * as O from 'fp-ts/lib/Option'
 import { flow, pipe } from 'fp-ts/lib/function'
 import * as TE from 'fp-ts/lib/TaskEither'
 import { Errors } from 'io-ts'
@@ -26,20 +25,23 @@ export const createList = (db: Db) => ({ user }: { user: string }): TE.TaskEithe
 
 export const getList = (db: Db) => (userId: string): TE.TaskEither<ApiError, List> =>
   pipe(
-    TE.tryCatch<ApiError, unknown | null>(
+    TE.tryCatch(
       () =>
-        db.collection('lists').findOne({
-          createdBy: userId,
-        }),
+        db.collection<List>('lists').findOneAndUpdate(
+          { createdBy: userId },
+          { $setOnInsert: { createdBy: userId, _id: nanoid(12) } },
+          {
+            returnOriginal: false,
+            upsert: true,
+          },
+        ),
       toRequestError,
     ),
+    TE.chain(({ value, ok }) =>
+      ok && value ? TE.right(value) : TE.left(toRequestError(`Failed to find/create a list for user ${userId}`)),
+    ),
     TE.chain<ApiError, unknown | null, List>(
-      flow(
-        O.fromNullable,
-        E.fromOption(() => toRequestError('No list found')),
-        E.chain(flow(List.decode, E.mapLeft<Errors, ApiError>(toDecodingError))),
-        TE.fromEither,
-      ),
+      flow(List.decode, E.mapLeft<Errors, ApiError>(toDecodingError), TE.fromEither),
     ),
   )
 
