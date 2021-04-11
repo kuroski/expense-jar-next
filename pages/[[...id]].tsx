@@ -32,6 +32,7 @@ import * as types from '@/framework/subscriptions/types'
 import * as listTypes from '@/framework/lists/types'
 import useList from '@/framework/lists/useList'
 import CurrencySelect from '@/components/currencySelect'
+import useTranslation from 'next-translate/useTranslation'
 
 const container: Variants = {
   hidden: { opacity: 0 },
@@ -52,6 +53,7 @@ const App = (): JSX.Element => {
   const toast = useToast()
   const { subscriptions, stats, isLoading, error, mutate } = useSubscriptions()
   const list = useList()
+  const { t } = useTranslation('common')
 
   const currencyFormatter = Intl.NumberFormat([], { style: 'currency', currency: list.list?.currency || 'EUR' })
 
@@ -62,7 +64,7 @@ const App = (): JSX.Element => {
       TE.fold(
         (error) => {
           toast({
-            title: 'Delete operation failed',
+            title: t('delete_operation_failed'),
             description: error.message,
             status: 'error',
           })
@@ -70,7 +72,7 @@ const App = (): JSX.Element => {
         },
         (result) => {
           toast({
-            title: `Subscription ${result.name} was deleted with success`,
+            title: t('subscription_deleted', { name: result.name }),
             status: 'success',
           })
           return TE.tryCatch(mutate, E.toError)
@@ -85,7 +87,7 @@ const App = (): JSX.Element => {
       TE.fold(
         (error) => {
           toast({
-            title: 'Share operation failed',
+            title: t('share_operation_failed'),
             description: error.message,
             status: 'error',
           })
@@ -93,7 +95,7 @@ const App = (): JSX.Element => {
         },
         () => {
           toast({
-            title: 'List shared with success',
+            title: t('list_shared'),
             status: 'success',
           })
           return TE.tryCatch(list.mutate, E.toError)
@@ -109,7 +111,7 @@ const App = (): JSX.Element => {
       TE.fold(
         (error) => {
           toast({
-            title: 'It was not possible to change the currency',
+            title: t('currency_change_failed'),
             description: error.message,
             status: 'error',
           })
@@ -117,7 +119,7 @@ const App = (): JSX.Element => {
         },
         () => {
           toast({
-            title: 'Currency changed with success',
+            title: t('currency_changed'),
             status: 'success',
           })
           return TE.tryCatch(list.mutate, E.toError)
@@ -135,7 +137,7 @@ const App = (): JSX.Element => {
         <Flex justify="flex-end">
           <Link href="/subscriptions/new">
             <a>
-              <IconButton aria-label="Add new subscription" icon={<AddIcon />} />
+              <IconButton aria-label={t('add_new_subscription')} icon={<AddIcon />} />
             </a>
           </Link>
 
@@ -145,7 +147,7 @@ const App = (): JSX.Element => {
                 {list.list.urlId}
               </Flex>
             ) : (
-              <IconButton ml={3} aria-label="Share list" icon={<LinkIcon />} onClick={onListShared()} />
+              <IconButton ml={3} aria-label={t('share_list')} icon={<LinkIcon />} onClick={onListShared()} />
             ))}
 
           <Box ml={3}>
@@ -160,9 +162,9 @@ const App = (): JSX.Element => {
         {isLoading && <SubscriptionsSkeleton />}
         {error && (
           <Center display="flex" flexDirection="column">
-            <h1>An error ocurred!</h1>
+            <h1>{t('error_ocurred')}</h1>
             <Button mt={2} leftIcon={<MdRefresh />} onClick={mutate}>
-              Retry
+              {t('retry')}
             </Button>
           </Center>
         )}
@@ -172,12 +174,12 @@ const App = (): JSX.Element => {
               <NoData />
             </Box>
             <Heading as="h1" size="md" mb={2}>
-              <span>Things are a bit empty here, let&apos;s</span>
+              <span>{t('empty_subscription')}</span>
             </Heading>
             <Link href="/subscriptions/new">
               <a>
                 <Button aria-label="Add new subscription" rightIcon={<AddIcon />}>
-                  Add a subscription
+                  {t('add_subscription')}
                 </Button>
               </a>
             </Link>
@@ -187,17 +189,17 @@ const App = (): JSX.Element => {
           <AnimatePresence>
             <SimpleGrid key="stats" spacing={4} columns={[1, 3]}>
               <Stat key="avgWeek">
-                <StatLabel>Avg per week</StatLabel>
+                <StatLabel>{t('avg_week')}</StatLabel>
                 <StatNumber>{currencyFormatter.format(stats.weeklyExpenses)}</StatNumber>
               </Stat>
 
               <Stat key="avgMonth">
-                <StatLabel>Avg per month</StatLabel>
+                <StatLabel>{t('avg_month')}</StatLabel>
                 <StatNumber>{currencyFormatter.format(stats.monthlyExpenses)}</StatNumber>
               </Stat>
 
               <Stat key="avgYear">
-                <StatLabel>Avg per year</StatLabel>
+                <StatLabel>{t('avg_year')}</StatLabel>
                 <StatNumber>{currencyFormatter.format(stats.yearlyExpenses)}</StatNumber>
               </Stat>
             </SimpleGrid>
@@ -210,7 +212,12 @@ const App = (): JSX.Element => {
                     variants={item}
                     exit={{ opacity: 0, scale: 0.5, transition: { duration: 0.2 } }}
                   >
-                    <Subscription {...element} key={element._id} onDelete={onDeleteSubscription} />
+                    <Subscription
+                      {...element}
+                      key={element._id}
+                      onDelete={onDeleteSubscription}
+                      currencyFormatter={currencyFormatter}
+                    />
                   </motion.div>
                 ))}
               </SimpleGrid>

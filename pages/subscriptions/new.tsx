@@ -7,10 +7,12 @@ import * as T from 'fp-ts/lib/Task'
 import * as TE from 'fp-ts/lib/TaskEither'
 import SubscriptionForm from '@/components/subscriptionForm'
 import type { FormValues } from '@/framework/subscriptions/types'
+import useTranslation from 'next-translate/useTranslation'
 
 const NewSubscription = (): JSX.Element => {
   const router = useRouter()
   const toast = useToast()
+  const { t } = useTranslation('common')
 
   const initialValues: FormValues = {
     name: '',
@@ -29,17 +31,17 @@ const NewSubscription = (): JSX.Element => {
       TE.fold(
         (errors) => {
           toast({
-            title: 'An error ocurred',
+            title: t('error_ocurred'),
             description: errors.message,
             status: 'error',
             duration: 9000,
             isClosable: true,
           })
-          return T.of(Promise.reject('An error ocurred'))
+          return T.of(Promise.reject(t('error_ocurred')))
         },
         (subscription) => {
           toast({
-            title: `Subscription "${subscription.name}" created`,
+            title: t('subscription_created', { name: subscription.name }),
             status: 'success',
             duration: 9000,
             isClosable: true,
@@ -51,7 +53,7 @@ const NewSubscription = (): JSX.Element => {
 
   return (
     <Box mt={10}>
-      <SubscriptionForm initialValues={initialValues} title="Create new subscription" onSubmit={onSubmit} />
+      <SubscriptionForm initialValues={initialValues} title={t('create_subscription')} onSubmit={onSubmit} />
     </Box>
   )
 }

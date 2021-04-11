@@ -19,6 +19,7 @@ import { flow, pipe } from 'fp-ts/lib/function'
 import * as A from 'fp-ts/Array'
 import currencies, { Currency } from '@/framework/currencyList'
 import { SearchIcon } from '@chakra-ui/icons'
+import useTranslation from 'next-translate/useTranslation'
 
 const currencyKeys = Object.keys(currencies)
 
@@ -82,6 +83,7 @@ const CurrencySelect = (props: CurrencySelectProps): JSX.Element => {
   const { isOpen, onOpen, onClose } = useDisclosure()
   const [searchTerm, setSearchTerm] = useState('')
   const [currencyList, setCurrencyList] = useState<string[]>([])
+  const { t } = useTranslation('common')
 
   useEffect(() => setCurrencyList(currencyKeys), [])
 
@@ -96,7 +98,7 @@ const CurrencySelect = (props: CurrencySelectProps): JSX.Element => {
   const buttonContent = foundCurrencyKey ? (
     <span>{currencies[foundCurrencyKey].symbolNative}</span>
   ) : (
-    <span>Select your currency</span>
+    <span>{t('select_currency')}</span>
   )
 
   return (
@@ -114,14 +116,14 @@ const CurrencySelect = (props: CurrencySelectProps): JSX.Element => {
             <InputGroup size="md">
               <Input
                 id="icon-search"
-                placeholder="Search for a currency"
+                placeholder={t('search_currency')}
                 autoFocus={true}
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 onKeyPress={(e) => e.key === 'Enter' && searchButtonClicked()}
               />
               <InputRightElement>
-                <IconButton aria-label="Search currency" onClick={searchButtonClicked} icon={<SearchIcon />} />
+                <IconButton aria-label={t('search')} onClick={searchButtonClicked} icon={<SearchIcon />} />
               </InputRightElement>
             </InputGroup>
           </ModalHeader>

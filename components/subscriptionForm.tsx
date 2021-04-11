@@ -25,16 +25,19 @@ import Head from 'next/head'
 import type { FormValues } from '@/framework/subscriptions/types'
 import * as T from 'fp-ts/lib/Task'
 import { Period } from '@/framework/subscriptions/types'
+import useTranslation from 'next-translate/useTranslation'
+import type { Translate } from 'next-translate'
 
-const SubscriptionSchema = Yup.object().shape({
-  color: Yup.string().required("The 'color' field is required"),
-  cycleAmount: Yup.number().required("The 'cycle amount' field is required"),
-  cyclePeriod: Yup.string().required("The 'cycle period' field is required"),
-  icon: Yup.string().required("The 'icon' field is required"),
-  name: Yup.string().required("The 'name' field is required"),
-  price: Yup.number().required("The 'price' field is required"),
-  firstBill: Yup.date().required("The 'date' field is required"),
-})
+const SubscriptionSchema = (t: Translate) =>
+  Yup.object().shape({
+    color: Yup.string().required(t('required_field', { field: 'color' })),
+    cycleAmount: Yup.number().required(t('required_field', { field: 'cycle amount' })),
+    cyclePeriod: Yup.string().required(t('required_field', { field: 'cycle period' })),
+    icon: Yup.string().required(t('required_field', { field: 'icon' })),
+    name: Yup.string().required(t('required_field', { field: 'name' })),
+    price: Yup.number().required(t('required_field', { field: 'price' })),
+    firstBill: Yup.date().required(t('required_field', { field: 'date' })),
+  })
 
 export type SubscriptionForm = {
   title: string
@@ -43,9 +46,11 @@ export type SubscriptionForm = {
 }
 
 const SubscriptionForm = (props: SubscriptionForm): JSX.Element => {
+  const { t } = useTranslation('common')
   const form = useFormik({
     initialValues: props.initialValues,
-    validationSchema: SubscriptionSchema,
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    validationSchema: React.useMemo(() => SubscriptionSchema(t), []),
     onSubmit: (values, formikHelpers) => props.onSubmit(values, formikHelpers)(),
   })
 
@@ -74,13 +79,13 @@ const SubscriptionForm = (props: SubscriptionForm): JSX.Element => {
 
           <Grid templateColumns={['1fr', 'auto 1fr']} gap={4}>
             <FormControl id="color" isInvalid={Boolean(form.errors.color && form.touched.color)}>
-              <FormLabel>Color</FormLabel>
+              <FormLabel>{t('color')}</FormLabel>
               <Input variant="flushed" type="color" onChange={form.handleChange} value={form.values.color} />
               <FormErrorMessage>{form.errors.color}</FormErrorMessage>
             </FormControl>
 
             <FormControl id="name" isInvalid={Boolean(form.errors.name && form.touched.name)}>
-              <FormLabel>Name</FormLabel>
+              <FormLabel>{t('name')}</FormLabel>
               <Input type="text" onChange={form.handleChange} value={form.values.name} />
               <FormErrorMessage>{form.errors.name}</FormErrorMessage>
             </FormControl>
@@ -88,7 +93,7 @@ const SubscriptionForm = (props: SubscriptionForm): JSX.Element => {
 
           <SimpleGrid columns={[1, 2]} spacing={4}>
             <FormControl id="firstBill" isInvalid={Boolean(form.errors.firstBill && form.touched.firstBill)}>
-              <FormLabel>First bill</FormLabel>
+              <FormLabel>{t('first_bill')}</FormLabel>
               <Input
                 type="date"
                 onChange={(value) => {
@@ -105,7 +110,7 @@ const SubscriptionForm = (props: SubscriptionForm): JSX.Element => {
             </FormControl>
 
             <FormControl id="price" isInvalid={Boolean(form.errors.price && form.touched.price)}>
-              <FormLabel>Price</FormLabel>
+              <FormLabel>{t('price')}</FormLabel>
               <NumberInput
                 onChange={(value) =>
                   form.handleChange({
@@ -130,7 +135,7 @@ const SubscriptionForm = (props: SubscriptionForm): JSX.Element => {
 
           <SimpleGrid columns={[1, 2]} spacing={4}>
             <FormControl id="cycleAmount" isInvalid={Boolean(form.errors.cycleAmount && form.touched.cycleAmount)}>
-              <FormLabel aria-label="Cycle amount">Every (amount)</FormLabel>
+              <FormLabel aria-label={t('cycle_amount')}>{t('every_amount')}</FormLabel>
               <NumberInput
                 min={1}
                 max={31}
@@ -156,11 +161,11 @@ const SubscriptionForm = (props: SubscriptionForm): JSX.Element => {
             </FormControl>
 
             <FormControl id="cyclePeriod" isInvalid={Boolean(form.errors.cyclePeriod && form.touched.cyclePeriod)}>
-              <FormLabel aria-label="Cycle period">Period</FormLabel>
-              <Select onChange={form.handleChange} value={form.values.cyclePeriod} placeholder="Price">
+              <FormLabel aria-label={t('cycle_period')}>{t('cycle_period')}</FormLabel>
+              <Select onChange={form.handleChange} value={form.values.cyclePeriod} placeholder={t('price')}>
                 {Object.keys(Period.keys).map((period) => (
                   <option key={period} value={period}>
-                    {period}(s)
+                    {t(period)}(s)
                   </option>
                 ))}
               </Select>
@@ -169,13 +174,13 @@ const SubscriptionForm = (props: SubscriptionForm): JSX.Element => {
           </SimpleGrid>
 
           <FormControl id="overview" isInvalid={Boolean(form.errors.overview && form.touched.overview)}>
-            <FormLabel>Overview</FormLabel>
+            <FormLabel>{t('overview')}</FormLabel>
             <Textarea onChange={form.handleChange} value={form.values.overview} />
             <FormErrorMessage>{form.errors.overview}</FormErrorMessage>
           </FormControl>
 
           <Button mt={4} colorScheme="teal" type="submit" disabled={form.isSubmitting} isLoading={form.isSubmitting}>
-            Submit
+            {t('submit')}
           </Button>
         </Stack>
       </form>

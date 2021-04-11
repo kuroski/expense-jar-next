@@ -5,6 +5,7 @@ import { Button, Flex, IconButton, useColorMode } from '@chakra-ui/react'
 import { CgLogIn, CgHome } from 'react-icons/cg'
 import { MoonIcon, SunIcon } from '@chakra-ui/icons'
 import User from './user'
+import useTranslation from 'next-translate/useTranslation'
 
 const handleLogin = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
   e.preventDefault()
@@ -14,6 +15,7 @@ const handleLogin = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
 const Header = (): JSX.Element => {
   const [session] = useSession()
   const { colorMode, toggleColorMode } = useColorMode()
+  const { t } = useTranslation('common')
 
   return (
     <Flex align="center" justify="space-between" mb={3}>
@@ -21,13 +23,13 @@ const Header = (): JSX.Element => {
         <IconButton
           mr={3}
           icon={colorMode === 'light' ? <MoonIcon /> : <SunIcon />}
-          aria-label={`Switch to ${colorMode === 'light' ? 'dark' : 'light'} mode`}
+          aria-label={t('switch_to_mode', { mode: colorMode === 'light' ? 'dark' : 'light' })}
           onClick={toggleColorMode}
         />
 
         <Link href="/">
           <a>
-            <IconButton aria-label="Home page" icon={<CgHome />} />
+            <IconButton aria-label={t('home_page')} icon={<CgHome />} />
           </a>
         </Link>
       </div>
@@ -36,7 +38,7 @@ const Header = (): JSX.Element => {
         <User user={session.user} />
       ) : (
         <Button rightIcon={<CgLogIn />} onClick={handleLogin}>
-          Login
+          {t('login')}
         </Button>
       )}
     </Flex>

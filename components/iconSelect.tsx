@@ -21,6 +21,7 @@ import type { IconType } from 'react-icons/lib'
 import { DeleteIcon, SearchIcon } from '@chakra-ui/icons'
 import * as si from 'react-icons/si'
 import * as A from 'fp-ts/Array'
+import useTranslation from 'next-translate/useTranslation'
 
 type IconSelectProps = {
   id: string
@@ -102,6 +103,7 @@ const IconSelect = (props: IconSelectProps): JSX.Element => {
   const { isOpen, onOpen, onClose } = useDisclosure()
   const [searchTerm, setSearchTerm] = useState('')
   const [iconList, setIconList] = useState<string[]>([])
+  const { t } = useTranslation('common')
 
   useEffect(() => setIconList(iconKeys), [])
 
@@ -121,7 +123,7 @@ const IconSelect = (props: IconSelectProps): JSX.Element => {
         <Button id={props.id} onClick={onOpen}>
           {buttonContent}
         </Button>
-        {foundIconKey && <IconButton aria-label="Clear icon" icon={<DeleteIcon />} onClick={() => iconSelected('')} />}
+        {foundIconKey && <IconButton aria-label={t('clear')} icon={<DeleteIcon />} onClick={() => iconSelected('')} />}
       </ButtonGroup>
 
       <Modal isOpen={isOpen} onClose={onClose} isCentered scrollBehavior="inside">
@@ -131,14 +133,14 @@ const IconSelect = (props: IconSelectProps): JSX.Element => {
             <InputGroup size="md">
               <Input
                 id="icon-search"
-                placeholder="Search for an icon"
+                placeholder={t('search_icon')}
                 autoFocus={true}
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 onKeyPress={(e) => e.key === 'Enter' && searchButtonClicked()}
               />
               <InputRightElement>
-                <IconButton aria-label="Search icon" onClick={searchButtonClicked} icon={<SearchIcon />} />
+                <IconButton aria-label={t('search')} onClick={searchButtonClicked} icon={<SearchIcon />} />
               </InputRightElement>
             </InputGroup>
           </ModalHeader>

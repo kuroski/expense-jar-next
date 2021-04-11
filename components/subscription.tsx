@@ -10,16 +10,19 @@ import * as TE from 'fp-ts/lib/TaskEither'
 import { pipe } from 'fp-ts/lib/function'
 import * as RD from '@/framework/remoteData'
 import Link from 'next/link'
+import useTranslation from 'next-translate/useTranslation'
 
 type SubscriptionItemProps = types.Subscription & {
   onDelete: (id: string) => TE.TaskEither<Error, unknown>
+  currencyFormatter: Intl.NumberFormat
 }
 
 const SubscriptionItem = (item: SubscriptionItemProps): JSX.Element => {
   const [isDeleting, setIsDeleting] = useState<RD.RemoteData<Error, unknown>>(RD.notAsked)
   const [, icon] = Object.entries(simpleIcons).find(([key]) => key === item.icon) || []
-  const price = new Intl.NumberFormat('de-DE', { style: 'currency', currency: 'EUR' }).format(item.price)
+  const price = item.currencyFormatter.format(item.price)
   const { formattedFirstBilling, formattedCurrentBilling, timeUntilNextBilling } = useNextBilling(item)
+  const { t } = useTranslation('common')
 
   function onDelete() {
     setIsDeleting(RD.pending)
@@ -48,15 +51,17 @@ const SubscriptionItem = (item: SubscriptionItemProps): JSX.Element => {
       <Stat mt={4}>
         <StatLabel>
           <span>
-            Every <strong>{item.cycleAmount}</strong> {item.cyclePeriod}
+            {t('every')}
+            <strong>{item.cycleAmount}</strong>
+            {t(item.cyclePeriod)}
           </span>
         </StatLabel>
         <StatNumber>{price}</StatNumber>
-        <StatHelpText>First: {formattedFirstBilling}</StatHelpText>
-        <StatHelpText>Next: {formattedCurrentBilling}</StatHelpText>
-        <StatHelpText>in {timeUntilNextBilling}</StatHelpText>
+        <StatHelpText>{t('first_bill_date', { date: formattedFirstBilling })}</StatHelpText>
+        <StatHelpText>{t('next_bill', { date: formattedCurrentBilling })}</StatHelpText>
+        <StatHelpText>{t('in_date', { time: timeUntilNextBilling })}</StatHelpText>
         <IconButton
-          aria-label={`Delete subscription: ${item.name}`}
+          aria-label={t('delete_subscription', { name: item.name })}
           colorScheme="red"
           variant="outline"
           size="sm"
@@ -73,7 +78,7 @@ const SubscriptionItem = (item: SubscriptionItemProps): JSX.Element => {
           }}
         >
           <a>
-            <IconButton aria-label="Edit subscription" icon={<EditIcon />} />
+            <IconButton aria-label={t('edit_subscription')} icon={<EditIcon />} />
           </a>
         </Link>
       </Stat>

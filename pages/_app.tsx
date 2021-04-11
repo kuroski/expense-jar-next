@@ -18,21 +18,23 @@ import {
 } from '@chakra-ui/react'
 import { motion } from 'framer-motion'
 import Header from '@/components/header'
+import useTranslation from 'next-translate/useTranslation'
 
 const Content = ({ Component, pageProps }: AppProps) => {
   const [session, loading] = useSession()
+  const { t } = useTranslation('common')
 
   if (!session && !loading) {
     return (
       <Modal isOpen isCentered onClose={() => {}}>
         <ModalOverlay />
         <ModalContent>
-          <ModalHeader>Session expired</ModalHeader>
-          <ModalBody>Sign in to continue</ModalBody>
+          <ModalHeader>{t('session_expired')}</ModalHeader>
+          <ModalBody>{t('sign_in_to_continue')}</ModalBody>
 
           <ModalFooter>
             <Button colorScheme="blue" mr={3} onClick={() => signIn()}>
-              Sign in to continue
+              {t('sign_in_to_continue')}
             </Button>
           </ModalFooter>
         </ModalContent>

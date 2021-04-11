@@ -9,6 +9,7 @@ import * as T from 'fp-ts/lib/Task'
 import * as TE from 'fp-ts/lib/TaskEither'
 import SubscriptionForm from '@/components/subscriptionForm'
 import type { FormValues, Subscription } from '@/framework/subscriptions/types'
+import useTranslation from 'next-translate/useTranslation'
 
 type EditFormProps = {
   subscription: Subscription
@@ -16,6 +17,7 @@ type EditFormProps = {
 const EditForm = (props: EditFormProps) => {
   const router = useRouter()
   const toast = useToast()
+  const { t } = useTranslation('common')
 
   const initialValues: FormValues = {
     name: props.subscription.name,
@@ -35,7 +37,7 @@ const EditForm = (props: EditFormProps) => {
       TE.fold(
         (errors) => {
           toast({
-            title: 'An error ocurred',
+            title: t('error_ocurred'),
             description: errors.message,
             status: 'error',
             duration: 9000,
@@ -45,7 +47,7 @@ const EditForm = (props: EditFormProps) => {
         },
         (subscription) => {
           toast({
-            title: `Subscription "${subscription.name}" updated!`,
+            title: t('subscription_updated', { name: subscription.name }),
             status: 'success',
             duration: 9000,
             isClosable: true,
@@ -55,23 +57,24 @@ const EditForm = (props: EditFormProps) => {
       ),
     )
 
-  return <SubscriptionForm initialValues={initialValues} title="Create new subscription" onSubmit={onSubmit} />
+  return <SubscriptionForm initialValues={initialValues} title={t('create_subscription')} onSubmit={onSubmit} />
 }
 
 const EditSubscription = (): JSX.Element => {
   const router = useRouter()
   const { id } = router.query
+  const { t } = useTranslation('common')
 
   const { subscription, isLoading, error, mutate } = useSubscription(String(id))
 
   return (
     <Box p={4} shadow="md" borderWidth="1px" rounded="lg" textAlign={['center', 'left']} direction="column">
-      {isLoading && <div>Loading...</div>}
+      {isLoading && <div>{t('loading')}</div>}
       {error && (
         <Center display="flex" flexDirection="column">
-          <h1>An error ocurred!</h1>
+          <h1>{t('error_ocurred')}</h1>
           <Button mt={2} leftIcon={<MdRefresh />} onClick={mutate}>
-            Retry
+            {t('retry')}
           </Button>
         </Center>
       )}
