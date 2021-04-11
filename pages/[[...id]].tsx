@@ -14,7 +14,7 @@ import {
   StatNumber,
   useToast,
 } from '@chakra-ui/react'
-import { AddIcon, LinkIcon } from '@chakra-ui/icons'
+import { AddIcon } from '@chakra-ui/icons'
 import { AnimatePresence, motion } from 'framer-motion'
 import type { Variants } from 'framer-motion'
 import Subscription from '@/components/subscription'
@@ -25,7 +25,7 @@ import SubscriptionsSkeleton from '@/components/subscriptionsSkeleton'
 import { MdRefresh } from 'react-icons/md'
 import NoData from '@/components/icons/noData'
 import Head from 'next/head'
-import { flow, pipe } from 'fp-ts/lib/function'
+import { pipe } from 'fp-ts/lib/function'
 import * as TE from 'fp-ts/lib/TaskEither'
 import * as E from 'fp-ts/lib/Either'
 import * as types from '@/framework/subscriptions/types'
@@ -81,28 +81,28 @@ const App = (): JSX.Element => {
     )
   }
 
-  function onListShared(): TE.TaskEither<Error, listTypes.List | undefined> {
-    return flow(
-      listService.share,
-      TE.fold(
-        (error) => {
-          toast({
-            title: t('share_operation_failed'),
-            description: error.message,
-            status: 'error',
-          })
-          return TE.left(error)
-        },
-        () => {
-          toast({
-            title: t('list_shared'),
-            status: 'success',
-          })
-          return TE.tryCatch(list.mutate, E.toError)
-        },
-      ),
-    )()
-  }
+  // function onListShared(): TE.TaskEither<Error, listTypes.List | undefined> {
+  //   return flow(
+  //     listService.share,
+  //     TE.fold(
+  //       (error) => {
+  //         toast({
+  //           title: t('share_operation_failed'),
+  //           description: error.message,
+  //           status: 'error',
+  //         })
+  //         return TE.left(error)
+  //       },
+  //       () => {
+  //         toast({
+  //           title: t('list_shared'),
+  //           status: 'success',
+  //         })
+  //         return TE.tryCatch(list.mutate, E.toError)
+  //       },
+  //     ),
+  //   )()
+  // }
 
   function onCurrencyChanged(code: string): TE.TaskEither<Error, listTypes.List | undefined> {
     return pipe(
@@ -141,14 +141,14 @@ const App = (): JSX.Element => {
             </a>
           </Link>
 
-          {list.list &&
+          {/* {list.list &&
             (list.list.urlId ? (
               <Flex ml={3} alignItems="center">
                 {list.list.urlId}
               </Flex>
             ) : (
               <IconButton ml={3} aria-label={t('share_list')} icon={<LinkIcon />} onClick={onListShared()} />
-            ))}
+            ))} */}
 
           <Box ml={3}>
             <CurrencySelect
