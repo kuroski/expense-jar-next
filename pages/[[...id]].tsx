@@ -25,11 +25,12 @@ import SubscriptionsSkeleton from '@/components/subscriptionsSkeleton'
 import { MdRefresh } from 'react-icons/md'
 import NoData from '@/components/icons/noData'
 import Head from 'next/head'
-import { pipe } from 'fp-ts/lib/function'
+import { flow, pipe } from 'fp-ts/lib/function'
 import * as TE from 'fp-ts/lib/TaskEither'
+import * as T from 'fp-ts/lib/Task'
 import * as E from 'fp-ts/lib/Either'
+import * as RD from '@/framework/remoteData'
 import * as types from '@/framework/subscriptions/types'
-import * as listTypes from '@/framework/lists/types'
 import useList from '@/framework/lists/useList'
 import CurrencySelect from '@/components/currencySelect'
 import useTranslation from 'next-translate/useTranslation'
@@ -54,6 +55,8 @@ const App = (): JSX.Element => {
   const { subscriptions, stats, isLoading, error, mutate } = useSubscriptions()
   const list = useList()
   const { t } = useTranslation('common')
+
+  const [currencyData, setCurrencyData] = React.useState<RD.RemoteData<Error, unknown>>(RD.notAsked)
 
   const currencyFormatter = Intl.NumberFormat([], { style: 'currency', currency: list.list?.currency || 'EUR' })
 
@@ -104,7 +107,8 @@ const App = (): JSX.Element => {
   //   )()
   // }
 
-  function onCurrencyChanged(code: string): TE.TaskEither<Error, listTypes.List | undefined> {
+  function onCurrencyChanged(code: string): T.Task<void> {
+    setCurrencyData(RD.pending)
     return pipe(
       { code },
       listService.update(list.list!._id),
@@ -125,6 +129,11 @@ const App = (): JSX.Element => {
           return TE.tryCatch(list.mutate, E.toError)
         },
       ),
+      TE.fold<Error, unknown, RD.RemoteData<Error, never> | RD.RemoteData<never, unknown>>(
+        flow(RD.failure, T.of),
+        flow(RD.success, T.of),
+      ),
+      T.map(setCurrencyData),
     )
   }
 
@@ -153,6 +162,7 @@ const App = (): JSX.Element => {
           <Box ml={3}>
             <CurrencySelect
               id="currency"
+              isLoading={RD.isPending(currencyData)}
               value={list.list?.currency || ''}
               onSelect={(code) => onCurrencyChanged(code)()}
             />

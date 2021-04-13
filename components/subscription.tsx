@@ -7,7 +7,7 @@ import { DeleteIcon, EditIcon } from '@chakra-ui/icons'
 import useNextBilling from '@/framework/subscriptions/useNextBilling'
 import * as T from 'fp-ts/lib/Task'
 import * as TE from 'fp-ts/lib/TaskEither'
-import { pipe } from 'fp-ts/lib/function'
+import { flow, pipe } from 'fp-ts/lib/function'
 import * as RD from '@/framework/remoteData'
 import Link from 'next/link'
 import useTranslation from 'next-translate/useTranslation'
@@ -29,13 +29,11 @@ const SubscriptionItem = (item: SubscriptionItemProps): JSX.Element => {
     return pipe(
       item._id,
       item.onDelete,
-      TE.fold(
-        (e) => {
-          setIsDeleting(RD.failure(e))
-          return T.never
-        },
-        () => T.never,
+      TE.fold<Error, unknown, RD.RemoteData<Error, never> | RD.RemoteData<never, unknown>>(
+        flow(RD.failure, T.of),
+        flow(RD.success, T.of),
       ),
+      T.map(setIsDeleting),
     )()
   }
 

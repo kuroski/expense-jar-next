@@ -26,6 +26,7 @@ const currencyKeys = Object.keys(currencies)
 type CurrencySelectProps = {
   id: string
   value: string
+  isLoading: boolean
   onSelect: (currency: string) => void
 }
 
@@ -104,7 +105,7 @@ const CurrencySelect = (props: CurrencySelectProps): JSX.Element => {
   return (
     <>
       <ButtonGroup isAttached variant="outline">
-        <Button id={props.id} onClick={onOpen}>
+        <Button id={props.id} onClick={onOpen} isDisabled={props.isLoading} isLoading={props.isLoading}>
           {buttonContent}
         </Button>
       </ButtonGroup>

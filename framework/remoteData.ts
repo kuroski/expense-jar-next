@@ -1,3 +1,5 @@
+import { Lazy } from 'fp-ts/lib/function'
+
 export type RemoteDataNotAsked = {
   readonly _tag: 'RemoteDataNotAsked'
 }
@@ -47,6 +49,8 @@ export const isPending = (data: RemoteData<unknown, unknown>): data is RemoteDat
 
 export const isNotAsked = (data: RemoteData<unknown, unknown>): data is RemoteDataNotAsked =>
   data._tag === 'RemoteDataNotAsked'
+
+export const getOrElse = <L, A>(f: Lazy<A>) => (ma: RemoteData<L, A>): A => (isSuccess(ma) ? ma.value : f())
 
 export const fold = <E, A, B>(
   onNotAsked: () => B,
