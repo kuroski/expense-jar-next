@@ -162,7 +162,7 @@ const App = (): JSX.Element => {
           <Box ml={3}>
             <CurrencySelect
               id="currency"
-              isLoading={RD.isPending(currencyData)}
+              isLoading={RD.isPending(currencyData) || list.isLoading}
               value={list.list?.currency || ''}
               onSelect={(code) => onCurrencyChanged(code)()}
             />
