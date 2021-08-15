@@ -2,11 +2,6 @@ import '@emotion/react'
 import type { Db, MongoClient } from 'mongodb'
 import type { User as AuthUser } from 'next-auth'
 
-declare module '*.svg' {
-  const content: string
-  export default content
-}
-
 declare global {
   export namespace NodeJS {
     export interface Global {

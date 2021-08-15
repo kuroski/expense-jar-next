@@ -4,10 +4,10 @@ import React from 'react'
 import type { AppProps } from 'next/app'
 import { Provider, useSession, signIn } from 'next-auth/client'
 import {
+  Box,
   Button,
   Center,
   ChakraProvider,
-  Container,
   Modal,
   ModalBody,
   ModalContent,
@@ -58,10 +58,10 @@ export default function App(props: AppProps): JSX.Element {
     <Provider session={props.pageProps.session}>
       <ChakraProvider>
         <motion.div key={props.router.route} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-          <Container py={4}>
+          <Box p={4}>
             <Header />
             <Content {...props} />
-          </Container>
+          </Box>
         </motion.div>
       </ChakraProvider>
     </Provider>
