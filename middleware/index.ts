@@ -1,2 +1,8 @@
-export { default as db } from './db'
-export { default as auth } from './auth'
+import nc from 'next-connect'
+import auth from './auth'
+import onError from './error'
+
+const middleware = nc({ onError })
+
+middleware.use(auth)
+export default middleware

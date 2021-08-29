@@ -1,52 +1,32 @@
-import NextAuth from 'next-auth'
+import NextAuth, { User as NextAuthUser } from 'next-auth'
 import type { NextAuthOptions } from 'next-auth'
 import type { NextApiRequest, NextApiResponse } from 'next'
 import Providers from 'next-auth/providers'
-// import { connectToDB } from '../../../db'
+import { PrismaAdapter } from '@next-auth/prisma-adapter'
+import prisma from '@/lib/prisma'
+
+interface NextAuthUserWithStringId extends NextAuthUser {
+  id: string
+}
 
 const options: NextAuthOptions = {
-  session: {
-    jwt: true,
-  },
-  jwt: {
-    secret: process.env.JWT_SECRET,
-  },
+  secret: process.env.JWT_SECRET,
+  adapter: PrismaAdapter(prisma),
   providers: [
     Providers.GitHub({
       clientId: process.env.GITHUB_ID,
       clientSecret: process.env.GITHUB_SECRET,
-    }),
-    Providers.Auth0({
-      clientId: process.env.AUTH0_CLIENT_ID,
-      clientSecret: process.env.AUTH0_CLIENT_SECRET,
-      domain: process.env.AUTH0_DOMAIN,
+      profile(profile) {
+        return {
+          id: profile.email,
+          name: profile.name || profile.login,
+          email: profile.email,
+          image: profile.avatar_url,
+        } as NextAuthUserWithStringId
+      },
     }),
   ],
   database: process.env.DATABASE_URL,
-  callbacks: {
-    async session(session, user) {
-      return {
-        ...session,
-        user: {
-          ...session.user,
-          id: user.id,
-        },
-      }
-    },
-    async jwt(tokenPayload, user, account, profile, isNewUser) {
-      // const { db } = await connectToDB()
-
-      if (isNewUser) {
-        console.log('new user, pre-create things!')
-      }
-
-      if (tokenPayload && user) {
-        return { ...tokenPayload, id: `${user.id}` }
-      }
-
-      return tokenPayload
-    },
-  },
 }
 
 export default (req: NextApiRequest, res: NextApiResponse): Promise<void> | void => NextAuth(req, res, options)
