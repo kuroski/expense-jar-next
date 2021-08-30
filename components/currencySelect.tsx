@@ -17,7 +17,7 @@ import {
 } from '@chakra-ui/react'
 import { flow, pipe } from 'fp-ts/lib/function'
 import * as A from 'fp-ts/Array'
-import currencies, { Currency } from '@/framework/currencyList'
+import currencies, { Currency } from '@/lib/currencyList'
 import { SearchIcon } from '@chakra-ui/icons'
 import useTranslation from 'next-translate/useTranslation'
 

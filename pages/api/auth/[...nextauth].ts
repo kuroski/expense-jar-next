@@ -1,8 +1,9 @@
-import NextAuth, { User as NextAuthUser } from 'next-auth'
-import type { NextAuthOptions } from 'next-auth'
 import type { NextApiRequest, NextApiResponse } from 'next'
-import Providers from 'next-auth/providers'
+import NextAuth, { User as NextAuthUser } from 'next-auth'
+
+import type { NextAuthOptions } from 'next-auth'
 import { PrismaAdapter } from '@next-auth/prisma-adapter'
+import Providers from 'next-auth/providers'
 import prisma from '@/lib/prisma'
 
 interface NextAuthUserWithStringId extends NextAuthUser {
@@ -10,7 +11,12 @@ interface NextAuthUserWithStringId extends NextAuthUser {
 }
 
 const options: NextAuthOptions = {
-  secret: process.env.JWT_SECRET,
+  jwt: {
+    secret: process.env.JWT_SECRET,
+  },
+  session: {
+    jwt: true,
+  },
   adapter: PrismaAdapter(prisma),
   providers: [
     Providers.GitHub({

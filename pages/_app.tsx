@@ -1,11 +1,13 @@
 import '@/styles/globals.css'
 import 'reflect-metadata'
-import React from 'react'
-import type { AppProps } from 'next/app'
-import { Provider, useSession } from 'next-auth/client'
+
 import { Box, Center, ChakraProvider, Spinner } from '@chakra-ui/react'
-import { motion } from 'framer-motion'
+import { Provider, useSession } from 'next-auth/client'
+
+import type { AppProps } from 'next/app'
 import Header from '@/components/header'
+import React from 'react'
+import { motion } from 'framer-motion'
 
 const Content = ({ Component, pageProps }: AppProps) => {
   const [, loading] = useSession()

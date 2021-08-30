@@ -12,7 +12,7 @@ import * as E from 'fp-ts/lib/Either'
 import * as TE from 'fp-ts/lib/TaskEither'
 import * as T from 'fp-ts/lib/Task'
 import { nanoid } from 'nanoid'
-import { ApiError, toRequestError, toUnauthorizedError, toDecodingError } from '@/framework/errors'
+import { ApiError, toRequestError, toUnauthorizedError, toDecodingError } from '@/lib/errors'
 import { Errors } from 'io-ts'
 
 const handler = nc<NextApiRequest, NextApiResponse>({

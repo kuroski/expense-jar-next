@@ -1,4 +1,5 @@
 import * as E from 'fp-ts/lib/Either'
+
 import { ValidationError } from 'io-ts'
 import { failure } from 'io-ts/lib/PathReporter'
 
@@ -34,4 +35,13 @@ export const toDecodingError = (error: ValidationError[] | Error): DecodingError
   error: error instanceof Error ? error : new Error(failure(error).join('\n')),
 })
 
-export type ApiError = UnauthorizedError | RequestError | MissingParam | DecodingError
+export type NotFound = {
+  _tag: 'NOT_FOUND'
+  error: Error
+}
+export const toNotFound = (error: unknown | Error): NotFound => ({
+  _tag: 'NOT_FOUND',
+  error: error instanceof Error ? error : E.toError(error),
+})
+
+export type ApiError = UnauthorizedError | RequestError | MissingParam | DecodingError | NotFound

@@ -9,7 +9,7 @@ import { pipe, flow } from 'fp-ts/lib/function'
 import * as E from 'fp-ts/lib/Either'
 import * as TE from 'fp-ts/lib/TaskEither'
 import * as T from 'fp-ts/lib/Task'
-import { ApiError, toRequestError, toUnauthorizedError, toMissingParam, toDecodingError } from '@/framework/errors'
+import { ApiError, toRequestError, toUnauthorizedError, toMissingParam, toDecodingError } from '@/lib/errors'
 import { Subscription, FormValues } from '@/framework/subscriptions/types'
 import { Errors } from 'io-ts'
 

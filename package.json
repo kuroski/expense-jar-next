@@ -17,6 +17,7 @@
     "@emotion/styled": "^11.3.0",
     "@next-auth/prisma-adapter": "^0.5.4",
     "@prisma/client": "^2.30.0",
+    "axios": "^0.21.1",
     "date-fns": "^2.23.0",
     "formik": "^2.2.9",
     "fp-ts": "^2.11.1",
