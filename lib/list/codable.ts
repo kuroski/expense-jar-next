@@ -2,7 +2,6 @@
 import * as t from 'io-ts'
 
 import type { List as ListPrisma } from '.prisma/client'
-import { string } from 'fp-ts'
 
 export const List = t.type({
   id: t.string,

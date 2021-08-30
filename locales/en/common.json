@@ -35,6 +35,7 @@
   "price": "Price",
   "required_field": "The '{{field}}' field is required",
   "retry": "Retry",
+  "currency": "Currency",
   "search_currency": "Search for a currency",
   "search_icon": "Search for an icon",
   "search": "Search",
@@ -50,5 +51,7 @@
   "subscription_updated": "Subscription {{name}} was updated with success",
   "switch_to_mode": "Switch to {{mode}} mode",
   "week": "Week",
-  "year": "Year"
+  "year": "Year",
+  "something_wrong": "Oops, something went wrong, please",
+  "refresh": "Refresh"
 }

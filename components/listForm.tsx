@@ -3,6 +3,7 @@ import * as Yup from 'yup'
 
 import { Button, FormControl, FormErrorMessage, FormLabel, Input, Stack } from '@chakra-ui/react'
 
+import CurrencySelect from './currencySelect'
 import type { FormikHelpers } from 'formik'
 import Head from 'next/head'
 import { ListFormValues } from '@/lib/list/codable'
@@ -14,6 +15,7 @@ import useTranslation from 'next-translate/useTranslation'
 const ListSchema = (t: Translate) =>
   Yup.object().shape({
     name: Yup.string().required(t('required_field', { field: 'name' })),
+    currency: Yup.string().required(t('required_field', { field: 'currency' })),
   })
 
 export type ListFormProps = {
@@ -38,6 +40,23 @@ const ListForm = (props: ListFormProps): JSX.Element => {
       </Head>
       <form onSubmit={form.handleSubmit}>
         <Stack spacing={4}>
+          <FormControl id="currency" isInvalid={Boolean(form.errors.currency && form.touched.currency)}>
+            <FormLabel>{t('currency')}</FormLabel>
+            <CurrencySelect
+              id="currency"
+              value={form.values.currency}
+              onSelect={(currency) =>
+                form.handleChange({
+                  target: {
+                    id: 'currency',
+                    value: currency,
+                  },
+                })
+              }
+            />
+            <FormErrorMessage>{form.errors.currency}</FormErrorMessage>
+          </FormControl>
+
           <FormControl id="name" isInvalid={Boolean(form.errors.name && form.touched.name)}>
             <FormLabel>{t('name')}</FormLabel>
             <Input type="text" onChange={form.handleChange} value={form.values.name} />

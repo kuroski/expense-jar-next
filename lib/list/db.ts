@@ -54,9 +54,8 @@ export const saveList = (
       () =>
         prisma.list.create({
           data: {
-            ...values,
             urlId: slugify(values.name),
-            currency: 'EUR',
+            ...values,
             createdBy: {
               connect: {
                 email,

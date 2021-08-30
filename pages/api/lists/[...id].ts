@@ -1,17 +1,19 @@
-import type { NextApiRequest, NextApiResponse } from 'next'
-import { getSession } from 'next-auth/client'
-import type { Session } from 'next-auth'
-import nc from 'next-connect'
-import * as db from '@/db'
-import middleware from '@/middleware/all'
-import onError from '@/middleware/error'
-import { pipe, flow } from 'fp-ts/lib/function'
 import * as E from 'fp-ts/lib/Either'
-import * as TE from 'fp-ts/lib/TaskEither'
 import * as T from 'fp-ts/lib/Task'
-import { ApiError, toRequestError, toUnauthorizedError, toMissingParam, toDecodingError } from '@/lib/errors'
+import * as TE from 'fp-ts/lib/TaskEither'
+import * as db from '@/db'
+
+import { ApiError, toDecodingError, toMissingParam, toRequestError, toUnauthorizedError } from '@/lib/errors'
 import { FormValues, List } from '@/framework/lists/types'
+import type { NextApiRequest, NextApiResponse } from 'next'
+import { flow, pipe } from 'fp-ts/lib/function'
+
 import { Errors } from 'io-ts'
+import type { Session } from 'next-auth'
+import { getSession } from 'next-auth/client'
+import middleware from '@/middleware/all'
+import nc from 'next-connect'
+import onError from '@/middleware/error'
 
 const handler = nc<NextApiRequest, NextApiResponse>({
   onError,
@@ -72,6 +74,7 @@ handler.put(async (req, res) =>
           case 'DECODING_ERROR':
           case 'REQUEST_ERROR':
           case 'MISSING_PARAM':
+          case 'NOT_FOUND':
             throw error.error
         }
 

@@ -19,7 +19,11 @@ const Content = ({ Component, pageProps }: AppProps) => {
       </Center>
     )
 
-  return <Component {...pageProps} />
+  return (
+    <Box mt="6">
+      <Component {...pageProps} />
+    </Box>
+  )
 }
 
 export default function App(props: AppProps): JSX.Element {
@@ -27,7 +31,7 @@ export default function App(props: AppProps): JSX.Element {
     <Provider session={props.pageProps.session}>
       <ChakraProvider>
         <motion.div key={props.router.route} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-          <Box p={4}>
+          <Box p={4} maxW="2xl" mx="auto">
             <Header />
             <Content {...props} />
           </Box>

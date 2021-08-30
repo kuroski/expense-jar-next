@@ -1,5 +1,5 @@
-/* eslint-disable jsx-a11y/no-autofocus, react/display-name */
-import React, { useState, useCallback, useEffect } from 'react'
+import * as A from 'fp-ts/Array'
+
 import {
   Button,
   ButtonGroup,
@@ -15,9 +15,11 @@ import {
   SimpleGrid,
   useDisclosure,
 } from '@chakra-ui/react'
-import { flow, pipe } from 'fp-ts/lib/function'
-import * as A from 'fp-ts/Array'
+/* eslint-disable jsx-a11y/no-autofocus, react/display-name */
+import React, { useCallback, useEffect, useState } from 'react'
 import currencies, { Currency } from '@/lib/currencyList'
+import { flow, pipe } from 'fp-ts/lib/function'
+
 import { SearchIcon } from '@chakra-ui/icons'
 import useTranslation from 'next-translate/useTranslation'
 
@@ -26,7 +28,7 @@ const currencyKeys = Object.keys(currencies)
 type CurrencySelectProps = {
   id: string
   value: string
-  isLoading: boolean
+  isLoading?: boolean
   onSelect: (currency: string) => void
 }
 
