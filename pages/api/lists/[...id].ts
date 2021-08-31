@@ -4,14 +4,14 @@ import * as TE from 'fp-ts/lib/TaskEither'
 import * as db from '@/db'
 
 import { ApiError, toDecodingError, toMissingParam, toRequestError, toUnauthorizedError } from '@/lib/errors'
-import { FormValues, List } from '@/framework/lists/types'
 import type { NextApiRequest, NextApiResponse } from 'next'
 import { flow, pipe } from 'fp-ts/lib/function'
 
 import { Errors } from 'io-ts'
 import type { Session } from 'next-auth'
+import { deleteList } from '@/lib/list/db'
 import { getSession } from 'next-auth/client'
-import middleware from '@/middleware/all'
+import middleware from '@/middleware'
 import nc from 'next-connect'
 import onError from '@/middleware/error'
 
@@ -21,48 +21,20 @@ const handler = nc<NextApiRequest, NextApiResponse>({
 
 handler.use(middleware)
 
-handler.put(async (req, res) =>
+handler.delete(async (req, res) =>
   pipe(
     TE.tryCatch<ApiError, Session | null>(() => getSession({ req }), toRequestError),
-    TE.chain((session) => (session?.user?.id ? TE.right(String(session.user.id)) : TE.left(toUnauthorizedError))),
-    TE.chain<ApiError, string, [string, string]>((userId) =>
+    TE.chain((session) => (session?.user?.email ? TE.right(session.user.email) : TE.left(toUnauthorizedError))),
+    TE.chain((email) =>
       pipe(
         req.query.id,
         (id: string | string[]) => (Array.isArray(id) ? id[0] : id),
         (id) => (!id || id.length === 0 ? E.left('List ID is not being provided') : E.right(id)),
         E.mapLeft<string, ApiError>(toMissingParam),
         TE.fromEither,
-        TE.map((listId): [string, string] => [userId, listId]),
+        TE.chain((listId) => deleteList(email, listId)),
       ),
     ),
-    TE.chain<ApiError, [string, string], [string, string, FormValues]>(([userId, listId]) =>
-      pipe(
-        req.body,
-        FormValues.decode,
-        E.mapLeft(toDecodingError),
-        TE.fromEither,
-        TE.map((formValues): [string, string, FormValues] => [userId, listId, formValues]),
-      ),
-    ),
-    TE.chain<ApiError, [string, string, FormValues], [string, List]>(([userId, listId, formValues]) =>
-      pipe(
-        {
-          _id: listId,
-          currency: formValues.code,
-          urlId: undefined,
-        },
-        E.fromPredicate(
-          List.is,
-          flow(
-            List.decode,
-            E.fold<Errors, List, ApiError>(toDecodingError, () => toRequestError('An error ocurred when saving list')),
-          ),
-        ),
-        TE.fromEither,
-        TE.map((list): [string, List] => [userId, list]),
-      ),
-    ),
-    TE.chain(([userId, list]) => db.list.updateList(req.db)({ data: list, user: userId })),
     TE.fold(
       (error: ApiError) => {
         switch (error._tag) {
@@ -81,7 +53,7 @@ handler.put(async (req, res) =>
         return T.never
       },
       (list) => {
-        res.send({ list })
+        res.send(list)
         res.end()
         return T.of(list)
       },

@@ -34,3 +34,17 @@ export function save(values: ListFormValues): TE.TaskEither<Error, List> {
     ),
   )
 }
+
+export function destroy(id: string): TE.TaskEither<Error, List> {
+  return pipe(
+    TE.tryCatch(() => axios().delete(`lists/${id}`), E.toError),
+    TE.map((response) => response.data),
+    TE.chain(
+      flow(
+        List.decode,
+        E.mapLeft((errors) => new Error(failure(errors).join('\n'))),
+        TE.fromEither,
+      ),
+    ),
+  )
+}

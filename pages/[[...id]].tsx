@@ -1,6 +1,10 @@
+import * as E from 'fp-ts/lib/Either'
 import * as RD from '@/lib/remoteData'
+import * as TE from 'fp-ts/lib/TaskEither'
+import * as listApi from '@/lib/list/api'
 
 import { Box, Flex, Stack, StackDivider, Text, VStack } from '@chakra-ui/layout'
+import { flow, pipe } from 'fp-ts/lib/function'
 
 import { AddIcon } from '@chakra-ui/icons'
 import { Button } from '@chakra-ui/button'
@@ -13,12 +17,38 @@ import { Spinner } from '@chakra-ui/spinner'
 import { getSession } from 'next-auth/client'
 import useLists from '@/lib/list/useLists'
 import { useRouter } from 'next/router'
+import { useToast } from '@chakra-ui/toast'
 import useTranslation from 'next-translate/useTranslation'
 
 const App = (): JSX.Element => {
+  const toast = useToast()
   const remoteData = useLists()
   const router = useRouter()
   const { t } = useTranslation('common')
+
+  function onDeleteList(id: string): TE.TaskEither<Error, List[] | undefined> {
+    return pipe(
+      id,
+      listApi.destroy,
+      TE.fold(
+        (error) => {
+          toast({
+            title: t('delete_operation_failed'),
+            description: error.message,
+            status: 'error',
+          })
+          return TE.left(error)
+        },
+        (result) => {
+          toast({
+            title: t('list_deleted', { name: result.name }),
+            status: 'success',
+          })
+          return TE.tryCatch(remoteData.mutate, E.toError)
+        },
+      ),
+    )
+  }
 
   return RD.fold<Error, List[], JSX.Element>(
     () => <div />,
@@ -43,7 +73,7 @@ const App = (): JSX.Element => {
           </Link>
         </Box>
         {lists.map((list) => (
-          <ListItem key={list.id} list={list} />
+          <ListItem key={list.id} list={list} onDelete={onDeleteList} />
         ))}
       </VStack>
     ),

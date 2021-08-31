@@ -1,17 +1,39 @@
-import { Box, Flex, Text } from '@chakra-ui/layout'
+import * as RD from '@/lib/remoteData'
+import * as T from 'fp-ts/lib/Task'
+import * as TE from 'fp-ts/lib/TaskEither'
 
-import { Button } from '@chakra-ui/button'
+import { Box, Flex, Text } from '@chakra-ui/layout'
+import React, { useState } from 'react'
+import { flow, pipe } from 'fp-ts/lib/function'
+
 import { DeleteIcon } from '@chakra-ui/icons'
-import Icon from '@chakra-ui/icon'
+import { IconButton } from '@chakra-ui/button'
 import Link from 'next/link'
 import { List } from '@/lib/list/codable'
-import React from 'react'
+import useTranslation from 'next-translate/useTranslation'
 
 type ListItemProps = {
   list: List
+  onDelete: (id: string) => TE.TaskEither<Error, unknown>
 }
 
 const ListItem = (props: ListItemProps): JSX.Element => {
+  const [isDeleting, setIsDeleting] = useState<RD.RemoteData<Error, unknown>>(RD.notAsked)
+  const { t } = useTranslation('common')
+
+  function onDelete() {
+    setIsDeleting(RD.pending)
+    return pipe(
+      props.list.id,
+      props.onDelete,
+      TE.fold<Error, unknown, RD.RemoteData<Error, never> | RD.RemoteData<never, unknown>>(
+        flow(RD.failure, T.of),
+        flow(RD.success, T.of),
+      ),
+      T.map(setIsDeleting),
+    )()
+  }
+
   return (
     <Flex>
       <Box
@@ -22,7 +44,7 @@ const ListItem = (props: ListItemProps): JSX.Element => {
         roundedLeft="md"
         _hover={{
           background: 'gray.700',
-          color: 'teal.500',
+          color: 'blue.400',
         }}
       >
         <Link href={`lists/${props.list.urlId}`}>
@@ -33,9 +55,18 @@ const ListItem = (props: ListItemProps): JSX.Element => {
         </Link>
       </Box>
 
-      <Button colorScheme="red" size="sm" height="auto" borderLeftRadius="0" variant="outline">
-        <Icon as={DeleteIcon} />
-      </Button>
+      <IconButton
+        aria-label={t('delete_subscription', { name: props.list.name })}
+        colorScheme="red"
+        variant="outline"
+        size="sm"
+        height="auto"
+        borderLeftRadius="0"
+        icon={<DeleteIcon />}
+        onClick={onDelete}
+        isLoading={RD.isPending(isDeleting)}
+        isDisabled={RD.isPending(isDeleting)}
+      />
     </Flex>
   )
 }

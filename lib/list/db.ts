@@ -6,6 +6,7 @@ import { List, Subscription } from '.prisma/client'
 import { ListFormValues } from '@/lib/list/codable'
 import { pipe } from 'fp-ts/lib/function'
 import prisma from '@/lib/prisma'
+import { string } from 'fp-ts'
 
 const slugify = (str: string) =>
   str
@@ -68,4 +69,31 @@ export const saveList = (
         }),
       toNotFound,
     ),
+  )
+
+export const deleteList = (email: string, id: string): TE.TaskEither<ApiError, List> =>
+  pipe(
+    TE.tryCatch(async () => {
+      const list = await prisma.list.findUnique({
+        where: {
+          id,
+        },
+        rejectOnNotFound: true,
+      })
+
+      await prisma.user.update({
+        where: {
+          email,
+        },
+        data: {
+          lists: {
+            delete: {
+              id,
+            },
+          },
+        },
+      })
+
+      return list
+    }, toNotFound),
   )
