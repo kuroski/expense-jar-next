@@ -64,7 +64,7 @@ model VerificationRequest {
 model List {
   id            String         @id @default(cuid())
   name          String
-  urlId         String?
+  urlId         String
   currency      String?
   createdBy     User           @relation(fields: [userId], references: [id])
   userId        String
@@ -80,7 +80,7 @@ model Subscription {
   icon        String
   name        String
   overview    String?
-  price       Decimal  @default(0.0)
+  price       Float    @default(0.0)
   list        List     @relation(fields: [listId], references: [id])
   listId      String
 }

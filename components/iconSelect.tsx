@@ -63,7 +63,11 @@ const IconListItem = (props: IconListItemProps) => (
   />
 )
 
-const { keys: iconKeys, icons, iconButtons }: IconsCache = pipe(
+const {
+  keys: iconKeys,
+  icons,
+  iconButtons,
+}: IconsCache = pipe(
   Object.entries(si),
   A.reduce<[string, IconType], IconsCache>(
     {

@@ -1,5 +1,4 @@
-import { Box, Text } from '@chakra-ui/layout'
-
+import { Box } from '@chakra-ui/layout'
 import React from 'react'
 
 const NoData = (): JSX.Element => (

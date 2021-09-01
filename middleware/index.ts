@@ -1,6 +1,6 @@
+import auth from '@/middleware/auth'
 import nc from 'next-connect'
-import auth from './auth'
-import onError from './error'
+import onError from '@/middleware/error'
 
 const middleware = nc({ onError })
 

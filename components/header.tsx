@@ -1,10 +1,11 @@
-import React from 'react'
-import Link from 'next/link'
-import { useSession, signIn } from 'next-auth/client'
 import { Button, Flex, IconButton, useColorMode } from '@chakra-ui/react'
-import { CgLogIn, CgHome } from 'react-icons/cg'
+import { CgHome, CgLogIn } from 'react-icons/cg'
 import { MoonIcon, SunIcon } from '@chakra-ui/icons'
-import User from './user'
+import { signIn, useSession } from 'next-auth/client'
+
+import Link from 'next/link'
+import React from 'react'
+import User from '@/components/user'
 import useTranslation from 'next-translate/useTranslation'
 
 const handleLogin = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
@@ -34,7 +35,7 @@ const Header = (): JSX.Element => {
         </Link>
       </div>
 
-      {session ? (
+      {session?.user ? (
         <User user={session.user} />
       ) : (
         <Button rightIcon={<CgLogIn />} onClick={handleLogin}>

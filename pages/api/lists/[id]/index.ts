@@ -1,19 +1,17 @@
 import * as E from 'fp-ts/lib/Either'
 import * as T from 'fp-ts/lib/Task'
 import * as TE from 'fp-ts/lib/TaskEither'
-import * as db from '@/db'
 
-import { ApiError, toDecodingError, toMissingParam, toRequestError, toUnauthorizedError } from '@/lib/errors'
+import { ApiError, toMissingParam, toRequestError, toUnauthorizedError } from '@/lib/errors'
 import type { NextApiRequest, NextApiResponse } from 'next'
-import { flow, pipe } from 'fp-ts/lib/function'
 
-import { Errors } from 'io-ts'
 import type { Session } from 'next-auth'
 import { deleteList } from '@/lib/list/db'
 import { getSession } from 'next-auth/client'
 import middleware from '@/middleware'
 import nc from 'next-connect'
 import onError from '@/middleware/error'
+import { pipe } from 'fp-ts/lib/function'
 
 const handler = nc<NextApiRequest, NextApiResponse>({
   onError,

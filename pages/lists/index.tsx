@@ -3,8 +3,7 @@ import * as RD from '@/lib/remoteData'
 import * as TE from 'fp-ts/lib/TaskEither'
 import * as listApi from '@/lib/list/api'
 
-import { Box, Flex, Stack, StackDivider, Text, VStack } from '@chakra-ui/layout'
-import { flow, pipe } from 'fp-ts/lib/function'
+import { Box, Stack, Text, VStack } from '@chakra-ui/layout'
 
 import { AddIcon } from '@chakra-ui/icons'
 import { Button } from '@chakra-ui/button'
@@ -15,6 +14,7 @@ import ListItem from '@/components/listItem'
 import React from 'react'
 import { Spinner } from '@chakra-ui/spinner'
 import { getSession } from 'next-auth/client'
+import { pipe } from 'fp-ts/lib/function'
 import useLists from '@/lib/list/useLists'
 import { useRouter } from 'next/router'
 import { useToast } from '@chakra-ui/toast'
@@ -65,13 +65,14 @@ const App = (): JSX.Element => {
     ),
     (lists) => (
       <VStack align="stretch">
-        <Box alignSelf="flex-end" mb="2">
+        <Box alignSelf="flex-end" mb="4">
           <Link href="/lists/new">
             <Button colorScheme="blue" leftIcon={<AddIcon />} size="sm">
               {t('create_list')}
             </Button>
           </Link>
         </Box>
+        {!lists.length && <Text textAlign="center">{t('empty_subscription')}</Text>}
         {lists.map((list) => (
           <ListItem key={list.id} list={list} onDelete={onDeleteList} />
         ))}

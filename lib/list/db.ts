@@ -6,7 +6,6 @@ import { List, Subscription } from '.prisma/client'
 import { ListFormValues } from '@/lib/list/codable'
 import { pipe } from 'fp-ts/lib/function'
 import prisma from '@/lib/prisma'
-import { string } from 'fp-ts'
 
 const slugify = (str: string) =>
   str
@@ -16,21 +15,11 @@ const slugify = (str: string) =>
     .replace(/[\s_-]+/g, '-')
     .replace(/^-+|-+$/g, '')
 
-export const getLists = (
-  email: string,
-): TE.TaskEither<
-  unknown,
-  (List & {
-    subscriptions: Subscription[]
-  })[]
-> =>
+export const getLists = (email: string): TE.TaskEither<unknown, List[]> =>
   pipe(
     TE.tryCatch(
       () =>
         prisma.list.findMany({
-          include: {
-            subscriptions: true,
-          },
           where: {
             createdBy: {
               email,
@@ -41,15 +30,7 @@ export const getLists = (
     ),
   )
 
-export const saveList = (
-  email: string,
-  values: ListFormValues,
-): TE.TaskEither<
-  ApiError,
-  List & {
-    subscriptions: Subscription[]
-  }
-> =>
+export const saveList = (email: string, values: ListFormValues): TE.TaskEither<ApiError, List> =>
   pipe(
     TE.tryCatch(
       () =>
@@ -62,9 +43,6 @@ export const saveList = (
                 email,
               },
             },
-          },
-          include: {
-            subscriptions: true,
           },
         }),
       toNotFound,

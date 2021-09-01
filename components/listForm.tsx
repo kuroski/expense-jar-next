@@ -3,7 +3,7 @@ import * as Yup from 'yup'
 
 import { Button, FormControl, FormErrorMessage, FormLabel, Input, Stack } from '@chakra-ui/react'
 
-import CurrencySelect from './currencySelect'
+import CurrencySelect from '@/components/currencySelect'
 import type { FormikHelpers } from 'formik'
 import Head from 'next/head'
 import { ListFormValues } from '@/lib/list/codable'

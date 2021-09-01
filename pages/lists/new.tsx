@@ -1,9 +1,10 @@
 import * as T from 'fp-ts/lib/Task'
 import * as TE from 'fp-ts/lib/TaskEither'
 
-import { Box, useToast } from '@chakra-ui/react'
+import { Box, Breadcrumb, BreadcrumbItem, BreadcrumbLink, useToast } from '@chakra-ui/react'
 
 import { GetServerSideProps } from 'next'
+import Link from 'next/link'
 import ListForm from '@/components/listForm'
 import type { ListFormValues } from '@/lib/list/codable'
 import React from 'react'
@@ -53,6 +54,17 @@ const NewList = (): JSX.Element => {
 
   return (
     <Box mt={10}>
+      <Breadcrumb mb="6">
+        <BreadcrumbItem>
+          <BreadcrumbLink as={Link} href="/lists">
+            Home
+          </BreadcrumbLink>
+        </BreadcrumbItem>
+        <BreadcrumbItem isCurrentPage>
+          <BreadcrumbLink isCurrentPage>New list</BreadcrumbLink>
+        </BreadcrumbItem>
+      </Breadcrumb>
+
       <ListForm initialValues={initialValues} title={t('create_list')} onSubmit={onSubmit} />
     </Box>
   )

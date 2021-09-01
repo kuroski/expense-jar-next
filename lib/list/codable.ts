@@ -5,7 +5,7 @@ import type { List as ListPrisma } from '.prisma/client'
 
 export const List = t.type({
   id: t.string,
-  urlId: t.union([t.string, t.null]),
+  urlId: t.string,
   name: t.string,
   currency: t.union([t.string, t.null]),
   userId: t.string,

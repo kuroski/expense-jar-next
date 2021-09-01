@@ -17,7 +17,7 @@
   "delete_list": "Delete list {{name}}",
   "delete_subscription": "Delete subscription {{name}}",
   "edit_subscription": "Edit subscription",
-  "empty_subscription": "Things are a bit empty here, let&apos;s",
+  "empty_subscription": "Things are a bit empty here, what about creating something?",
   "error_ocurred": "An error ocurred!",
   "every_amount": "Every (amount)",
   "every": "every",
