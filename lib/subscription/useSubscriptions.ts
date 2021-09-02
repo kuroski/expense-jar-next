@@ -1,21 +1,24 @@
 import * as RD from '@/lib/remoteData'
 
+import { ListSubscriptions, Subscription } from '@/lib/subscription/codable'
 import { useEffect, useState } from 'react'
+import useStats, { UseStats } from '@/lib/subscription/useStats'
 
-import { Subscription } from '@/lib/subscription/codable'
 import { findByListSlug } from '@/lib/subscription/api'
 import { flow } from 'fp-ts/lib/function'
 import { fold } from 'fp-ts/lib/Either'
 import useSWR from 'swr'
 
 type UseSubscriptions = {
-  subscriptions: RD.RemoteData<Error, Subscription[]>
-  mutate: () => Promise<Subscription[] | undefined>
+  data: RD.RemoteData<Error, ListSubscriptions>
+  stats: UseStats
+  currencyFormatter: Intl.NumberFormat
+  mutate: () => Promise<ListSubscriptions | undefined>
 }
 
 const useSubscriptions = (slug: string): UseSubscriptions => {
-  const [subscriptions, setSubscriptions] = useState<RD.RemoteData<Error, Subscription[]>>(RD.pending)
-  const { data, error, mutate } = useSWR<Subscription[], Error>(
+  const [result, setResult] = useState<RD.RemoteData<Error, ListSubscriptions>>(RD.pending)
+  const { data, error, mutate } = useSWR<ListSubscriptions, Error>(
     `lists/${slug}/subscriptions`,
     flow(findByListSlug(slug), (e) =>
       e.then(
@@ -27,14 +30,18 @@ const useSubscriptions = (slug: string): UseSubscriptions => {
     ),
   )
 
+  const stats = useStats(data?.subscriptions || [])
+
   useEffect(() => {
-    if (error) setSubscriptions(RD.failure(error))
-    else if (data) setSubscriptions(RD.success(data))
-    else setSubscriptions(RD.pending)
+    if (error) setResult(RD.failure(error))
+    else if (data) setResult(RD.success(data))
+    else setResult(RD.pending)
   }, [data, error])
 
   return {
-    subscriptions,
+    data: result,
+    stats,
+    currencyFormatter: Intl.NumberFormat([], { style: 'currency', currency: data?.currency || 'EUR' }),
     mutate: () => mutate(),
   }
 }
