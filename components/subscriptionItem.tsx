@@ -15,7 +15,7 @@ import useNextBilling from '@/lib/subscription/useNextBilling'
 import useTranslation from 'next-translate/useTranslation'
 
 type SubscriptionItemProps = Subscription & {
-  onDelete: (id: string) => TE.TaskEither<Error, unknown>
+  onDelete: (listId: string, id: string) => TE.TaskEither<Error, unknown>
   currencyFormatter: Intl.NumberFormat
 }
 
@@ -29,8 +29,7 @@ const SubscriptionItem = (props: SubscriptionItemProps): JSX.Element => {
   function onDelete() {
     setIsDeleting(RD.pending)
     return pipe(
-      props.id,
-      props.onDelete,
+      props.onDelete(props.listId, props.id),
       TE.fold<Error, unknown, RD.RemoteData<Error, never> | RD.RemoteData<never, unknown>>(
         flow(RD.failure, T.of),
         flow(RD.success, T.of),
