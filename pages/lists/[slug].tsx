@@ -86,12 +86,12 @@ const App = (): JSX.Element => {
               <StatNumber>{currencyFormatter.format(stats.weeklyExpenses)}</StatNumber>
             </Stat>
 
-            <Stat key="avgMonth">
+            <Stat key="avgMonth" justifySelf="center">
               <StatLabel>{t('avg_month')}</StatLabel>
               <StatNumber>{currencyFormatter.format(stats.monthlyExpenses)}</StatNumber>
             </Stat>
 
-            <Stat key="avgYear">
+            <Stat key="avgYear" justifySelf="flex-end">
               <StatLabel>{t('avg_year')}</StatLabel>
               <StatNumber>{currencyFormatter.format(stats.yearlyExpenses)}</StatNumber>
             </Stat>
