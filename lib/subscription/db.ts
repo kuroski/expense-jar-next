@@ -3,6 +3,7 @@ import * as TE from 'fp-ts/lib/TaskEither'
 import { ApiError, toNotFound } from '@/lib/errors'
 import { List, Subscription } from '.prisma/client'
 
+import { SubscriptionFormValues } from '@/lib/subscription/codable'
 import { pipe } from 'fp-ts/lib/function'
 import prisma from '@/lib/prisma'
 
@@ -27,6 +28,71 @@ export const getAllByListSlug = (
         }),
       toNotFound,
     ),
+  )
+
+export const getSubscription = (id: string): TE.TaskEither<ApiError, Subscription> =>
+  pipe(
+    TE.tryCatch(
+      () =>
+        prisma.subscription.findUnique({
+          where: {
+            id,
+          },
+          rejectOnNotFound: true,
+        }),
+      toNotFound,
+    ),
+  )
+
+export const updateSubscription = (
+  email: string,
+  listId: string,
+  id: string,
+  values: SubscriptionFormValues,
+): TE.TaskEither<ApiError, Subscription> =>
+  pipe(
+    TE.tryCatch(async () => {
+      await prisma.user.update({
+        where: {
+          email,
+        },
+        data: {
+          lists: {
+            update: {
+              where: {
+                id: listId,
+              },
+              data: {
+                subscriptions: {
+                  update: {
+                    where: {
+                      id,
+                    },
+                    data: {
+                      color: values.color,
+                      cycleAmount: values.cycleAmount,
+                      cyclePeriod: values.cyclePeriod,
+                      firstBill: values.firstBill,
+                      icon: values.icon,
+                      name: values.name,
+                      overview: values.overview,
+                      price: values.price,
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      })
+
+      return prisma.subscription.findUnique({
+        rejectOnNotFound: true,
+        where: {
+          id,
+        },
+      })
+    }, toNotFound),
   )
 
 export const deleteSubscription = (email: string, listId: string, id: string): TE.TaskEither<ApiError, Subscription> =>

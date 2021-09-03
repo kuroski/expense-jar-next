@@ -12,6 +12,7 @@ import { DeleteIcon } from '@chakra-ui/icons'
 import Link from 'next/link'
 import { Subscription } from '@/lib/subscription/codable'
 import useNextBilling from '@/lib/subscription/useNextBilling'
+import { useRouter } from 'next/router'
 import useTranslation from 'next-translate/useTranslation'
 
 type SubscriptionItemProps = Subscription & {
@@ -20,6 +21,9 @@ type SubscriptionItemProps = Subscription & {
 }
 
 const SubscriptionItem = (props: SubscriptionItemProps): JSX.Element => {
+  const router = useRouter()
+  const slug = Array.isArray(router.query.slug) ? router.query.slug[0] : router.query.slug
+
   const [isDeleting, setIsDeleting] = useState<RD.RemoteData<Error, unknown>>(RD.notAsked)
   const [, icon] = Object.entries(simpleIcons).find(([key]) => key === props.icon) || []
   const price = props.currencyFormatter.format(props.price)
@@ -51,8 +55,8 @@ const SubscriptionItem = (props: SubscriptionItemProps): JSX.Element => {
       >
         <Link
           href={{
-            pathname: '/subscriptions/[id]',
-            query: { id: props.id },
+            pathname: '/lists/[slug]/subscriptions/[id]',
+            query: { slug, id: props.id },
           }}
         >
           <a>

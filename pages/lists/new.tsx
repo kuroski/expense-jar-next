@@ -36,8 +36,6 @@ const NewList = (): JSX.Element => {
             duration: 9000,
             isClosable: true,
           })
-
-          console.log(errors)
           return T.of(Promise.reject(t('error_ocurred')))
         },
         (list) => {

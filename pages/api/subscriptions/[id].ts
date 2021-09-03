@@ -2,17 +2,22 @@ import * as E from 'fp-ts/lib/Either'
 import * as T from 'fp-ts/lib/Task'
 import * as TE from 'fp-ts/lib/TaskEither'
 
-import { ApiError, toDecodingError, toMissingParam, toRequestError, toUnauthorizedError } from '@/lib/errors'
+import { ApiError, toMissingParam, toRequestError, toUnauthorizedError } from '@/lib/errors'
 import type { NextApiRequest, NextApiResponse } from 'next'
+import { deleteSubscription, getSubscription } from '@/lib/subscription/db'
 import { flow, pipe } from 'fp-ts/lib/function'
 
 import type { Session } from 'next-auth'
-import { SubscriptionFormValues } from '@/lib/subscription/codable'
 import { getSession } from 'next-auth/client'
 import middleware from '@/middleware'
 import nc from 'next-connect'
 import onError from '@/middleware/error'
-import { updateSubscription } from '@/lib/subscription/db'
+
+const handler = nc<NextApiRequest, NextApiResponse>({
+  onError,
+})
+
+handler.use(middleware)
 
 const getParam = flow(
   (param: string | string[]) => (Array.isArray(param) ? param[0] : param),
@@ -22,32 +27,51 @@ const getParam = flow(
 
 const getParams = (...args: Array<string | string[]>) => pipe(args.map(getParam), E.sequenceArray, TE.fromEither)
 
-const handler = nc<NextApiRequest, NextApiResponse>({
-  onError,
-})
-
-handler.use(middleware)
-
-handler.put(async (req, res) =>
+handler.get(async (req, res) =>
   pipe(
     TE.tryCatch<ApiError, Session | null>(() => getSession({ req }), toRequestError),
     TE.chain((session) => (session?.user?.email ? TE.right(session.user.email) : TE.left(toUnauthorizedError))),
-    TE.chain((email: string) =>
+    TE.chain(() =>
+      pipe(
+        getParams(req.query.id),
+        TE.chain(([id]) => getSubscription(id)),
+      ),
+    ),
+    TE.fold(
+      (error: ApiError) => {
+        switch (error._tag) {
+          case 'UNAUTHORIZED':
+            res.status(401).send('Unauthorized!')
+            res.end()
+            break
+
+          case 'DECODING_ERROR':
+          case 'REQUEST_ERROR':
+          case 'MISSING_PARAM':
+          case 'NOT_FOUND':
+            throw error.error
+        }
+
+        return T.never
+      },
+      (subscription) => {
+        res.send(subscription)
+        res.end()
+        return T.of(subscription)
+      },
+    ),
+  )(),
+)
+handler.delete(async (req, res) =>
+  pipe(
+    TE.tryCatch<ApiError, Session | null>(() => getSession({ req }), toRequestError),
+    TE.chain((session) => (session?.user?.email ? TE.right(session.user.email) : TE.left(toUnauthorizedError))),
+    TE.chain((email) =>
       pipe(
         getParams(req.query.id, req.query.subscriptionId),
-        TE.map((args) => [email, ...args]),
+        TE.chain(([listId, id]) => deleteSubscription(email, listId, id)),
       ),
     ),
-    TE.chain<ApiError, string[], [string, string, string, SubscriptionFormValues]>(([email, listId, subscriptionId]) =>
-      pipe(
-        req.body,
-        SubscriptionFormValues.decode,
-        E.mapLeft(toDecodingError),
-        TE.fromEither,
-        TE.map((values) => [email, listId, subscriptionId, values]),
-      ),
-    ),
-    TE.chain(([email, listId, subscriptionId, values]) => updateSubscription(email, listId, subscriptionId, values)),
     TE.fold(
       (error: ApiError) => {
         switch (error._tag) {

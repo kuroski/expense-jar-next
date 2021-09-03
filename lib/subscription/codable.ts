@@ -2,9 +2,18 @@
 import * as t from 'io-ts'
 import * as te from 'io-ts-types'
 
+import { DateFromISOString, NumberFromString } from 'io-ts-types'
 import type { List as ListPrisma, Subscription as SubscriptionPrisma } from '.prisma/client'
 
 import { List } from '@/lib/list/codable'
+
+export const Period = t.keyof({
+  day: 'day',
+  week: 'week',
+  month: 'month',
+  year: 'year',
+})
+export type Period = t.TypeOf<typeof Period>
 
 export const Subscription = t.type({
   id: t.string,
@@ -34,7 +43,13 @@ export type ListSubscriptions = t.TypeOf<typeof ListSubscriptions> extends ListP
 
 export const SubscriptionFormValues = t.type({
   name: t.string,
-  currency: t.string,
+  color: t.string,
+  cycleAmount: t.number,
+  cyclePeriod: Period,
+  overview: t.string,
+  price: t.number,
+  firstBill: DateFromISOString,
+  icon: t.string,
 })
 
 export type SubscriptionFormValues = t.TypeOf<typeof SubscriptionFormValues>
