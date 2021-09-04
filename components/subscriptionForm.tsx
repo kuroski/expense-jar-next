@@ -3,6 +3,7 @@ import * as Yup from 'yup'
 
 import {
   Button,
+  Flex,
   FormControl,
   FormErrorMessage,
   FormLabel,
@@ -19,6 +20,7 @@ import {
   Textarea,
 } from '@chakra-ui/react'
 
+import ColorSelect from '@/components/colorSelect'
 import type { FormikHelpers } from 'formik'
 import Head from 'next/head'
 import IconSelect from '@/components/iconSelect'
@@ -66,29 +68,41 @@ const SubscriptionForm = (props: SubscriptionForm): JSX.Element => {
       </Head>
       <form onSubmit={form.handleSubmit}>
         <Stack spacing={4}>
-          <FormControl id="icon" isInvalid={Boolean(form.errors.icon && form.touched.icon)}>
-            <IconSelect
-              id="icon"
-              value={form.values.icon}
-              onSelect={(value) =>
-                form.handleChange({
-                  target: {
-                    id: 'icon',
-                    value,
-                  },
-                })
-              }
-            />
-            <FormErrorMessage>{form.errors.icon}</FormErrorMessage>
-          </FormControl>
-
-          <Grid templateColumns={['1fr', 'auto 1fr']} gap={4}>
-            <FormControl id="color" isInvalid={Boolean(form.errors.color && form.touched.color)}>
-              <FormLabel>{t('color')}</FormLabel>
-              <Input variant="flushed" type="color" onChange={form.handleChange} value={form.values.color} />
+          <Flex alignItems="center" gridGap="6">
+            <FormControl width="auto" id="color" isInvalid={Boolean(form.errors.color && form.touched.color)}>
+              <ColorSelect
+                id="icon"
+                value={form.values.color}
+                onSelect={(value) =>
+                  form.handleChange({
+                    target: {
+                      id: 'color',
+                      value,
+                    },
+                  })
+                }
+              />
               <FormErrorMessage>{form.errors.color}</FormErrorMessage>
             </FormControl>
 
+            <FormControl width="auto" id="icon" isInvalid={Boolean(form.errors.icon && form.touched.icon)}>
+              <IconSelect
+                id="icon"
+                value={form.values.icon}
+                onSelect={(value) =>
+                  form.handleChange({
+                    target: {
+                      id: 'icon',
+                      value,
+                    },
+                  })
+                }
+              />
+              <FormErrorMessage>{form.errors.icon}</FormErrorMessage>
+            </FormControl>
+          </Flex>
+
+          <Grid templateColumns={['1fr', 'auto 1fr']} gap={4}>
             <FormControl id="name" isInvalid={Boolean(form.errors.name && form.touched.name)}>
               <FormLabel>{t('name')}</FormLabel>
               <Input type="text" onChange={form.handleChange} value={form.values.name} />

@@ -2,7 +2,7 @@ import * as RD from '@/lib/remoteData'
 import * as T from 'fp-ts/lib/Task'
 import * as TE from 'fp-ts/lib/TaskEither'
 
-import { Box, Button, Spinner, Stack, Text, useToast } from '@chakra-ui/react'
+import { Button, Center, Spinner, Stack, Text, useToast } from '@chakra-ui/react'
 import { Subscription, SubscriptionFormValues } from '@/lib/subscription/codable'
 
 import React from 'react'
@@ -66,7 +66,13 @@ const EditForm = (props: EditFormProps) => {
       ),
     )
 
-  return <SubscriptionForm initialValues={initialValues} title={t('create_subscription')} onSubmit={onSubmit} />
+  return (
+    <SubscriptionForm
+      initialValues={initialValues}
+      title={t('edit_subscription', { name: props.subscription.name })}
+      onSubmit={onSubmit}
+    />
+  )
 }
 
 const EditSubscription = (): JSX.Element => {
@@ -76,21 +82,21 @@ const EditSubscription = (): JSX.Element => {
 
   const { data } = useSubscription(String(id))
 
-  return (
-    <Box p={4} shadow="md" borderWidth="1px" rounded="lg" textAlign={['center', 'left']} direction="column">
-      {RD.fold<Error, Subscription, JSX.Element>(
-        () => <div />,
-        () => <Spinner />,
-        () => (
-          <Stack>
-            <Text>{t('something_wrong')}</Text>
-            <Button onClick={router.reload}>{t('refresh')}</Button>
-          </Stack>
-        ),
-        (subscription) => <EditForm subscription={subscription} />,
-      )(data)}
-    </Box>
-  )
+  return RD.fold<Error, Subscription, JSX.Element>(
+    () => <div />,
+    () => (
+      <Center>
+        <Spinner />
+      </Center>
+    ),
+    () => (
+      <Stack>
+        <Text>{t('something_wrong')}</Text>
+        <Button onClick={router.reload}>{t('refresh')}</Button>
+      </Stack>
+    ),
+    (subscription) => <EditForm subscription={subscription} />,
+  )(data)
 }
 
 export default EditSubscription

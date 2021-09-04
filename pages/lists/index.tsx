@@ -3,21 +3,18 @@ import * as RD from '@/lib/remoteData'
 import * as TE from 'fp-ts/lib/TaskEither'
 import * as listApi from '@/lib/list/api'
 
-import { Box, Stack, Text, VStack } from '@chakra-ui/layout'
+import { Box, Button, Center, Spinner, Stack, Text, VStack, useToast } from '@chakra-ui/react'
 
 import { AddIcon } from '@chakra-ui/icons'
-import { Button } from '@chakra-ui/button'
 import { GetServerSideProps } from 'next'
 import Link from 'next/link'
 import { List } from '@/lib/list/codable'
 import ListItem from '@/components/listItem'
 import React from 'react'
-import { Spinner } from '@chakra-ui/spinner'
 import { getSession } from 'next-auth/client'
 import { pipe } from 'fp-ts/lib/function'
 import useLists from '@/lib/list/useLists'
 import { useRouter } from 'next/router'
-import { useToast } from '@chakra-ui/toast'
 import useTranslation from 'next-translate/useTranslation'
 
 const App = (): JSX.Element => {
@@ -53,9 +50,9 @@ const App = (): JSX.Element => {
   return RD.fold<Error, List[], JSX.Element>(
     () => <div />,
     () => (
-      <Box w="full" textAlign="center">
+      <Center>
         <Spinner />
-      </Box>
+      </Center>
     ),
     () => (
       <Stack>

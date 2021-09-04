@@ -4,20 +4,28 @@ import * as TE from 'fp-ts/lib/TaskEither'
 import * as subscriptionApi from '@/lib/subscription/api'
 
 import { AnimatePresence, Variants, motion } from 'framer-motion'
-import { Box, SimpleGrid, Stack, Text } from '@chakra-ui/layout'
+import {
+  Box,
+  Button,
+  Center,
+  SimpleGrid,
+  Spinner,
+  Stack,
+  Stat,
+  StatLabel,
+  StatNumber,
+  Text,
+  useToast,
+} from '@chakra-ui/react'
 import { ListSubscriptions, Subscription } from '@/lib/subscription/codable'
-import { Stat, StatLabel, StatNumber } from '@chakra-ui/stat'
 
-import { Button } from '@chakra-ui/button'
 import { GetServerSideProps } from 'next'
 import React from 'react'
-import { Spinner } from '@chakra-ui/spinner'
 import SubscriptionItem from '@/components/subscriptionItem'
 import { getSession } from 'next-auth/client'
 import { pipe } from 'fp-ts/lib/function'
 import { useRouter } from 'next/router'
 import useSubscriptions from '@/lib/subscription/useSubscriptions'
-import { useToast } from '@chakra-ui/toast'
 import useTranslation from 'next-translate/useTranslation'
 
 const container: Variants = {
@@ -68,9 +76,9 @@ const App = (): JSX.Element => {
   return RD.fold<Error, ListSubscriptions, JSX.Element>(
     () => <div />,
     () => (
-      <Box w="full" textAlign="center">
+      <Center>
         <Spinner />
-      </Box>
+      </Center>
     ),
     () => (
       <Stack>
