@@ -18,7 +18,9 @@ import {
   useToast,
 } from '@chakra-ui/react'
 
+import { AddIcon } from '@chakra-ui/icons'
 import { GetServerSideProps } from 'next'
+import Link from 'next/link'
 import { ListSubscriptions } from '@/lib/list/codable'
 import React from 'react'
 import { Subscription } from '@/lib/subscription/codable'
@@ -105,6 +107,21 @@ const App = (): JSX.Element => {
               <StatNumber>{currencyFormatter.format(stats.yearlyExpenses)}</StatNumber>
             </Stat>
           </SimpleGrid>
+
+          <Box textAlign="right" my="4">
+            <Link
+              href={{
+                pathname: '/lists/[slug]/subscriptions/new',
+                query: {
+                  slug: String(router.query.slug),
+                },
+              }}
+            >
+              <Button colorScheme="blue" leftIcon={<AddIcon />} size="sm">
+                {t('create_subscription')}
+              </Button>
+            </Link>
+          </Box>
 
           {!list.subscriptions.length && (
             <Text mt="10" textAlign="center">

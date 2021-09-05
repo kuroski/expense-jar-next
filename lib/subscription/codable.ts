@@ -2,7 +2,8 @@
 import * as t from 'io-ts'
 import * as te from 'io-ts-types'
 
-import { DateFromISOString } from 'io-ts-types'
+import { DateFromISOString, NumberFromString } from 'io-ts-types'
+
 import type { Subscription as SubscriptionPrisma } from '.prisma/client'
 
 export const Period = t.keyof({
@@ -35,10 +36,10 @@ export const Subscriptions = t.array(Subscription)
 export const SubscriptionFormValues = t.type({
   name: t.string,
   color: t.string,
-  cycleAmount: t.number,
+  cycleAmount: t.union([t.number, NumberFromString]),
   cyclePeriod: Period,
   overview: t.string,
-  price: t.number,
+  price: t.union([t.number, NumberFromString]),
   firstBill: DateFromISOString,
   icon: t.string,
 })

@@ -4,43 +4,43 @@ import * as TE from 'fp-ts/lib/TaskEither'
 import * as subscriptionApi from '@/lib/subscription/api'
 
 import { Box, Breadcrumb, BreadcrumbItem, BreadcrumbLink, useToast } from '@chakra-ui/react'
-import { Subscription, SubscriptionFormValues } from '@/lib/subscription/codable'
 
 import { GetServerSideProps } from 'next'
 import Link from 'next/link'
 import { List } from '@/lib/list/codable'
 import React from 'react'
 import SubscriptionForm from '@/components/subscriptionForm'
+import { SubscriptionFormValues } from '@/lib/subscription/codable'
+import { findListBySlug } from '@/lib/list/db'
 import { getSession } from 'next-auth/client'
-import { getSubscription } from '@/lib/subscription/db'
 import { pipe } from 'fp-ts/lib/function'
 import { useRouter } from 'next/router'
 import useTranslation from 'next-translate/useTranslation'
 
-type EditSubscriptionProps = {
-  subscription: Subscription & { list: List }
+type NewSubscriptionProps = {
+  list: List
 }
 
-const EditSubscription = (props: EditSubscriptionProps): JSX.Element => {
+const NewSubscription = (props: NewSubscriptionProps): JSX.Element => {
   const router = useRouter()
   const toast = useToast()
   const { t } = useTranslation('common')
 
   const initialValues: SubscriptionFormValues = {
-    name: props.subscription.name,
-    color: props.subscription.color,
-    cycleAmount: props.subscription.cycleAmount,
-    cyclePeriod: props.subscription.cyclePeriod,
-    overview: props.subscription.overview ?? '',
-    price: props.subscription.price,
-    firstBill: props.subscription.firstBill,
-    icon: props.subscription.icon,
+    name: '',
+    color: 'grey',
+    cycleAmount: 1,
+    cyclePeriod: 'month',
+    overview: '',
+    price: 0.0,
+    firstBill: new Date(),
+    icon: '',
   }
 
   const onSubmit = (values: SubscriptionFormValues): T.Task<Promise<boolean>> =>
     pipe(
       values,
-      subscriptionApi.update(props.subscription.listId, props.subscription.id),
+      subscriptionApi.save(props.list.id),
       TE.fold(
         (errors) => {
           toast({
@@ -80,36 +80,32 @@ const EditSubscription = (props: EditSubscriptionProps): JSX.Element => {
           </BreadcrumbLink>
         </BreadcrumbItem>
         <BreadcrumbItem>
-          <BreadcrumbLink as={Link} href={`/lists/${props.subscription.list.urlId}`}>
-            {props.subscription.list.name}
+          <BreadcrumbLink as={Link} href={`/lists/${props.list.urlId}`}>
+            {props.list.name}
           </BreadcrumbLink>
         </BreadcrumbItem>
         <BreadcrumbItem isCurrentPage>
-          <BreadcrumbLink isCurrentPage>{t('edit_subscription', { name: props.subscription.name })}</BreadcrumbLink>
+          <BreadcrumbLink isCurrentPage>{t('add_new_subscription')}</BreadcrumbLink>
         </BreadcrumbItem>
       </Breadcrumb>
 
-      <SubscriptionForm
-        initialValues={initialValues}
-        title={t('edit_subscription', { name: props.subscription.name })}
-        onSubmit={onSubmit}
-      />
+      <SubscriptionForm initialValues={initialValues} title={t('add_new_subscription')} onSubmit={onSubmit} />
     </Box>
   )
 }
 
-export default EditSubscription
+export default NewSubscription
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
-  await getSession(context)
-  return pipe(getSubscription(String(context.query.id)), (result) =>
+  const session = await getSession(context)
+  return pipe(findListBySlug(String(session?.user?.email), String(context.query.slug)), (result) =>
     result().then(
       E.fold(
         (error) => Promise.reject(error),
-        (subscription) =>
+        (list) =>
           Promise.resolve({
             props: {
-              subscription,
+              list,
             },
           }),
       ),

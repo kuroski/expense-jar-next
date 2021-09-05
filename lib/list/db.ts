@@ -30,6 +30,23 @@ export const getLists = (email: string): TE.TaskEither<unknown, List[]> =>
     ),
   )
 
+export const findListBySlug = (email: string, slug: string): TE.TaskEither<unknown, List> =>
+  pipe(
+    TE.tryCatch(
+      () =>
+        prisma.list.findFirst({
+          rejectOnNotFound: true,
+          where: {
+            urlId: slug,
+            createdBy: {
+              email,
+            },
+          },
+        }),
+      toNotFound,
+    ),
+  )
+
 export const saveList = (email: string, values: ListFormValues): TE.TaskEither<ApiError, List> =>
   pipe(
     TE.tryCatch(

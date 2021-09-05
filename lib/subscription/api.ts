@@ -22,6 +22,22 @@ export function findByListSlug(slug: string): TE.TaskEither<Error, ListSubscript
   )
 }
 
+export function save(listId: string) {
+  return function (values: SubscriptionFormValues): TE.TaskEither<Error, Subscription> {
+    return pipe(
+      TE.tryCatch(() => axios().post(`lists/${listId}/subscriptions`, values), E.toError),
+      TE.map((response) => response.data),
+      TE.chain(
+        flow(
+          Subscription.decode,
+          E.mapLeft((errors) => new Error(failure(errors).join('\n'))),
+          TE.fromEither,
+        ),
+      ),
+    )
+  }
+}
+
 export function update(listId: string, id: string) {
   return function (values: SubscriptionFormValues): TE.TaskEither<Error, Subscription> {
     return pipe(

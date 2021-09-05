@@ -7,7 +7,6 @@ import {
   FormControl,
   FormErrorMessage,
   FormLabel,
-  Grid,
   Input,
   NumberDecrementStepper,
   NumberIncrementStepper,
@@ -102,13 +101,11 @@ const SubscriptionForm = (props: SubscriptionForm): JSX.Element => {
             </FormControl>
           </Flex>
 
-          <Grid templateColumns={['1fr', 'auto 1fr']} gap={4}>
-            <FormControl id="name" isInvalid={Boolean(form.errors.name && form.touched.name)}>
-              <FormLabel>{t('name')}</FormLabel>
-              <Input type="text" onChange={form.handleChange} value={form.values.name} />
-              <FormErrorMessage>{form.errors.name}</FormErrorMessage>
-            </FormControl>
-          </Grid>
+          <FormControl id="name" isInvalid={Boolean(form.errors.name && form.touched.name)}>
+            <FormLabel>{t('name')}</FormLabel>
+            <Input type="text" onChange={form.handleChange} value={form.values.name} />
+            <FormErrorMessage>{form.errors.name}</FormErrorMessage>
+          </FormControl>
 
           <SimpleGrid columns={[1, 2]} spacing={4}>
             <FormControl id="firstBill" isInvalid={Boolean(form.errors.firstBill && form.touched.firstBill)}>

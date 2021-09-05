@@ -47,6 +47,34 @@ export const getSubscription = (id: string): TE.TaskEither<ApiError, Subscriptio
     ),
   )
 
+export const saveSubscription = (
+  listId: string,
+  values: SubscriptionFormValues,
+): TE.TaskEither<ApiError, Subscription> =>
+  pipe(
+    TE.tryCatch(
+      async () =>
+        prisma.subscription.create({
+          data: {
+            color: values.color,
+            cycleAmount: values.cycleAmount,
+            cyclePeriod: values.cyclePeriod,
+            firstBill: values.firstBill,
+            icon: values.icon,
+            name: values.name,
+            overview: values.overview,
+            price: values.price,
+            list: {
+              connect: {
+                id: listId,
+              },
+            },
+          },
+        }),
+      toNotFound,
+    ),
+  )
+
 export const updateSubscription = (
   email: string,
   listId: string,
