@@ -16,6 +16,7 @@
   "delete_operation_failed": "Delete operation failed",
   "delete_list": "Delete list {{name}}",
   "delete_subscription": "Delete subscription {{name}}",
+  "hide_subscription": "Hide subscription {{name}}",
   "edit_subscription": "Edit subscription {{name}}",
   "empty_subscription": "Things are a bit empty here, what about creating something?",
   "error_ocurred": "An error ocurred!",

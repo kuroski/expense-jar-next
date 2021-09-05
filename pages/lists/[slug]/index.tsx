@@ -49,7 +49,9 @@ const item: Variants = {
 const App = (): JSX.Element => {
   const toast = useToast()
   const router = useRouter()
-  const { data, currencyFormatter, stats, mutate } = useSubscriptions(String(router.query.slug))
+  const { data, currencyFormatter, stats, mutate, hiddenSubscriptions, toggleSubscription } = useSubscriptions(
+    String(router.query.slug),
+  )
   const { t } = useTranslation('common')
 
   function onDeleteSubscription(listId: string, id: string): TE.TaskEither<Error, ListSubscriptions | undefined> {
@@ -91,62 +93,65 @@ const App = (): JSX.Element => {
     (list) => (
       <Box>
         <AnimatePresence>
-          <SimpleGrid key="stats" spacing={4} columns={[1, 3]}>
-            <Stat key="avgWeek">
-              <StatLabel>{t('avg_week')}</StatLabel>
-              <StatNumber>{currencyFormatter.format(stats.weeklyExpenses)}</StatNumber>
-            </Stat>
+          <>
+            <SimpleGrid spacing={4} columns={[1, 3]}>
+              <Stat key="avgWeek">
+                <StatLabel>{t('avg_week')}</StatLabel>
+                <StatNumber>{currencyFormatter.format(stats.weeklyExpenses)}</StatNumber>
+              </Stat>
 
-            <Stat key="avgMonth" justifySelf="center">
-              <StatLabel>{t('avg_month')}</StatLabel>
-              <StatNumber>{currencyFormatter.format(stats.monthlyExpenses)}</StatNumber>
-            </Stat>
+              <Stat key="avgMonth" justifySelf="center">
+                <StatLabel>{t('avg_month')}</StatLabel>
+                <StatNumber>{currencyFormatter.format(stats.monthlyExpenses)}</StatNumber>
+              </Stat>
 
-            <Stat key="avgYear" justifySelf="flex-end">
-              <StatLabel>{t('avg_year')}</StatLabel>
-              <StatNumber>{currencyFormatter.format(stats.yearlyExpenses)}</StatNumber>
-            </Stat>
-          </SimpleGrid>
-
-          <Box textAlign="right" my="4">
-            <Link
-              href={{
-                pathname: '/lists/[slug]/subscriptions/new',
-                query: {
-                  slug: String(router.query.slug),
-                },
-              }}
-            >
-              <Button colorScheme="blue" leftIcon={<AddIcon />} size="sm">
-                {t('create_subscription')}
-              </Button>
-            </Link>
-          </Box>
-
-          {!list.subscriptions.length && (
-            <Text mt="10" textAlign="center">
-              {t('empty_subscription')}
-            </Text>
-          )}
-
-          <motion.div variants={container} initial="hidden" animate="show">
-            <SimpleGrid spacing={2} mt={4}>
-              {list.subscriptions.map((subscription: Subscription) => (
-                <motion.div
-                  key={subscription.id}
-                  variants={item}
-                  exit={{ opacity: 0, scale: 0.5, transition: { duration: 0.2 } }}
-                >
-                  <SubscriptionItem
-                    {...subscription}
-                    key={subscription.id}
-                    onDelete={onDeleteSubscription}
-                    currencyFormatter={currencyFormatter}
-                  />
-                </motion.div>
-              ))}
+              <Stat key="avgYear" justifySelf="flex-end">
+                <StatLabel>{t('avg_year')}</StatLabel>
+                <StatNumber>{currencyFormatter.format(stats.yearlyExpenses)}</StatNumber>
+              </Stat>
             </SimpleGrid>
-          </motion.div>
+
+            <Box textAlign="right" my="4">
+              <Link
+                href={{
+                  pathname: '/lists/[slug]/subscriptions/new',
+                  query: {
+                    slug: String(router.query.slug),
+                  },
+                }}
+              >
+                <Button colorScheme="blue" leftIcon={<AddIcon />} size="sm">
+                  {t('create_subscription')}
+                </Button>
+              </Link>
+            </Box>
+
+            {!list.subscriptions.length && (
+              <Text mt="10" textAlign="center">
+                {t('empty_subscription')}
+              </Text>
+            )}
+
+            <motion.div variants={container} initial="hidden" animate="show">
+              <SimpleGrid spacing={2} mt={4}>
+                {list.subscriptions.map((subscription: Subscription) => (
+                  <motion.div
+                    key={subscription.id}
+                    variants={item}
+                    exit={{ opacity: 0, scale: 0.5, transition: { duration: 0.2 } }}
+                  >
+                    <SubscriptionItem
+                      {...subscription}
+                      isHidden={hiddenSubscriptions.has(subscription.id)}
+                      onDelete={onDeleteSubscription}
+                      onToggleHide={toggleSubscription}
+                      currencyFormatter={currencyFormatter}
+                    />
+                  </motion.div>
+                ))}
+              </SimpleGrid>
+            </motion.div>
+          </>
         </AnimatePresence>
       </Box>
     ),

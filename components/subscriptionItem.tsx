@@ -4,11 +4,11 @@ import * as TE from 'fp-ts/lib/TaskEither'
 import * as simpleIcons from 'react-icons/si'
 
 import { Box, Flex, Icon, IconButton, SimpleGrid, Text } from '@chakra-ui/react'
+import { DeleteIcon, ViewIcon, ViewOffIcon } from '@chakra-ui/icons'
 import React, { useState } from 'react'
 import { flow, pipe } from 'fp-ts/lib/function'
 
 import { CgMail } from 'react-icons/cg'
-import { DeleteIcon } from '@chakra-ui/icons'
 import Link from 'next/link'
 import { Subscription } from '@/lib/subscription/codable'
 import useNextBilling from '@/lib/subscription/useNextBilling'
@@ -17,6 +17,8 @@ import useTranslation from 'next-translate/useTranslation'
 
 type SubscriptionItemProps = Subscription & {
   onDelete: (listId: string, id: string) => TE.TaskEither<Error, unknown>
+  isHidden: boolean
+  onToggleHide: (id: string) => void
   currencyFormatter: Intl.NumberFormat
 }
 
@@ -43,7 +45,7 @@ const SubscriptionItem = (props: SubscriptionItemProps): JSX.Element => {
   }
 
   return (
-    <Flex>
+    <Flex opacity={props.isHidden ? 0.6 : 1}>
       <Box
         flex="1"
         p="4"
@@ -91,18 +93,34 @@ const SubscriptionItem = (props: SubscriptionItemProps): JSX.Element => {
         </Link>
       </Box>
 
-      <IconButton
-        aria-label={t('delete_subscription', { name: props.name })}
-        colorScheme="red"
-        variant="outline"
-        height="auto"
-        size="sm"
-        borderLeftRadius="0"
-        icon={<DeleteIcon />}
-        onClick={onDelete}
-        isLoading={RD.isPending(isDeleting)}
-        isDisabled={RD.isPending(isDeleting)}
-      />
+      <Flex direction="column">
+        <IconButton
+          flex="1"
+          aria-label={t('hide_subscription', { name: props.name })}
+          colorScheme="cyan"
+          variant="outline"
+          size="sm"
+          borderLeftRadius="0"
+          borderBottomRightRadius="0"
+          icon={props.isHidden ? <ViewOffIcon /> : <ViewIcon />}
+          onClick={() => props.onToggleHide(props.id)}
+          isLoading={RD.isPending(isDeleting)}
+          isDisabled={RD.isPending(isDeleting)}
+        />
+        <IconButton
+          flex="1"
+          aria-label={t('delete_subscription', { name: props.name })}
+          colorScheme="red"
+          variant="outline"
+          size="sm"
+          borderLeftRadius="0"
+          borderTopRightRadius="0"
+          icon={<DeleteIcon />}
+          onClick={onDelete}
+          isLoading={RD.isPending(isDeleting)}
+          isDisabled={RD.isPending(isDeleting)}
+        />
+      </Flex>
     </Flex>
   )
 }
