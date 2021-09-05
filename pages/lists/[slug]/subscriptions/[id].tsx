@@ -1,22 +1,25 @@
-import * as RD from '@/lib/remoteData'
+import * as E from 'fp-ts/lib/Either'
 import * as T from 'fp-ts/lib/Task'
 import * as TE from 'fp-ts/lib/TaskEither'
+import * as subscriptionApi from '@/lib/subscription/api'
 
-import { Button, Center, Spinner, Stack, Text, useToast } from '@chakra-ui/react'
 import { Subscription, SubscriptionFormValues } from '@/lib/subscription/codable'
 
+import { GetServerSideProps } from 'next'
 import React from 'react'
 import SubscriptionForm from '@/components/subscriptionForm'
+import { getSession } from 'next-auth/client'
+import { getSubscription } from '@/lib/subscription/db'
 import { pipe } from 'fp-ts/lib/function'
-import { update } from '@/lib/subscription/api'
 import { useRouter } from 'next/router'
-import useSubscription from '@/lib/subscription/useSubscription'
+import { useToast } from '@chakra-ui/react'
 import useTranslation from 'next-translate/useTranslation'
 
-type EditFormProps = {
+type EditSubscriptionProps = {
   subscription: Subscription
 }
-const EditForm = (props: EditFormProps) => {
+
+const EditSubscription = (props: EditSubscriptionProps): JSX.Element => {
   const router = useRouter()
   const toast = useToast()
   const { t } = useTranslation('common')
@@ -35,7 +38,7 @@ const EditForm = (props: EditFormProps) => {
   const onSubmit = (values: SubscriptionFormValues): T.Task<Promise<boolean>> =>
     pipe(
       values,
-      update(props.subscription.listId, props.subscription.id),
+      subscriptionApi.update(props.subscription.listId, props.subscription.id),
       TE.fold(
         (errors) => {
           toast({
@@ -75,28 +78,21 @@ const EditForm = (props: EditFormProps) => {
   )
 }
 
-const EditSubscription = (): JSX.Element => {
-  const router = useRouter()
-  const { id } = router.query
-  const { t } = useTranslation('common')
-
-  const { data } = useSubscription(String(id))
-
-  return RD.fold<Error, Subscription, JSX.Element>(
-    () => <div />,
-    () => (
-      <Center>
-        <Spinner />
-      </Center>
-    ),
-    () => (
-      <Stack>
-        <Text>{t('something_wrong')}</Text>
-        <Button onClick={router.reload}>{t('refresh')}</Button>
-      </Stack>
-    ),
-    (subscription) => <EditForm subscription={subscription} />,
-  )(data)
-}
-
 export default EditSubscription
+
+export const getServerSideProps: GetServerSideProps = async (context) => {
+  await getSession(context)
+  return pipe(getSubscription(String(context.query.id)), (result) =>
+    result().then(
+      E.fold(
+        (error) => Promise.reject(error),
+        (subscription) =>
+          Promise.resolve({
+            props: {
+              subscription,
+            },
+          }),
+      ),
+    ),
+  )
+}

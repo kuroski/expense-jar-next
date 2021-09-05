@@ -1,9 +1,10 @@
 import * as E from 'fp-ts/lib/Either'
 import * as TE from 'fp-ts/lib/TaskEither'
 
-import { ListSubscriptions, Subscription, SubscriptionFormValues } from '@/lib/subscription/codable'
+import { Subscription, SubscriptionFormValues } from '@/lib/subscription/codable'
 import { flow, pipe } from 'fp-ts/lib/function'
 
+import { ListSubscriptions } from '@/lib/list/codable'
 import axios from '@/lib/axios'
 import { failure } from 'io-ts/lib/PathReporter'
 
@@ -14,20 +15,6 @@ export function findByListSlug(slug: string): TE.TaskEither<Error, ListSubscript
     TE.chain(
       flow(
         ListSubscriptions.decode,
-        E.mapLeft((errors) => new Error(failure(errors).join('\n'))),
-        TE.fromEither,
-      ),
-    ),
-  )
-}
-
-export function getById(id: string): TE.TaskEither<Error, Subscription> {
-  return pipe(
-    TE.tryCatch(() => axios().get(`subscriptions/${id}`), E.toError),
-    TE.map((response) => response.data),
-    TE.chain(
-      flow(
-        Subscription.decode,
         E.mapLeft((errors) => new Error(failure(errors).join('\n'))),
         TE.fromEither,
       ),

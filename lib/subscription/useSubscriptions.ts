@@ -1,9 +1,9 @@
 import * as RD from '@/lib/remoteData'
 
-import { ListSubscriptions, Subscription } from '@/lib/subscription/codable'
 import { useEffect, useState } from 'react'
 import useStats, { UseStats } from '@/lib/subscription/useStats'
 
+import { ListSubscriptions } from '@/lib/list/codable'
 import { findByListSlug } from '@/lib/subscription/api'
 import { flow } from 'fp-ts/lib/function'
 import { fold } from 'fp-ts/lib/Either'

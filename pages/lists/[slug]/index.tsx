@@ -17,10 +17,11 @@ import {
   Text,
   useToast,
 } from '@chakra-ui/react'
-import { ListSubscriptions, Subscription } from '@/lib/subscription/codable'
 
 import { GetServerSideProps } from 'next'
+import { ListSubscriptions } from '@/lib/list/codable'
 import React from 'react'
+import { Subscription } from '@/lib/subscription/codable'
 import SubscriptionItem from '@/components/subscriptionItem'
 import { getSession } from 'next-auth/client'
 import { pipe } from 'fp-ts/lib/function'
@@ -46,8 +47,7 @@ const item: Variants = {
 const App = (): JSX.Element => {
   const toast = useToast()
   const router = useRouter()
-  const slug = Array.isArray(router.query.slug) ? router.query.slug[0] : router.query.slug
-  const { data, currencyFormatter, stats, mutate } = useSubscriptions(slug || '')
+  const { data, currencyFormatter, stats, mutate } = useSubscriptions(String(router.query.slug))
   const { t } = useTranslation('common')
 
   function onDeleteSubscription(listId: string, id: string): TE.TaskEither<Error, ListSubscriptions | undefined> {

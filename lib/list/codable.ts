@@ -1,7 +1,9 @@
 /* eslint-disable no-redeclare */
 import * as t from 'io-ts'
 
-import type { List as ListPrisma } from '.prisma/client'
+import type { List as ListPrisma, Subscription as SubscriptionPrisma } from '.prisma/client'
+
+import { Subscriptions } from '@/lib/subscription/codable'
 
 export const List = t.type({
   id: t.string,
@@ -20,3 +22,10 @@ export const ListFormValues = t.type({
 })
 
 export type ListFormValues = t.TypeOf<typeof ListFormValues>
+
+export const ListSubscriptions = t.intersection([List, t.type({ subscriptions: Subscriptions })])
+export type ListSubscriptions = t.TypeOf<typeof ListSubscriptions> extends ListPrisma & {
+  subscriptions: SubscriptionPrisma[]
+}
+  ? t.TypeOf<typeof ListSubscriptions>
+  : never

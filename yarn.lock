@@ -1103,6 +1103,14 @@
     lodash "^4.17.19"
     to-fast-properties "^2.0.0"
 
+"@babel/types@^7.13.17":
+  version "7.15.4"
+  resolved "https://registry.yarnpkg.com/@babel/types/-/types-7.15.4.tgz#74eeb86dbd6748d2741396557b9860e57fce0a0d"
+  integrity sha512-0f1HJFuGmmbrKTCZtbm3cU+b/AqdEYk5toj5iQur58xkVMlS0JWaKxTBSmCXd47uiN7vbcozAupm6Mvs80GNhw==
+  dependencies:
+    "@babel/helper-validator-identifier" "^7.14.9"
+    to-fast-properties "^2.0.0"
+
 "@bcoe/v8-coverage@^0.2.3":
   version "0.2.3"
   resolved "https://registry.yarnpkg.com/@bcoe/v8-coverage/-/v8-coverage-0.2.3.tgz#75a2e8b51cb758a7553d6804a5932d7aace75c39"
@@ -3150,6 +3158,15 @@ babel-plugin-polyfill-regenerator@^0.1.2:
   dependencies:
     "@babel/helper-define-polyfill-provider" "^0.1.5"
 
+babel-plugin-superjson-next@^0.3.1:
+  version "0.3.1"
+  resolved "https://registry.yarnpkg.com/babel-plugin-superjson-next/-/babel-plugin-superjson-next-0.3.1.tgz#9f5eb45471cb681e17ef9e4f7f52a6b739a00fbf"
+  integrity sha512-z4+V6NnvnOViIeqmQauRsLsnf53rfeFxVH7nNAiQILx0tTm43KKwuVLZc0LV6VlwFxlauQqTq2edQ7ppZqxiGQ==
+  dependencies:
+    "@babel/helper-module-imports" "^7.13.12"
+    "@babel/types" "^7.13.17"
+    hoist-non-react-statics "^3.3.2"
+
 babel-preset-current-node-syntax@^1.0.0:
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/babel-preset-current-node-syntax/-/babel-preset-current-node-syntax-1.0.1.tgz#b4399239b89b2a011f9ddbe3e4f401fc40cff73b"
@@ -4887,7 +4904,7 @@ hmac-drbg@^1.0.1:
     minimalistic-assert "^1.0.0"
     minimalistic-crypto-utils "^1.0.1"
 
-hoist-non-react-statics@^3.3.0, hoist-non-react-statics@^3.3.1:
+hoist-non-react-statics@^3.3.0, hoist-non-react-statics@^3.3.1, hoist-non-react-statics@^3.3.2:
   version "3.3.2"
   resolved "https://registry.yarnpkg.com/hoist-non-react-statics/-/hoist-non-react-statics-3.3.2.tgz#ece0acaf71d62c2969c2ec59feff42a4b1a85b45"
   integrity sha512-/gGivxi8JPKWNm/W0jSmzcMPpfpPLc3dY/6GxhX2hQ9iGj3aDfklV4ET7NjKpSinLpJ5vafa9iiGIEZg10SfBw==
@@ -7925,6 +7942,14 @@ stylis@^4.0.3:
   version "4.0.8"
   resolved "https://registry.yarnpkg.com/stylis/-/stylis-4.0.8.tgz#b03cc47dcedcd2dbac93d8224e687c43ceda4e20"
   integrity sha512-WCHD2YHu2gp4GN9M8TqD7DZljL/UC5mIFaKyYJRuRyPdnqkTqzTnxCIQ1Z3VgQvz1aPcua5bSS2h0HrcbDUdBg==
+
+superjson@^1.7.5:
+  version "1.7.5"
+  resolved "https://registry.yarnpkg.com/superjson/-/superjson-1.7.5.tgz#596d080fd3c010f6d991c53a292c03704f160649"
+  integrity sha512-AHuFroOcMTK6LdG/irwXIHwH6Gof5nh42iywnhhf7hMZ6UJqFDRtJ82ViJg14UX3AG8vWRf4Dh3oPIJcqu16Nw==
+  dependencies:
+    debug "^4.3.1"
+    lodash.clonedeep "^4.5.0"
 
 supports-color@^2.0.0:
   version "2.0.0"

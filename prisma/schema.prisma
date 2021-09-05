@@ -76,7 +76,7 @@ model Subscription {
   color       String
   cycleAmount Int
   cyclePeriod String   @default("month")
-  firstBill   DateTime @default(now())
+  firstBill   DateTime @default(now()) @db.Date
   icon        String
   name        String
   overview    String?
