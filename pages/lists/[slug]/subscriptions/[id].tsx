@@ -3,20 +3,22 @@ import * as T from 'fp-ts/lib/Task'
 import * as TE from 'fp-ts/lib/TaskEither'
 import * as subscriptionApi from '@/lib/subscription/api'
 
+import { Box, Breadcrumb, BreadcrumbItem, BreadcrumbLink, useToast } from '@chakra-ui/react'
 import { Subscription, SubscriptionFormValues } from '@/lib/subscription/codable'
 
 import { GetServerSideProps } from 'next'
+import Link from 'next/link'
+import { List } from '@/lib/list/codable'
 import React from 'react'
 import SubscriptionForm from '@/components/subscriptionForm'
 import { getSession } from 'next-auth/client'
 import { getSubscription } from '@/lib/subscription/db'
 import { pipe } from 'fp-ts/lib/function'
 import { useRouter } from 'next/router'
-import { useToast } from '@chakra-ui/react'
 import useTranslation from 'next-translate/useTranslation'
 
 type EditSubscriptionProps = {
-  subscription: Subscription
+  subscription: Subscription & { list: List }
 }
 
 const EditSubscription = (props: EditSubscriptionProps): JSX.Element => {
@@ -70,11 +72,29 @@ const EditSubscription = (props: EditSubscriptionProps): JSX.Element => {
     )
 
   return (
-    <SubscriptionForm
-      initialValues={initialValues}
-      title={t('edit_subscription', { name: props.subscription.name })}
-      onSubmit={onSubmit}
-    />
+    <Box>
+      <Breadcrumb mb="6">
+        <BreadcrumbItem>
+          <BreadcrumbLink as={Link} href="/lists">
+            Home
+          </BreadcrumbLink>
+        </BreadcrumbItem>
+        <BreadcrumbItem>
+          <BreadcrumbLink as={Link} href={`/lists/${props.subscription.list.urlId}`}>
+            {props.subscription.list.name}
+          </BreadcrumbLink>
+        </BreadcrumbItem>
+        <BreadcrumbItem isCurrentPage>
+          <BreadcrumbLink isCurrentPage>New list</BreadcrumbLink>
+        </BreadcrumbItem>
+      </Breadcrumb>
+
+      <SubscriptionForm
+        initialValues={initialValues}
+        title={t('edit_subscription', { name: props.subscription.name })}
+        onSubmit={onSubmit}
+      />
+    </Box>
   )
 }
 

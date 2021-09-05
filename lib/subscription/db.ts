@@ -30,11 +30,14 @@ export const getAllByListSlug = (
     ),
   )
 
-export const getSubscription = (id: string): TE.TaskEither<ApiError, Subscription> =>
+export const getSubscription = (id: string): TE.TaskEither<ApiError, Subscription & { list: List }> =>
   pipe(
     TE.tryCatch(
       () =>
         prisma.subscription.findUnique({
+          include: {
+            list: true,
+          },
           where: {
             id,
           },
