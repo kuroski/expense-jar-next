@@ -38,7 +38,7 @@ handler.delete(async (req, res) =>
     TE.fromEither,
     TE.chain(([listId, subscriptionId]) => deleteSubscription(req.user.email, listId, subscriptionId)),
     foldResponse(res),
-  ),
+  )(),
 )
 
 export default handler

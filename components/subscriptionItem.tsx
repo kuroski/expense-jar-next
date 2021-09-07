@@ -104,7 +104,6 @@ const SubscriptionItem = (props: SubscriptionItemProps): JSX.Element => {
           borderBottomRightRadius="0"
           icon={props.isHidden ? <ViewOffIcon /> : <ViewIcon />}
           onClick={() => props.onToggleHide(props.id)}
-          isLoading={RD.isPending(isDeleting)}
           isDisabled={RD.isPending(isDeleting)}
         />
         <IconButton
