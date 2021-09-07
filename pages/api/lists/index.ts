@@ -1,47 +1,26 @@
-import type { NextApiRequest, NextApiResponse } from 'next'
-import { getSession } from 'next-auth/client'
-import type { Session } from 'next-auth'
-import nc from 'next-connect'
-import * as db from '@/db'
-import middleware from '@/middleware/all'
-import onError from '@/middleware/error'
-import { flow, pipe } from 'fp-ts/lib/function'
+import * as E from 'fp-ts/lib/Either'
 import * as TE from 'fp-ts/lib/TaskEither'
-import * as T from 'fp-ts/lib/Task'
-import { ApiError, toRequestError, toUnauthorizedError } from '@/framework/errors'
 
-const handler = nc<NextApiRequest, NextApiResponse>({
-  onError,
-})
+import { getLists, saveList } from '@/lib/list/db'
 
-handler.use(middleware)
-handler.get(async (req, res) =>
+import { ListFormValues } from '@/lib/list/codable'
+import { foldResponse } from '@/lib/utils'
+import nextConnect from '@/lib/nextConnect'
+import { pipe } from 'fp-ts/lib/function'
+import { toDecodingError } from '@/lib/errors'
+
+const handler = nextConnect()
+
+handler.get(async (req, res) => pipe(req.user.email, getLists, foldResponse(res))())
+
+handler.post(async (req, res) =>
   pipe(
-    TE.tryCatch<ApiError, Session | null>(() => getSession({ req }), toRequestError),
-    TE.chain((session) => (session?.user?.id ? TE.right(String(session.user.id)) : TE.left(toUnauthorizedError))),
-    TE.chain(flow(db.list.getList(req.db), TE.mapLeft<unknown, ApiError>(toRequestError))),
-    TE.fold(
-      (error: ApiError) => {
-        switch (error._tag) {
-          case 'UNAUTHORIZED':
-            res.status(401).send('Unauthorized!')
-            res.end()
-            break
-
-          case 'DECODING_ERROR':
-          case 'REQUEST_ERROR':
-          case 'MISSING_PARAM':
-            throw error.error
-        }
-
-        return T.never
-      },
-      (list) => {
-        res.send({ list })
-        res.end()
-        return T.of(list)
-      },
-    ),
+    req.body,
+    ListFormValues.decode,
+    E.mapLeft(toDecodingError),
+    TE.fromEither,
+    TE.chain((values) => saveList(req.user.email, values)),
+    foldResponse(res),
   )(),
 )
 

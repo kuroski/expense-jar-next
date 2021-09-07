@@ -1,10 +1,12 @@
-import React from 'react'
+import * as T from 'fp-ts/lib/Task'
+import * as Yup from 'yup'
+
 import {
   Button,
+  Flex,
   FormControl,
   FormErrorMessage,
   FormLabel,
-  Grid,
   Input,
   NumberDecrementStepper,
   NumberIncrementStepper,
@@ -16,17 +18,18 @@ import {
   Stack,
   Textarea,
 } from '@chakra-ui/react'
-import { useFormik } from 'formik'
+
+import ColorSelect from '@/components/colorSelect'
 import type { FormikHelpers } from 'formik'
-import * as Yup from 'yup'
-import { format } from 'date-fns'
-import IconSelect from '@/components/iconSelect'
 import Head from 'next/head'
-import type { FormValues } from '@/framework/subscriptions/types'
-import * as T from 'fp-ts/lib/Task'
-import { Period } from '@/framework/subscriptions/types'
-import useTranslation from 'next-translate/useTranslation'
+import IconSelect from '@/components/iconSelect'
+import { Period } from '@/lib/subscription/codable'
+import React from 'react'
+import { SubscriptionFormValues } from '@/lib/subscription/codable'
 import type { Translate } from 'next-translate'
+import { format } from 'date-fns'
+import { useFormik } from 'formik'
+import useTranslation from 'next-translate/useTranslation'
 
 const SubscriptionSchema = (t: Translate) =>
   Yup.object().shape({
@@ -41,8 +44,11 @@ const SubscriptionSchema = (t: Translate) =>
 
 export type SubscriptionForm = {
   title: string
-  initialValues: FormValues
-  onSubmit: (values: FormValues, formikHelpers: FormikHelpers<FormValues>) => T.Task<Promise<boolean>>
+  initialValues: SubscriptionFormValues
+  onSubmit: (
+    values: SubscriptionFormValues,
+    formikHelpers: FormikHelpers<SubscriptionFormValues>,
+  ) => T.Task<Promise<boolean>>
 }
 
 const SubscriptionForm = (props: SubscriptionForm): JSX.Element => {
@@ -61,35 +67,45 @@ const SubscriptionForm = (props: SubscriptionForm): JSX.Element => {
       </Head>
       <form onSubmit={form.handleSubmit}>
         <Stack spacing={4}>
-          <FormControl id="icon" isInvalid={Boolean(form.errors.icon && form.touched.icon)}>
-            <IconSelect
-              id="icon"
-              value={form.values.icon}
-              onSelect={(value) =>
-                form.handleChange({
-                  target: {
-                    id: 'icon',
-                    value,
-                  },
-                })
-              }
-            />
-            <FormErrorMessage>{form.errors.icon}</FormErrorMessage>
-          </FormControl>
-
-          <Grid templateColumns={['1fr', 'auto 1fr']} gap={4}>
-            <FormControl id="color" isInvalid={Boolean(form.errors.color && form.touched.color)}>
-              <FormLabel>{t('color')}</FormLabel>
-              <Input variant="flushed" type="color" onChange={form.handleChange} value={form.values.color} />
+          <Flex alignItems="center" gridGap="6">
+            <FormControl width="auto" id="color" isInvalid={Boolean(form.errors.color && form.touched.color)}>
+              <ColorSelect
+                id="icon"
+                value={form.values.color}
+                onSelect={(value) =>
+                  form.handleChange({
+                    target: {
+                      id: 'color',
+                      value,
+                    },
+                  })
+                }
+              />
               <FormErrorMessage>{form.errors.color}</FormErrorMessage>
             </FormControl>
 
-            <FormControl id="name" isInvalid={Boolean(form.errors.name && form.touched.name)}>
-              <FormLabel>{t('name')}</FormLabel>
-              <Input type="text" onChange={form.handleChange} value={form.values.name} />
-              <FormErrorMessage>{form.errors.name}</FormErrorMessage>
+            <FormControl width="auto" id="icon" isInvalid={Boolean(form.errors.icon && form.touched.icon)}>
+              <IconSelect
+                id="icon"
+                value={form.values.icon}
+                onSelect={(value) =>
+                  form.handleChange({
+                    target: {
+                      id: 'icon',
+                      value,
+                    },
+                  })
+                }
+              />
+              <FormErrorMessage>{form.errors.icon}</FormErrorMessage>
             </FormControl>
-          </Grid>
+          </Flex>
+
+          <FormControl id="name" isInvalid={Boolean(form.errors.name && form.touched.name)}>
+            <FormLabel>{t('name')}</FormLabel>
+            <Input type="text" onChange={form.handleChange} value={form.values.name} />
+            <FormErrorMessage>{form.errors.name}</FormErrorMessage>
+          </FormControl>
 
           <SimpleGrid columns={[1, 2]} spacing={4}>
             <FormControl id="firstBill" isInvalid={Boolean(form.errors.firstBill && form.touched.firstBill)}>
