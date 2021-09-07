@@ -10,7 +10,7 @@ import prisma from '@/lib/prisma'
 export const getAllByListSlug = (
   email: string,
   slug: string,
-): TE.TaskEither<unknown, List & { subscriptions: Subscription[] }> =>
+): TE.TaskEither<ApiError, List & { subscriptions: Subscription[] }> =>
   pipe(
     TE.tryCatch(
       () =>

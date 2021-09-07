@@ -69,6 +69,7 @@ const App = (): JSX.Element => {
             </Button>
           </Link>
         </Box>
+
         {!lists.length && <Text textAlign="center">{t('empty_subscription')}</Text>}
         {lists.map((list) => (
           <ListItem key={list.id} list={list} onDelete={onDeleteList} />
@@ -82,6 +83,7 @@ export default App
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
   const session = await getSession(context)
+
   if (!session?.user?.email)
     return {
       redirect: {

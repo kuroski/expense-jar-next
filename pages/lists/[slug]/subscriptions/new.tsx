@@ -85,11 +85,11 @@ const NewSubscription = (props: NewSubscriptionProps): JSX.Element => {
           </BreadcrumbLink>
         </BreadcrumbItem>
         <BreadcrumbItem isCurrentPage>
-          <BreadcrumbLink isCurrentPage>{t('add_new_subscription')}</BreadcrumbLink>
+          <BreadcrumbLink isCurrentPage>{t('create_subscription')}</BreadcrumbLink>
         </BreadcrumbItem>
       </Breadcrumb>
 
-      <SubscriptionForm initialValues={initialValues} title={t('add_new_subscription')} onSubmit={onSubmit} />
+      <SubscriptionForm initialValues={initialValues} title={t('create_subscription')} onSubmit={onSubmit} />
     </Box>
   )
 }

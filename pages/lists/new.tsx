@@ -1,5 +1,6 @@
 import * as T from 'fp-ts/lib/Task'
 import * as TE from 'fp-ts/lib/TaskEither'
+import * as listApi from '@/lib/list/api'
 
 import { Box, useToast } from '@chakra-ui/react'
 
@@ -9,7 +10,6 @@ import type { ListFormValues } from '@/lib/list/codable'
 import React from 'react'
 import { getSession } from 'next-auth/client'
 import { pipe } from 'fp-ts/lib/function'
-import { save } from '@/lib/list/api'
 import { useRouter } from 'next/router'
 import useTranslation from 'next-translate/useTranslation'
 
@@ -25,7 +25,7 @@ const NewList = (): JSX.Element => {
   const onSubmit = (values: ListFormValues): T.Task<Promise<boolean>> =>
     pipe(
       values,
-      save,
+      listApi.save,
       TE.fold(
         (errors) => {
           toast({
@@ -60,6 +60,7 @@ export default NewList
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
   const session = await getSession(context)
+
   if (!session?.user?.email)
     return {
       redirect: {

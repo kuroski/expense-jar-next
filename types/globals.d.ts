@@ -1,5 +1,4 @@
 import '@emotion/react'
-import type { User as AuthUser } from 'next-auth'
 
 declare global {
   export namespace NodeJS {
@@ -16,6 +15,8 @@ declare global {
 
 declare module 'next' {
   export interface NextApiRequest {
-    user: AuthUser
+    user: {
+      email: string
+    }
   }
 }

@@ -49,7 +49,7 @@ const item: Variants = {
 const App = (): JSX.Element => {
   const toast = useToast()
   const router = useRouter()
-  const { data, currencyFormatter, stats, mutate, hiddenSubscriptions, toggleSubscription } = useSubscriptions(
+  const { data, currencyFormatter, stats, hiddenSubscriptions, mutate, toggleSubscription } = useSubscriptions(
     String(router.query.slug),
   )
   const { t } = useTranslation('common')

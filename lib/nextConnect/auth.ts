@@ -1,16 +1,17 @@
-import jwt from 'next-auth/jwt'
 import type { NextApiRequest, NextApiResponse } from 'next'
+
 import type { NextHandler } from 'next-connect'
+import { getSession } from 'next-auth/client'
 
 export default async (req: NextApiRequest, res: NextApiResponse, next: NextHandler): Promise<void> => {
-  const token = await jwt.getToken({ req, secret: process.env.JWT_SECRET })
+  const session = await getSession({ req })
 
-  if (token) {
-    // Signed in
-    req.user = token
+  if (session && session?.user?.email) {
+    req.user = {
+      email: session.user.email,
+    }
     next()
   } else {
-    // Not Signed in
     res.status(401)
     res.end()
   }

@@ -15,7 +15,7 @@ const slugify = (str: string) =>
     .replace(/[\s_-]+/g, '-')
     .replace(/^-+|-+$/g, '')
 
-export const getLists = (email: string): TE.TaskEither<unknown, List[]> =>
+export const getLists = (email: string): TE.TaskEither<ApiError, List[]> =>
   pipe(
     TE.tryCatch(
       () =>
@@ -30,7 +30,7 @@ export const getLists = (email: string): TE.TaskEither<unknown, List[]> =>
     ),
   )
 
-export const findListBySlug = (email: string, slug: string): TE.TaskEither<unknown, List> =>
+export const findListBySlug = (email: string, slug: string): TE.TaskEither<ApiError, List> =>
   pipe(
     TE.tryCatch(
       () =>

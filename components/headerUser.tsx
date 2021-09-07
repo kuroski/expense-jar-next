@@ -9,7 +9,7 @@ type Props = {
   user: UserNextAuth
 }
 
-const User = ({ user }: Props): JSX.Element => {
+const HeaderUser = ({ user }: Props): JSX.Element => {
   const { t } = useTranslation('common')
   const UserAvatar = <Avatar size="sm" name={user.name || 'You'} src={user.image ?? ''} />
 
@@ -25,4 +25,4 @@ const User = ({ user }: Props): JSX.Element => {
   )
 }
 
-export default User
+export default HeaderUser

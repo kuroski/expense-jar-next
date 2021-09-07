@@ -11,12 +11,6 @@ interface NextAuthUserWithStringId extends NextAuthUser {
 }
 
 const options: NextAuthOptions = {
-  jwt: {
-    secret: process.env.JWT_SECRET,
-  },
-  session: {
-    jwt: true,
-  },
   adapter: PrismaAdapter(prisma),
   providers: [
     Providers.GitHub({
