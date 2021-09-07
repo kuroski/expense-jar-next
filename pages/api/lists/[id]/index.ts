@@ -8,7 +8,7 @@ import { pipe } from 'fp-ts/lib/function'
 
 const handler = nextConnect()
 
-handler.delete(async (req, res) =>
+handler.delete((req, res) =>
   pipe(
     req.query.id,
     getParam,

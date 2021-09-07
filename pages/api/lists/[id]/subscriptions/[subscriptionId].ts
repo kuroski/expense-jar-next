@@ -11,7 +11,7 @@ import { pipe } from 'fp-ts/lib/function'
 
 const handler = nextConnect()
 
-handler.put(async (req, res) =>
+handler.put((req, res) =>
   pipe(
     getParams(req.query.id, req.query.subscriptionId),
     E.chain<ApiError, readonly string[], [string, string, SubscriptionFormValues]>(([listId, subscriptionId]) =>
@@ -32,7 +32,7 @@ handler.put(async (req, res) =>
   )(),
 )
 
-handler.delete(async (req, res) =>
+handler.delete((req, res) =>
   pipe(
     getParams(req.query.id, req.query.subscriptionId),
     TE.fromEither,

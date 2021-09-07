@@ -11,9 +11,9 @@ import { toDecodingError } from '@/lib/errors'
 
 const handler = nextConnect()
 
-handler.get(async (req, res) => pipe(req.user.email, getLists, foldResponse(res))())
+handler.get((req, res) => pipe(req.user.email, getLists, foldResponse(res))())
 
-handler.post(async (req, res) =>
+handler.post((req, res) =>
   pipe(
     req.body,
     ListFormValues.decode,
